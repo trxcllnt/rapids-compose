@@ -151,19 +151,19 @@ debug.cudf:
 notebooks: svc_args ?=
 notebooks: cmd_args ?=
 notebooks: rapids
-	$(MAKE) build svc="notebooks"
+	$(MAKE) build svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
 
 notebooks.up: svc_args ?=
 notebooks.up: cmd_args ?= -d
 notebooks.up:
-	$(MAKE) up svc="notebooks"
+	$(MAKE) up svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
 
 notebooks.exec: svc_args ?=
 notebooks.exec: cmd_args ?=
 notebooks.exec:
-	$(MAKE) exec svc="notebooks"
+	$(MAKE) exec svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
 
 notebooks.logs: svc_args ?=
-notebooks.logs: cmd_args ?=
+notebooks.logs: cmd_args ?= -f
 notebooks.logs:
-	$(MAKE) logs svc="notebooks"
+	$(MAKE) logs svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)

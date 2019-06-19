@@ -16,19 +16,19 @@ x-service-settings: &service_settings
 
 x-cudf-volumes: &cudf_volumes
   - &cudf_src_io
-    ${CUDF_SOURCE}/python/cudf/io:/opt/rapids/cudf/python/cudf/io
+    ${CUDF_SOURCE:-../cudf}/python/cudf/io:/opt/rapids/cudf/python/cudf/io
   - &cudf_src_comm
-    ${CUDF_SOURCE}/python/cudf/comm:/opt/rapids/cudf/python/cudf/comm
+    ${CUDF_SOURCE:-../cudf}/python/cudf/comm:/opt/rapids/cudf/python/cudf/comm
   - &cudf_src_tests
-    ${CUDF_SOURCE}/python/cudf/tests:/opt/rapids/cudf/python/cudf/tests
+    ${CUDF_SOURCE:-../cudf}/python/cudf/tests:/opt/rapids/cudf/python/cudf/tests
   - &cudf_src_utils
-    ${CUDF_SOURCE}/python/cudf/utils:/opt/rapids/cudf/python/cudf/utils
+    ${CUDF_SOURCE:-../cudf}/python/cudf/utils:/opt/rapids/cudf/python/cudf/utils
   - &cudf_src_reshape
-    ${CUDF_SOURCE}/python/cudf/reshape:/opt/rapids/cudf/python/cudf/reshape
+    ${CUDF_SOURCE:-../cudf}/python/cudf/reshape:/opt/rapids/cudf/python/cudf/reshape
   - &cudf_src_groupby
-    ${CUDF_SOURCE}/python/cudf/groupby:/opt/rapids/cudf/python/cudf/groupby
+    ${CUDF_SOURCE:-../cudf}/python/cudf/groupby:/opt/rapids/cudf/python/cudf/groupby
   - &cudf_src_dataframe
-    ${CUDF_SOURCE}/python/cudf/dataframe:/opt/rapids/cudf/python/cudf/dataframe
+    ${CUDF_SOURCE:-../cudf}/python/cudf/dataframe:/opt/rapids/cudf/python/cudf/dataframe
 
 x-notebook-volumes: &notebook_volumes
   - *cudf_src_io
@@ -39,21 +39,21 @@ x-notebook-volumes: &notebook_volumes
   - *cudf_src_groupby
   - *cudf_src_dataframe
   - &notebooks_cugraph
-    ${NOTEBOOKS_SOURCE}/cugraph:/home/rapids/notebooks/cugraph
+    ${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/cugraph
   - &notebooks_cuml
-    ${NOTEBOOKS_SOURCE}/cuml:/home/rapids/notebooks/cuml
+    ${NOTEBOOKS_SOURCE:-../notebooks}/cuml:/home/rapids/notebooks/cuml
   - &notebooks_xgboost
-    ${NOTEBOOKS_SOURCE}/xgboost:/home/rapids/notebooks/xgboost
+    ${NOTEBOOKS_SOURCE:-../notebooks}/xgboost:/home/rapids/notebooks/xgboost
   - &notebooks_tutorials
-    ${NOTEBOOKS_SOURCE}/tutorials:/home/rapids/notebooks/tutorials
+    ${NOTEBOOKS_SOURCE:-../notebooks}/tutorials:/home/rapids/notebooks/tutorials
   - &notebooks_expert
-    ${NOTEBOOKS_EXTENDED_SOURCE}/expert:/home/rapids/notebooks/extended/expert
+    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/expert:/home/rapids/notebooks/extended/expert
   - &notebooks_advanced
-    ${NOTEBOOKS_EXTENDED_SOURCE}/advanced:/home/rapids/notebooks/extended/advanced
+    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/advanced:/home/rapids/notebooks/extended/advanced
   - &notebooks_beginner
-    ${NOTEBOOKS_EXTENDED_SOURCE}/beginner:/home/rapids/notebooks/extended/beginner
+    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/beginner:/home/rapids/notebooks/extended/beginner
   - &notebooks_playground
-    ${COMPOSE_SOURCE}/etc/notebooks:/home/rapids/notebooks/playground
+    ${COMPOSE_SOURCE:-./}/etc/notebooks:/home/rapids/notebooks/playground
 
 services:
 

@@ -49,9 +49,9 @@ $ make notebooks
 
 ```bash
 $ make run svc="rapids" svc_args="bash"
-> #/ echo "No not in the ocean -- *inside* the ocean."
-> #/ cd /opt/rapids/cudf && py.test -v -x -k test_my_feature
-> #/ exit
+root@xxx:/# echo "No not in the ocean -- *inside* the ocean."
+root@xxx:/# cd /opt/rapids/cudf && py.test -v -x -k test_my_feature
+root@xxx:/# exit
 # Or a shortcut:
 $ make rapids.run args="bash"
 ```
@@ -59,6 +59,19 @@ $ make rapids.run args="bash"
 ## Launch a notebook container with your file system mounted in
 ```bash
 $ make notebooks.up
+> Creating compose_notebooks_1 ... done
+# Monitor the jupyterlab stdout/err logs
+$ make notebooks.logs
+> Attaching to compose_notebooks_1
+> notebooks_1  | [I 10:13:25.192 LabApp] Writing notebook server cookie secret to /home/rapids/.local/share/jupyter/runtime/notebook_cookie_secret
+> notebooks_1  | [W 10:13:25.336 LabApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
+> notebooks_1  | [I 10:13:25.343 LabApp] JupyterLab extension loaded from /usr/local/lib/python3.7/dist-packages/jupyterlab
+> ...^C
+# Shut down the notebooks container and local compose_default network
+$ docker-compose down
+> Stopping compose_notebooks_1 ... done
+> Removing compose_notebooks_1 ... done
+> Removing network compose_default
 ```
 
 
