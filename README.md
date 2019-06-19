@@ -35,7 +35,7 @@ $ cp .localpaths.example > .localpaths
 $ gedit .localpaths
 ```
 
-## Build the containers
+## Build the containers (only builds stages that have been invalidated)
 
 ```bash
 $ make base
