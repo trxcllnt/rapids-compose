@@ -1,0 +1,7 @@
+COMPOSE_SOURCE="/home/$USER/rapids/compose"
+RMM_SOURCE="/home/$USER/rapids/rmm"
+CUSTRINGS_SOURCE="/home/$USER/rapids/custrings"
+CUDF_SOURCE="/home/$USER/rapids/cudf"
+CUGRAPH_SOURCE="/home/$USER/rapids/cugraph"
+NOTEBOOKS_SOURCE="/home/$USER/rapids/notebooks"
+NOTEBOOKS_EXTENDED_SOURCE="/home/$USER/rapids/notebooks-extended"

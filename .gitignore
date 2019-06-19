@@ -1,0 +1,5 @@
+.env
+.localpaths
+.ipynb_checkpoints
+etc/log
+etc/notebooks

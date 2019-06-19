@@ -1,0 +1,17 @@
+**/dist
+**/build
+**/.cache
+**/.github
+**/*.vscode
+**/__pycache__
+**/.ipynb_checkpoints
+
+**/.env
+**/*.pyc
+**/*.egg*
+**/.DS_STORE
+**/.gitignore
+
+**/Makefile
+**/*Dockerfile*
+**/docker-compose.yml
