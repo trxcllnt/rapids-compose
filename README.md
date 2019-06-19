@@ -16,30 +16,33 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 
 ## Fork or clone these repos
 ```bash
-mkdir ~/dev/rapids && cd ~/dev/rapids
-git clone git@github.com:rapidsai/build.git
-git clone git@github.com:rapidsai/cudf.git
-git clone git@github.com:rapidsai/cugraph.git
-git clone git@github.com:rapidsai/custrings.git
-git clone git@github.com:rapidsai/notebooks.git
-git clone git@github.com:rapidsai/notebooks-extended.git
-git clone git@github.com:rapidsai/rmm.git
+$ mkdir ~/dev/rapids && cd ~/dev/rapids
+$ git clone git@github.com:rapidsai/build.git
+$ git clone git@github.com:rapidsai/cudf.git
+$ git clone git@github.com:rapidsai/cugraph.git
+$ git clone git@github.com:rapidsai/custrings.git
+$ git clone git@github.com:rapidsai/notebooks.git
+$ git clone git@github.com:rapidsai/notebooks-extended.git
+$ git clone git@github.com:rapidsai/rmm.git
 ```
 
 ## Create and edit the config files for your local dev environment
 ```bash
-# Save environment variables that should persist into in .env file
-cp .env.example > .env
+# Set any container environment variables in the .env file
+$ cp .env.example > .env
 # Configure the paths where your local copies of RAPIDS repos live
-cp .localpaths.example > .localpaths
+$ cp .localpaths.example > .localpaths
+$ gedit .localpaths
 ```
 
 ## Build the containers
 
 ```bash
-$ make base \
- && make rapids \
- && make notebooks
+$ make base
+# This will build base first
+$ make rapids
+# This will build base and rapids first
+$ make notebooks
 ```
 
 ## Run the containers with your file system mounted in
@@ -61,7 +64,9 @@ $ make notebooks.up
 
 ## Debug Python running in the container with VSCode
 
-Create a .vscode/launch.json file with the following configuration:
+Install the [VSCode Python Debugger](https://github.com/Microsoft/ptvsd)
+
+Create a `.vscode/launch.json` [debug configuration](https://code.visualstudio.com/docs/python/debugging). It should look something like this:
 
 ```json
 {
