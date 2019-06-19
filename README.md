@@ -7,12 +7,28 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 ```
 
 ### Quick links
+* [Prerequisites](#prerequisites)
 * [Fork or clone the repos](#fork-or-clone-these-repos)
 * [Create and edit config files for your environment](#create-and-edit-the-config-files-for-your-local-dev-environment)
 * [Build the containers](#build-the-containers)
 * [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
 * [Launch the containers with your file system mounted in](#launch-a-notebook-container-with-your-file-system-mounted-in)
 * [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
+
+## Prerequisites
+* [`docker-compose`](https://github.com/docker/compose/releases)
+
+    Quick install:
+    ```bash
+    $ sudo curl -L https://github.com/docker/compose/releases/download/1.25.0-rc1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    $ sudo chmod +x /usr/local/bin/docker-compose
+    ```
+* [`jq`](https://stedolan.github.io/jq/)
+
+    Quick install:
+    ```
+    $ sudo apt install jq
+    ```
 
 ## Fork or clone these repos
 ```bash
