@@ -14,62 +14,25 @@ x-service-settings: &service_settings
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
 
-x-cudf-volumes: &cudf_volumes
-  - &cudf_src_io
-    ${CUDF_SOURCE:-../cudf}/python/cudf/io:/opt/rapids/cudf/python/cudf/io
-  - &cudf_src_comm
-    ${CUDF_SOURCE:-../cudf}/python/cudf/comm:/opt/rapids/cudf/python/cudf/comm
-  - &cudf_src_tests
-    ${CUDF_SOURCE:-../cudf}/python/cudf/tests:/opt/rapids/cudf/python/cudf/tests
-  - &cudf_src_utils
-    ${CUDF_SOURCE:-../cudf}/python/cudf/utils:/opt/rapids/cudf/python/cudf/utils
-  - &cudf_src_reshape
-    ${CUDF_SOURCE:-../cudf}/python/cudf/reshape:/opt/rapids/cudf/python/cudf/reshape
-  - &cudf_src_groupby
-    ${CUDF_SOURCE:-../cudf}/python/cudf/groupby:/opt/rapids/cudf/python/cudf/groupby
-  - &cudf_src_dataframe
-    ${CUDF_SOURCE:-../cudf}/python/cudf/dataframe:/opt/rapids/cudf/python/cudf/dataframe
-
-x-notebook-volumes: &notebook_volumes
-  - *cudf_src_io
-  - *cudf_src_comm
-  - *cudf_src_tests
-  - *cudf_src_utils
-  - *cudf_src_reshape
-  - *cudf_src_groupby
-  - *cudf_src_dataframe
-  - &notebooks_cugraph
-    ${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/cugraph
-  - &notebooks_cuml
-    ${NOTEBOOKS_SOURCE:-../notebooks}/cuml:/home/rapids/notebooks/cuml
-  - &notebooks_xgboost
-    ${NOTEBOOKS_SOURCE:-../notebooks}/xgboost:/home/rapids/notebooks/xgboost
-  - &notebooks_tutorials
-    ${NOTEBOOKS_SOURCE:-../notebooks}/tutorials:/home/rapids/notebooks/tutorials
-  - &notebooks_expert
-    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/expert:/home/rapids/notebooks/extended/expert
-  - &notebooks_advanced
-    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/advanced:/home/rapids/notebooks/extended/advanced
-  - &notebooks_beginner
-    ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/beginner:/home/rapids/notebooks/extended/beginner
-  - &notebooks_playground
-    ${COMPOSE_SOURCE:-./}/etc/notebooks:/home/rapids/notebooks/playground
-
 services:
 
   rapids:
     <<: *service_settings
-    volumes: *cudf_volumes
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
       dockerfile: /opt/rapids/compose/dockerfiles/runtime/01-rapids.Dockerfile
     ports:
       - "5678:5678"
+    volumes:
+      - &ptvsd_logs ${PWD:-.}/etc/log:/var/log/ptvsd
+      - &rmm ${RMM_SOURCE:-../rmm}:/opt/rapids/rmm
+      - &cudf ${CUDF_SOURCE:-../cudf}:/opt/rapids/cudf
+      - &cugraph ${CUGRAPH_SOURCE:-../cugraph}:/opt/rapids/cugraph
+      - &custrings ${CUSTRINGS_SOURCE:-../custrings}:/opt/rapids/custrings
 
   notebooks:
     <<: *service_settings
-    volumes: *notebook_volumes
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
@@ -77,3 +40,13 @@ services:
     ports:
       - "5678:5678"
       - "8888:8888"
+    volumes:
+      - *ptvsd_logs
+      - *rmm
+      - *cudf
+      - *cugraph
+      - *custrings
+      - &notebooks_core ${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/core
+      - &notebooks_sandbox ${COMPOSE_SOURCE:-./}/etc/notebooks:/home/rapids/notebooks/sandbox
+      - &notebooks_extended ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}:/home/rapids/notebooks/extended
+

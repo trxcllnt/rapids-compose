@@ -29,3 +29,7 @@ args="$args";
 services=$*;
 
 docker-compose -f $file build $args $services;
+
+if [ "$file" = "compose.base.yml" ]; then
+    sh /opt/rapids/compose/etc/dind/copy-build-assets.sh
+fi;

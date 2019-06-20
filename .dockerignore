@@ -1,3 +1,8 @@
 .env
 .git
+etc/log
+etc/notebooks
+.localpaths
+.env.example
 .ipynb_checkpoints
+.localpaths.example

@@ -111,6 +111,8 @@ base: cmd_args ?=
 base:
 	$(MAKE) build file="compose.base.yml"
 
+base.copy:
+	$(MAKE) dc.dind cmd="copy-build-assets"
 
 
 
