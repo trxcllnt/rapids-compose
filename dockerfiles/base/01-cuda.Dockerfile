@@ -83,9 +83,8 @@ ENV CUSTRINGS_INCLUDE=${CUSTRINGS_ROOT}/include/nvstrings
 ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include/nvstrings
 ENV RMM_HEADER=/opt/rapids/rmm/include/rmm/rmm_api.h
 
-ARG BUILD_TESTS=OFF
+COPY rmm/include /opt/rapids/rmm/include
 
-# Enables "source activate conda"
 SHELL ["/bin/bash", "-c"]
 
-COPY rmm/include /opt/rapids/rmm/include
+CMD ["/bin/bash"]

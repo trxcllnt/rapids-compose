@@ -8,10 +8,11 @@
 
 **/.env
 **/*.pyc
+**/*.so*
 **/*.egg*
 **/.DS_STORE
 **/.gitignore
 
 **/Makefile
 **/*Dockerfile*
-**/docker-compose.yml
+**/*compose*.yml

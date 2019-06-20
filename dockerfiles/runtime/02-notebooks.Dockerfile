@@ -22,15 +22,10 @@ RUN apt update \
  && rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/*
 
 # Add notebooks and util scripts
-COPY --chown=rapids:rapids notebooks /home/rapids/notebooks
-COPY --chown=rapids:rapids notebooks-extended/data /home/rapids/notebooks/data
-COPY --chown=rapids:rapids notebooks-extended/beginner /home/rapids/notebooks/extended/beginner
-COPY --chown=rapids:rapids notebooks-extended/advanced /home/rapids/notebooks/extended/advanced
-COPY --chown=rapids:rapids notebooks-extended/expert /home/rapids/notebooks/extended/expert
+COPY --chown=rapids:rapids notebooks /home/rapids/notebooks/core
+COPY --chown=rapids:rapids notebooks-extended/ /home/rapids/notebooks/extended
 
 WORKDIR /home/rapids/notebooks
-
-# COPY --chown=rapids:rapids compose/etc/entrypoints/notebooks.sh /entrypoint.sh
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/sbin/gosu", "rapids"]
 

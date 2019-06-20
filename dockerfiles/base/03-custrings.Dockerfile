@@ -4,6 +4,8 @@ ARG RAPIDS_NAMESPACE=anon
 FROM rapidsai/${RAPIDS_NAMESPACE}/rmm:${RAPIDS_VERSION} AS rmm_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/cuda:${RAPIDS_VERSION}
 
+ARG BUILD_TESTS=OFF
+
 COPY --from=rmm_base ${RMM_ROOT}/lib/librmm.so ${RMM_ROOT}/lib/librmm.so
 COPY --from=rmm_base ${RMM_ROOT}/include/rmm ${RMM_ROOT}/include/rmm
 

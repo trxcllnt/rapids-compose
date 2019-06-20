@@ -8,6 +8,8 @@ FROM rapidsai/${RAPIDS_NAMESPACE}/custrings:${RAPIDS_VERSION} AS custrings_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/cudf:${RAPIDS_VERSION} AS cudf_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/cuda:${RAPIDS_VERSION}
 
+ARG BUILD_TESTS=OFF
+
 COPY --from=rmm_base ${RMM_ROOT}/lib/librmm.so ${RMM_ROOT}/lib/librmm.so
 COPY --from=rmm_base ${RMM_ROOT}/include/rmm ${RMM_ROOT}/include/rmm
 

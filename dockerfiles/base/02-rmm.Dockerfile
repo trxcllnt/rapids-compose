@@ -3,6 +3,8 @@ ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 FROM rapidsai/${RAPIDS_NAMESPACE}/cuda:${RAPIDS_VERSION}
 
+ARG BUILD_TESTS=OFF
+
 ###
 # Build librmm
 ###

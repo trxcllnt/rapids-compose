@@ -8,6 +8,7 @@ UID := $(or ${UID.${PLATFORM}}, 1000)
 GID := $(or ${GID.${PLATFORM}}, 1000)
 
 CUDA_VERSION := $(shell echo $${CUDA_VERSION:-10.0})
+PYTHON_VERSION := $(shell echo $${PYTHON_VERSION:-3.7})
 LINUX_VERSION := $(shell echo $${LINUX_VERSION:-"ubuntu18.04"})
 
 RAPIDS_NAMESPACE := $(shell echo $$USER)
@@ -27,6 +28,7 @@ dc:
 	_GID=$(GID) \
 	CUDA_VERSION=$(CUDA_VERSION) \
 	LINUX_VERSION=$(LINUX_VERSION) \
+	PYTHON_VERSION=$(PYTHON_VERSION) \
 	RAPIDS_VERSION=$(RAPIDS_VERSION) \
 	RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
 	docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
@@ -56,6 +58,7 @@ dc.dind: dind
 	    -e _GID=$(GID) \
 	    -e CUDA_VERSION=$(CUDA_VERSION) \
 	    -e LINUX_VERSION=$(LINUX_VERSION) \
+		-e PYTHON_VERSION=$(PYTHON_VERSION) \
 	    -e RAPIDS_VERSION=$(RAPIDS_VERSION) \
 	    -e RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
 	    -v /var/run/docker.sock:/var/run/docker.sock \

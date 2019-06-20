@@ -13,7 +13,8 @@ FROM rapidsai/${RAPIDS_NAMESPACE}/cugraph:${RAPIDS_VERSION} as cugraph_base
 ###
 # RAPIDS runtime container
 ###
-FROM nvidia/cuda:${CUDA_VERSION}-runtime-${LINUX_VERSION}
+# FROM nvidia/cuda:${CUDA_VERSION}-runtime-${LINUX_VERSION}
+FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG CUDA_SHORT_VERSION
 ARG PYTHON_VERSION=3.7
@@ -21,12 +22,6 @@ ENV PYTHON_VERSION=$PYTHON_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
 SHELL ["/bin/bash", "-c"]
-
-# avoid "OSError: library nvvm not found" error
-ENV CUDA_HOME=/usr/local/cuda-${CUDA_SHORT_VERSION}
-ENV NUMBAPRO_LIBDEVICE=${CUDA_HOME}/nvvm/libdevice
-ENV NUMBAPRO_NVVM=${CUDA_HOME}/nvvm/lib64/libnvvm.so
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib64:/usr/local/lib
 
 # Install python
 RUN apt update -y --fix-missing \
@@ -54,6 +49,12 @@ RUN apt update -y --fix-missing \
  && echo "pip at $(which pip) version after alias: $(pip --version)" \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# avoid "OSError: library nvvm not found" error
+ENV CUDA_HOME=/usr/local/cuda-${CUDA_SHORT_VERSION}
+ENV NUMBAPRO_LIBDEVICE=${CUDA_HOME}/nvvm/libdevice
+ENV NUMBAPRO_NVVM=${CUDA_HOME}/nvvm/lib64/libnvvm.so
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64:${CUDA_HOME}/nvvm/lib64:/usr/local/lib
+
 # copy in required cuda libs and binaries
 COPY --from=cuda_base ${CUDA_HOME}/bin/nvcc ${CUDA_HOME}/bin/nvcc
 COPY --from=cuda_base ${CUDA_HOME}/nvvm/libdevice ${CUDA_HOME}/nvvm/libdevice
@@ -73,9 +74,11 @@ ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/custrings/python/build/lib.li
 ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/custrings/python/build/lib.linux-x86_64-${PYTHON_VERSION}
 
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cudf/cpp/build
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cudf/python/build/lib.linux-x86_64-${PYTHON_VERSION}
 ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/cudf/python
 
 ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cugraph/cpp/build
+ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cugraph/python/build/lib.linux-x86_64-${PYTHON_VERSION}
 ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/cugraph/python
 
 ARG UID=1000
@@ -83,7 +86,7 @@ ARG GID=1000
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
 ARG CFFI_VERSION=1.11.5
-ARG NUMBA_VERSION=0.41.0
+ARG NUMBA_VERSION=0.43.0
 ARG PANDAS_VERSION=0.23.4
 ARG CYTHON_VERSION=0.29.10
 ARG PYARROW_VERSION=0.12.1
@@ -95,7 +98,7 @@ RUN pip --no-cache-dir install \
     ptvsd \
     pytest \
     cffi==${CFFI_VERSION} \
-    numba>=${NUMBA_VERSION} \
+    numba==${NUMBA_VERSION} \
     cython==${CYTHON_VERSION} \
     pandas>=${PANDAS_VERSION} \
     pyarrow==${PYARROW_VERSION} \
