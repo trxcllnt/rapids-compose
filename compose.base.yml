@@ -3,7 +3,7 @@ version: "3.6"
 x-service-settings: &service_settings
   env_file: .env
   build: &build_settings
-    context: /opt/rapids
+    context: ${COMPOSE_SOURCE:-.}/../
     args:
       UID: ${_UID:-1000}
       GID: ${_GID:-1000}
@@ -21,32 +21,32 @@ services:
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/cuda:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: /opt/rapids/compose/dockerfiles/base/01-cuda.Dockerfile
+      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/base/01-cuda.Dockerfile
 
   02-rmm:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rmm:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: /opt/rapids/compose/dockerfiles/base/02-rmm.Dockerfile
+      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/base/02-rmm.Dockerfile
 
   03-custrings:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/custrings:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: /opt/rapids/compose/dockerfiles/base/03-custrings.Dockerfile
+      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/base/03-custrings.Dockerfile
 
   04-cudf:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/cudf:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: /opt/rapids/compose/dockerfiles/base/04-cudf.Dockerfile
+      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/base/04-cudf.Dockerfile
 
   05-cugraph:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/cugraph:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: /opt/rapids/compose/dockerfiles/base/05-cugraph.Dockerfile
+      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/base/05-cugraph.Dockerfile

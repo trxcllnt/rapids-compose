@@ -23,6 +23,7 @@ RUN apt update \
 
 # Add notebooks and util scripts
 COPY --chown=rapids:rapids notebooks /home/rapids/notebooks/core
+COPY --chown=rapids:rapids notebooks-extended/data /home/rapids/notebooks/data
 COPY --chown=rapids:rapids notebooks-extended/ /home/rapids/notebooks/extended
 
 WORKDIR /home/rapids/notebooks
