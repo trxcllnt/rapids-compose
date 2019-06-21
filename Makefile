@@ -109,10 +109,19 @@ build:
 	$(MAKE) dc.dind cmd="build"
 
 
-base: svc_args ?=
-base: cmd_args ?=
 base:
 	$(MAKE) build file="compose.base.yml"
+base.cuda:
+	$(MAKE) build file="compose.base.yml" svc="01-cuda"
+base.rmm:
+	$(MAKE) build file="compose.base.yml" svc="02-rmm"
+base.custrings:
+	$(MAKE) build file="compose.base.yml" svc="03-custrings"
+base.cudf:
+	$(MAKE) build file="compose.base.yml" svc="04-cudf"
+base.cugraph:
+	$(MAKE) build file="compose.base.yml" svc="05-cugraph"
+
 
 base.copy:
 	$(MAKE) dc.dind cmd="copy-build-assets"
@@ -121,7 +130,7 @@ base.copy:
 
 rapids: svc_args ?=
 rapids: cmd_args ?=
-rapids: base
+rapids:
 	$(MAKE) build svc="rapids"
 
 rapids.run: args ?=
