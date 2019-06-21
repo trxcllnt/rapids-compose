@@ -1,7 +1,8 @@
 ARG CUDA_VERSION=9.2
+ARG RAPIDS_VERSION=latest
+ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
-
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION} as cuda_base
 
 ARG GCC_VERSION=7
@@ -65,6 +66,11 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /opt/rapids
 
+
+ARG UID=1000
+ARG GID=1000
+ENV _UID=$UID
+ENV _GID=$GID
 ENV RMM_HOME=/opt/rapids/rmm
 ENV CUDF_HOME=/opt/rapids/cudf
 ENV CUGRAPH_HOME=/opt/rapids/cugraph
@@ -83,8 +89,8 @@ ENV CUSTRINGS_INCLUDE=${CUSTRINGS_ROOT}/include/nvstrings
 ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include/nvstrings
 ENV RMM_HEADER=/opt/rapids/rmm/include/rmm/rmm_api.h
 
-COPY rmm/include /opt/rapids/rmm/include
+COPY compose/etc/build-rapids.sh /opt/rapids/compose/etc/build-rapids.sh
 
 SHELL ["/bin/bash", "-c"]
 
-CMD ["/bin/bash"]
+CMD ["/opt/rapids/compose/etc/build-rapids.sh"]

@@ -49,7 +49,6 @@ ENV PYTHON_VERSION=3.7
 ENV RAPIDS_VERSION=latest
 ENV RAPIDS_NAMESPACE=anon
 
-ENV COMPOSE_SOURCE=/opt/rapids/compose
 ENV RMM_SOURCE=/opt/rapids/rmm
 ENV CUDF_SOURCE=/opt/rapids/cudf
 ENV CUGRAPH_SOURCE=/opt/rapids/cugraph

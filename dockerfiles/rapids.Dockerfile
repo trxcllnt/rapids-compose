@@ -4,7 +4,6 @@ ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
-FROM rapidsai/${RAPIDS_NAMESPACE}/cuda:${RAPIDS_VERSION} as cuda_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/rmm:${RAPIDS_VERSION} AS rmm_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/custrings:${RAPIDS_VERSION} AS custrings_base
 FROM rapidsai/${RAPIDS_NAMESPACE}/cudf:${RAPIDS_VERSION} as cudf_base
@@ -53,33 +52,21 @@ RUN apt update -y --fix-missing \
 ENV CUDA_HOME=/usr/local/cuda-${CUDA_SHORT_VERSION}
 ENV NUMBAPRO_LIBDEVICE=${CUDA_HOME}/nvvm/libdevice
 ENV NUMBAPRO_NVVM=${CUDA_HOME}/nvvm/lib64/libnvvm.so
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CUDA_HOME}/lib64:${CUDA_HOME}/nvvm/lib64:/usr/local/lib
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/rmm/build"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/cpp/build"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/cpp/build"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/cpp/build"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/python/build/lib.linux-x86_64-$PYTHON_VERSION"
 
-# copy in required cuda libs and binaries
-COPY --from=cuda_base ${CUDA_HOME}/bin/nvcc ${CUDA_HOME}/bin/nvcc
-COPY --from=cuda_base ${CUDA_HOME}/nvvm/libdevice ${CUDA_HOME}/nvvm/libdevice
-COPY --from=cuda_base ${CUDA_HOME}/nvvm/lib64/libnvvm.so ${CUDA_HOME}/nvvm/lib64/libnvvm.so
-
-# copy in python env, rmm, cudf, custrings, and cugraph
-COPY --from=rmm_base /opt/rapids/rmm /opt/rapids/rmm
-COPY --from=custrings_base /opt/rapids/custrings /opt/rapids/custrings
-COPY --from=cugraph_base /opt/rapids/cugraph /opt/rapids/cugraph
-COPY --from=cudf_base /opt/rapids/cudf /opt/rapids/cudf
-
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/rmm/build
-ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/rmm/build/python
-
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/custrings/cpp/build
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/custrings/python/build/lib.linux-x86_64-${PYTHON_VERSION}
-ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/custrings/python/build/lib.linux-x86_64-${PYTHON_VERSION}
-
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cudf/cpp/build
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cudf/python/build/lib.linux-x86_64-${PYTHON_VERSION}
-ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/cudf/python
-
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cugraph/cpp/build
-ENV LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/rapids/cugraph/python/build/lib.linux-x86_64-${PYTHON_VERSION}
-ENV PYTHONPATH=${PYTHONPATH}:/opt/rapids/cugraph/python
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/rmm/build/python"
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python"
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cugraph/python"
 
 ARG UID=1000
 ARG GID=1000
@@ -107,28 +94,29 @@ RUN pip --no-cache-dir install \
  # https://github.com/pywren/runtimes/blob/5d6c8272fe595f16c226ae13cc6fc5b26db292ab/condaruntime.md
  # https://towardsdatascience.com/how-to-shrink-numpy-scipy-pandas-and-matplotlib-for-your-data-product-4ec8d7e86ee4
  # delete unit test dirs
- && echo "before delete unit test dirs: $(du -sh /usr/local/lib)" \
- && rm -rf $(find /usr/local/lib/python${PYTHON_VERSION} -type d | grep -e "/\(test\|tests\)$") \
- && echo " after delete unit test dirs: $(du -sh /usr/local/lib)" \
- # delete *.pyc files
- && echo "before delete *.pyc: $(du -sh /usr/local/lib)" \
- && find /usr/local/lib/python${PYTHON_VERSION} -type f -name '*.pyc' -delete \
- && echo " after delete *.pyc: $(du -sh /usr/local/lib)" \
- # strip shared libs (gcc)
- && echo "before strip shared libs: $(du -sh /usr/local/lib)" \
- && SOS=$(find /usr -type f -name '*.so') \
- && for SO in ${SOS}; do strip --strip-all ${SO} 2>/dev/null; done; \
-    echo " after strip shared libs: $(du -sh /usr/local/lib)" \
- # Smoke test
- && python -c "from cudf.dataframe import DataFrame" \
- && python -c "from cudf import Series; \
-    print(Series([1, 2], dtype='int8') + Series([3, 4], dtype='int16'))" \
+#  && echo "before delete unit test dirs: $(du -sh /usr/local/lib)" \
+#  && rm -rf $(find /usr/local/lib/python${PYTHON_VERSION} -type d | grep -e "/\(test\|tests\)$") \
+#  && echo " after delete unit test dirs: $(du -sh /usr/local/lib)" \
+#  # delete *.pyc files
+#  && echo "before delete *.pyc: $(du -sh /usr/local/lib)" \
+#  && find /usr/local/lib/python${PYTHON_VERSION} -type f -name '*.pyc' -delete \
+#  && echo " after delete *.pyc: $(du -sh /usr/local/lib)" \
+#  # strip shared libs (gcc)
+#  && echo "before strip shared libs: $(du -sh /usr/local/lib)" \
+#  && SOS=$(find /usr -type f -name '*.so') \
+#  && for SO in ${SOS}; do strip --strip-all ${SO} 2>/dev/null; done; \
+#     echo " after strip shared libs: $(du -sh /usr/local/lib)" \
+#  # Smoke test
+#  && python -c "from cudf.dataframe import DataFrame" \
+#  && python -c "from cudf import Series; \
+#     print(Series([1, 2], dtype='int8') + Series([3, 4], dtype='int16'))" \
  # Add tini to reap container subprocesses on exit
  && curl -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
  && mkdir -p /home/rapids ${PTVSD_LOG_DIR} \
+ && mkdir -p /opt/rapids/cudf /opt/rapids/cugraph \
  # Symlink dirs to root for compatibility with existing scripts
  && ln -s /opt/rapids /rapids \
  && ln -s /opt/rapids/cudf /cudf \

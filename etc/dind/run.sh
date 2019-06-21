@@ -1,6 +1,8 @@
-#!/bin/sh -ex
+#!/bin/sh -e
 
 cd /opt/rapids/compose
+
+etc/dind/paths.sh
 
 args="";
 file=${1:-""};

@@ -3,7 +3,7 @@ version: "3.6"
 x-service-settings: &service_settings
   env_file: .env
   build: &build_settings
-    context: ${COMPOSE_SOURCE:-.}/../
+    context: ..
     args:
       UID: ${_UID:-1000}
       GID: ${_GID:-1000}
@@ -13,30 +13,49 @@ x-service-settings: &service_settings
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
+      RMM_SOURCE: "${RMM_SOURCE:-../rmm}"
+      CUDF_SOURCE: "${CUDF_SOURCE:-../cudf}"
+      CUGRAPH_SOURCE: "${CUGRAPH_SOURCE:-../cugraph}"
+      CUSTRINGS_SOURCE: "${CUSTRINGS_SOURCE:-../custrings}"
+      NOTEBOOKS_SOURCE: "${NOTEBOOKS_SOURCE:-../notebooks}"
+      NOTEBOOKS_EXTENDED_SOURCE: "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}"
 
 services:
+
+  base:
+    <<: *service_settings
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/base:${RAPIDS_VERSION:-latest}
+    build:
+      <<: *build_settings
+      dockerfile: compose/dockerfiles/base.Dockerfile
+    volumes:
+      - &compose "${COMPOSE_SOURCE:-./}:/opt/rapids/compose"
+      - &rmm "${RMM_SOURCE:-../rmm}:/opt/rapids/rmm"
+      - &cudf "${CUDF_SOURCE:-../cudf}:/opt/rapids/cudf"
+      - &cugraph "${CUGRAPH_SOURCE:-../cugraph}:/opt/rapids/cugraph"
+      - &custrings "${CUSTRINGS_SOURCE:-../custrings}:/opt/rapids/custrings"
 
   rapids:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/runtime/01-rapids.Dockerfile
+      dockerfile: compose/dockerfiles/rapids.Dockerfile
     ports:
       - "5678:5678"
     volumes:
       - &ptvsd_logs ${PWD:-.}/etc/log:/var/log/ptvsd
-      - &rmm ${RMM_SOURCE:-../rmm}:/opt/rapids/rmm
-      - &cudf ${CUDF_SOURCE:-../cudf}:/opt/rapids/cudf
-      - &cugraph ${CUGRAPH_SOURCE:-../cugraph}:/opt/rapids/cugraph
-      - &custrings ${CUSTRINGS_SOURCE:-../custrings}:/opt/rapids/custrings
+      - *rmm
+      - *cudf
+      - *cugraph
+      - *custrings
 
   notebooks:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_SOURCE:-.}/dockerfiles/runtime/02-notebooks.Dockerfile
+      dockerfile: compose/dockerfiles/notebooks.Dockerfile
     ports:
       - "5678:5678"
       - "8888:8888"
@@ -46,7 +65,7 @@ services:
       - *cudf
       - *cugraph
       - *custrings
-      - &notebooks_core ${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/core
-      - &notebooks_sandbox ${COMPOSE_SOURCE:-.}/etc/notebooks:/home/rapids/notebooks/sandbox
-      - &notebooks_data ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/data:/home/rapids/notebooks/data
-      - &notebooks_extended ${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}:/home/rapids/notebooks/extended
+      - &notebooks_core "${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/core"
+      - &notebooks_sandbox "${COMPOSE_SOURCE:-.}/etc/notebooks:/home/rapids/notebooks/sandbox"
+      - &notebooks_data "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/data:/home/rapids/notebooks/data"
+      - &notebooks_extended "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}:/home/rapids/notebooks/extended"

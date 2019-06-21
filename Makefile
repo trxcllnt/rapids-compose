@@ -15,25 +15,64 @@ RAPIDS_NAMESPACE := $(shell echo $$USER)
 RAPIDS_HOME := $(shell echo $${RAPIDS_HOME:-$$(realpath ..)})
 RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
 
-.SILENT: dc dind dc.dind up run exec logs build base rapids rapids.run rapids.exec rapids.logs test.cudf debug.cudf notebooks notebooks.up notebooks.exec notebooks.logs
+.PHONY: all rapids notebooks
+.SILENT: dind dc up run exec logs build rapids notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug notebooks.up notebooks.exec notebooks.logs
 
-dc: cmd ?=
-dc: svc ?=
-dc: cmd_args ?=
-dc: svc_args ?=
-dc: file ?= docker-compose.yml
-dc:
-	set -a && . .localpaths && set +a && \
-	_UID=$(UID) \
-	_GID=$(GID) \
-	CUDA_VERSION=$(CUDA_VERSION) \
-	LINUX_VERSION=$(LINUX_VERSION) \
-	PYTHON_VERSION=$(PYTHON_VERSION) \
-	RAPIDS_VERSION=$(RAPIDS_VERSION) \
-	RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
-	docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
+all: rapids notebooks
 
+rapids:
+	$(MAKE) dc svc="base" cmd="build"
+	$(MAKE) dc svc="base" cmd="run"
+	$(MAKE) dc svc="rapids" cmd="build"
 
+notebooks: args ?=
+notebooks: cmd_args ?=
+notebooks:
+	$(MAKE) dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+notebooks.up: args ?=
+notebooks.up: cmd_args ?= -d
+notebooks.up:
+	$(MAKE) dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+notebooks.exec: args ?=
+notebooks.exec: cmd_args ?=
+notebooks.exec:
+	$(MAKE) dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+notebooks.logs: args ?=
+notebooks.logs: cmd_args ?= -f
+notebooks.logs:
+	$(MAKE) dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+rapids.run: args ?=
+rapids.run:
+	$(MAKE) dc.run svc="rapids" svc_args=$(args)
+
+rapids.exec: args ?=
+rapids.exec:
+	$(MAKE) dc.exec svc="rapids" svc_args=$(args)
+
+rapids.logs: args ?=
+rapids.logs:
+	$(MAKE) dc.logs svc="rapids" svc_args=$(args)
+
+rapids.cudf.run: args ?=
+rapids.cudf.run: cmd_args ?=
+rapids.cudf.run:
+	$(MAKE) dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /opt/rapids/cudf $(cmd_args) -u $(UID):$(GID)"
+
+rapids.cudf.test: expr ?= test_
+rapids.cudf.test: args ?= pytest --full-trace -v -x
+rapids.cudf.test:
+	$(MAKE) rapids.cudf.run args="$(args) -k $(expr)"
+
+rapids.cudf.test.debug: expr ?= test_
+rapids.cudf.test.debug: args ?= pytest --full-trace -v -x
+rapids.cudf.test.debug:
+	$(MAKE) rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k $(expr)"
+	docker network inspect compose_default | jq -c \
+		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
 
 # Build the docker-in-docker container
 dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)
@@ -43,141 +82,71 @@ dind:
 		-t $(RAPIDS_NAMESPACE)/rapids/dind:$(RAPIDS_VERSION) \
 		-f dockerfiles/dind.Dockerfile .
 
-
 # Run docker-compose inside the docker-in-docker container
-dc.dind: svc ?=
-dc.dind: args ?=
-dc.dind: cmd ?= build
-dc.dind: svc_args ?=
-dc.dind: cmd_args ?=
-dc.dind: file ?= docker-compose.yml
-dc.dind: dind
+dc: svc ?=
+dc: args ?=
+dc: cmd ?= build
+dc: svc_args ?=
+dc: cmd_args ?=
+dc: file ?= docker-compose.yml
+dc: dind
 	set -a && . .localpaths && set +a && \
 	docker run -it --rm --entrypoint "/opt/rapids/compose/etc/dind/$(cmd).sh" \
-	    -e _UID=$(UID) \
-	    -e _GID=$(GID) \
-	    -e CUDA_VERSION=$(CUDA_VERSION) \
-	    -e LINUX_VERSION=$(LINUX_VERSION) \
+		-e _UID=$(UID) \
+		-e _GID=$(GID) \
+		-e CUDA_VERSION=$(CUDA_VERSION) \
+		-e LINUX_VERSION=$(LINUX_VERSION) \
 		-e PYTHON_VERSION=$(PYTHON_VERSION) \
-	    -e RAPIDS_VERSION=$(RAPIDS_VERSION) \
-	    -e RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
-	    -v /var/run/docker.sock:/var/run/docker.sock \
-	    -v "$$COMPOSE_SOURCE":/opt/rapids/compose \
-	    -v "$$RMM_SOURCE":/opt/rapids/rmm \
-	    -v "$$CUDF_SOURCE":/opt/rapids/cudf \
-	    -v "$$CUGRAPH_SOURCE":/opt/rapids/cugraph \
-	    -v "$$CUSTRINGS_SOURCE":/opt/rapids/custrings \
-	    -v "$$NOTEBOOKS_SOURCE":/opt/rapids/notebooks \
-	    -v "$$NOTEBOOKS_EXTENDED_SOURCE":/opt/rapids/notebooks-extended \
-	    $(RAPIDS_NAMESPACE)/rapids/dind:$(RAPIDS_VERSION) $(file) $(cmd_args) $(svc) $(svc_args)
+		-e RAPIDS_VERSION=$(RAPIDS_VERSION) \
+		-e RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
+		-e COMPOSE_SOURCE="$$COMPOSE_SOURCE" \
+		-e RMM_SOURCE="$$RMM_SOURCE" \
+		-e CUDF_SOURCE="$$CUDF_SOURCE" \
+		-e CUGRAPH_SOURCE="$$CUGRAPH_SOURCE" \
+		-e CUSTRINGS_SOURCE="$$CUSTRINGS_SOURCE" \
+		-e NOTEBOOKS_SOURCE="$$NOTEBOOKS_SOURCE" \
+		-e NOTEBOOKS_EXTENDED_SOURCE="$$NOTEBOOKS_EXTENDED_SOURCE" \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "$$COMPOSE_SOURCE":/opt/rapids/compose \
+		-v "$$RMM_SOURCE":/opt/rapids/rmm \
+		-v "$$CUDF_SOURCE":/opt/rapids/cudf \
+		-v "$$CUGRAPH_SOURCE":/opt/rapids/cugraph \
+		-v "$$CUSTRINGS_SOURCE":/opt/rapids/custrings \
+		-v "$$NOTEBOOKS_SOURCE":/opt/rapids/notebooks \
+		-v "$$NOTEBOOKS_EXTENDED_SOURCE":/opt/rapids/notebooks-extended \
+		$(RAPIDS_NAMESPACE)/rapids/dind:$(RAPIDS_VERSION) $(file) $(cmd_args) $(svc) $(svc_args)
 
+dc.build: svc ?=
+dc.build: svc_args ?=
+dc.build: cmd_args ?= -f
+dc.build: file ?= docker-compose.yml
+dc.build:
+	$(MAKE) dc cmd="build"
 
-up: svc ?=
-up: svc_args ?=
-up: cmd_args ?=
-up: file ?= docker-compose.yml
-up:
+dc.up: svc ?=
+dc.up: svc_args ?=
+dc.up: cmd_args ?=
+dc.up: file ?= docker-compose.yml
+dc.up:
 	$(MAKE) dc cmd="up"
 
-run: svc ?=
-run: svc_args ?=
-run: cmd_args ?=
-run: file ?= docker-compose.yml
-run:
+dc.run: svc ?=
+dc.run: svc_args ?=
+dc.run: cmd_args ?=
+dc.run: file ?= docker-compose.yml
+dc.run:
 	$(MAKE) dc cmd="run" cmd_args="--rm $(cmd_args)"
 
-exec: svc ?=
-exec: svc_args ?=
-exec: cmd_args ?=
-exec: file ?= docker-compose.yml
-exec:
+dc.exec: svc ?=
+dc.exec: svc_args ?=
+dc.exec: cmd_args ?=
+dc.exec: file ?= docker-compose.yml
+dc.exec:
 	$(MAKE) dc cmd="exec"
 
-logs: svc ?=
-logs: svc_args ?=
-logs: cmd_args ?= -f
-logs: file ?= docker-compose.yml
-logs:
+dc.logs: svc ?=
+dc.logs: svc_args ?=
+dc.logs: cmd_args ?= -f
+dc.logs: file ?= docker-compose.yml
+dc.logs:
 	$(MAKE) dc cmd="logs"
-
-
-build: svc ?=
-build: svc_args ?=
-build: cmd_args ?= -f
-build: file ?= docker-compose.yml
-build:
-	$(MAKE) dc.dind cmd="build"
-
-
-base:
-	$(MAKE) build file="compose.base.yml"
-base.cuda:
-	$(MAKE) build file="compose.base.yml" svc="01-cuda"
-base.rmm:
-	$(MAKE) build file="compose.base.yml" svc="02-rmm"
-base.custrings:
-	$(MAKE) build file="compose.base.yml" svc="03-custrings"
-base.cudf:
-	$(MAKE) build file="compose.base.yml" svc="04-cudf"
-base.cugraph:
-	$(MAKE) build file="compose.base.yml" svc="05-cugraph"
-
-
-base.copy:
-	$(MAKE) dc.dind cmd="copy-build-assets"
-
-
-
-rapids: svc_args ?=
-rapids: cmd_args ?=
-rapids:
-	$(MAKE) build svc="rapids"
-
-rapids.run: args ?=
-rapids.run:
-	$(MAKE) run svc="rapids" svc_args=$(args)
-
-rapids.exec: args ?=
-rapids.exec:
-	$(MAKE) exec svc="rapids" svc_args=$(args)
-
-rapids.logs: args ?=
-rapids.logs:
-	$(MAKE) logs svc="rapids" svc_args=$(args)
-
-test.cudf: expr ?= test_
-test.cudf: args ?= pytest --full-trace -v -x
-test.cudf:
-	$(MAKE) run svc="rapids" svc_args="$(args) -k $(expr)" cmd_args="-w /opt/rapids/cudf"
-
-debug.cudf: expr ?= test_
-debug.cudf: args ?= pytest --full-trace -v -x
-debug.cudf:
-	$(MAKE) rapids.run \
-		cmd_args="-d -w /opt/rapids/cudf" \
-		args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k $(expr)"
-	docker network inspect compose_default | jq -c \
-		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
-
-
-
-
-notebooks: svc_args ?=
-notebooks: cmd_args ?=
-notebooks: rapids
-	$(MAKE) build svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
-
-notebooks.up: svc_args ?=
-notebooks.up: cmd_args ?= -d
-notebooks.up:
-	$(MAKE) up svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
-
-notebooks.exec: svc_args ?=
-notebooks.exec: cmd_args ?=
-notebooks.exec:
-	$(MAKE) exec svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
-
-notebooks.logs: svc_args ?=
-notebooks.logs: cmd_args ?= -f
-notebooks.logs:
-	$(MAKE) logs svc="notebooks" svc_args=$(svc_args) cmd_args=$(cmd_args)
