@@ -4,11 +4,6 @@ ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
-FROM rapidsai/${RAPIDS_NAMESPACE}/rmm:${RAPIDS_VERSION} AS rmm_base
-FROM rapidsai/${RAPIDS_NAMESPACE}/custrings:${RAPIDS_VERSION} AS custrings_base
-FROM rapidsai/${RAPIDS_NAMESPACE}/cudf:${RAPIDS_VERSION} as cudf_base
-FROM rapidsai/${RAPIDS_NAMESPACE}/cugraph:${RAPIDS_VERSION} as cugraph_base
-
 ###
 # RAPIDS runtime container
 ###
