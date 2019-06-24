@@ -62,13 +62,13 @@ rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
 	$(MAKE) dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /opt/rapids/cudf $(cmd_args) -u $(UID):$(GID)"
 
-rapids.cudf.test: expr ?= test_
-rapids.cudf.test: args ?= pytest --full-trace -v -x
+rapids.cudf.test: expr ?= _
+rapids.cudf.test: args ?= pytest -v -x
 rapids.cudf.test:
 	$(MAKE) rapids.cudf.run args="$(args) -k $(expr)"
 
-rapids.cudf.test.debug: expr ?= test_
-rapids.cudf.test.debug: args ?= pytest --full-trace -v -x
+rapids.cudf.test.debug: expr ?= _
+rapids.cudf.test.debug: args ?= pytest -v -x
 rapids.cudf.test.debug:
 	$(MAKE) rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k $(expr)"
 	docker network inspect compose_default | jq -c \
