@@ -44,7 +44,7 @@ services:
     ports:
       - "5678:5678"
     volumes:
-      - &ptvsd_logs ${PWD:-.}/etc/log:/var/log/ptvsd
+      - &ptvsd_logs "${COMPOSE_SOURCE:-.}/etc/log:/var/log/ptvsd"
       - *rmm
       - *cudf
       - *cugraph
