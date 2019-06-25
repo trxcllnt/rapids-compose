@@ -2,10 +2,6 @@
 
 cd /opt/rapids
 
-pwd
-ls -All rmm/build
-ls -All rmm/build/python
-
 ###
 # Build librmm
 ###

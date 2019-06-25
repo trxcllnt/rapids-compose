@@ -33,7 +33,6 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 ## Fork or clone these repos
 ```bash
 $ mkdir ~/dev/rapids && cd ~/dev/rapids
-$ git clone git@github.com:rapidsai/build.git
 $ git clone git@github.com:rapidsai/cudf.git
 $ git clone git@github.com:rapidsai/cugraph.git
 $ git clone git@github.com:rapidsai/custrings.git
@@ -54,17 +53,18 @@ $ gedit .localpaths
 ## Build the containers (only builds stages that have been invalidated)
 
 ```bash
-$ make base
-# This will build base first
+# Builds base containers, compiles rapids projects, builds notebook containers
+$ make
+# Builds base containers and compiles rapids projects
 $ make rapids
-# This will build base and rapids first
+# Builds notebook containers
 $ make notebooks
 ```
 
 ## Run the containers with your file system mounted in
 
 ```bash
-$ make run svc="rapids" svc_args="bash"
+$ make dc cmd="run" svc="rapids" args="bash"
 root@xxx:/# echo "No not in the ocean -- *inside* the ocean."
 root@xxx:/# cd /opt/rapids/cudf && py.test -v -x -k test_my_feature
 root@xxx:/# exit
