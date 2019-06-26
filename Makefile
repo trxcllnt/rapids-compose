@@ -70,7 +70,7 @@ rapids.cudf.test:
 rapids.cudf.test.debug: expr ?= _
 rapids.cudf.test.debug: args ?= pytest -v -x
 rapids.cudf.test.debug:
-	$(MAKE) rapids.cudf.run cmd_args="-d --rm" args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k $(expr)"
+	$(MAKE) rapids.cudf.run cmd_args="-d" args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k $(expr)"
 	docker network inspect compose_default | jq -c \
 		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
 
