@@ -33,7 +33,7 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 
 ## Fork or clone these repos
 ```bash
-$ mkdir ~/dev/rapids && cd ~/dev/rapids
+$ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 $ bash << EOF
 # Replace this with your github user
 GITHUB_USER="rapidsai"
