@@ -12,6 +12,7 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 * [Create and edit config files for your environment](#create-and-edit-the-config-files-for-your-local-dev-environment)
 * [Build the containers](#build-the-containers)
 * [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
+* [Run cudf pytests](#run-cudf-pytests)
 * [Launch the containers with your file system mounted in](#launch-a-notebook-container-with-your-file-system-mounted-in)
 * [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
 
@@ -64,12 +65,27 @@ $ make notebooks
 ## Run the containers with your file system mounted in
 
 ```bash
-$ make dc cmd="run" svc="rapids" args="bash"
+# args is appended to the end of: `docker-compose run --rm rapids $args`
+$ make rapids.run args="bash"
 root@xxx:/# echo "No not in the ocean -- *inside* the ocean."
 root@xxx:/# cd /opt/rapids/cudf && py.test -v -x -k test_my_feature
 root@xxx:/# exit
-# Or a shortcut:
-$ make rapids.run args="bash"
+###
+# Or the long way, expands out to: `docker-compose $cmd $svc $args`
+###
+$ make dc cmd="run" svc="rapids" args="bash"
+```
+
+## Run cudf pytests (and optionally apply a test filter expression)
+```sh
+$ make rapids.cudf.test expr="test_string_index"
+# ...
+============================================================ test session starts =============================================================
+# ...
+collected 11735 items / 11733 deselected / 2 skipped                                                                                         
+python/cudf/tests/test_multiindex.py::test_string_index PASSED                                                                         [ 50%]
+python/cudf/tests/test_string.py::test_string_index PASSED                                                                             [100%]
+===================================== 2 passed, 2 skipped, 11733 deselected, 1 warnings in 3.09 seconds ======================================
 ```
 
 ## Launch a notebook container with your file system mounted in
@@ -122,9 +138,9 @@ Create a `.vscode/launch.json` [debug configuration](https://code.visualstudio.c
 Then launch the unit tests (with an optional pytest expression filter):
 
 ```sh
-$ make debug.cudf expr="test_reindex_dataframe"
+$ make rapids.cudf.test.debug expr="test_reindex_dataframe"
 # ...
-make[1]: Leaving directory '/rapids/compose'
+make[1]: Leaving directory '/home/ptaylor/dev/rapids/compose'
 "Debugger listening at: 172.18.0.2"
 $ 
 ```
