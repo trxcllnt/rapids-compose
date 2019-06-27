@@ -34,12 +34,19 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 ## Fork or clone these repos
 ```bash
 $ mkdir ~/dev/rapids && cd ~/dev/rapids
-$ git clone git@github.com:rapidsai/cudf.git
-$ git clone git@github.com:rapidsai/cugraph.git
-$ git clone git@github.com:rapidsai/custrings.git
-$ git clone git@github.com:rapidsai/notebooks.git
-$ git clone git@github.com:rapidsai/notebooks-extended.git
-$ git clone git@github.com:rapidsai/rmm.git
+$ bash << EOF
+# Replace this with your github user
+GITHUB_USER="rapidsai"
+REPOS="rmm cudf cugraph custrings notebooks notebooks-extended"
+for REPO in $REPOS
+do
+    git clone git@github.com:$GITHUB_USER/$REPO.git
+    pushd $REPO
+    git submodule update --init --remote --recursive
+    git remote add upstream git@github.com:rapidsai/$REPO.git
+    popd
+done
+EOF
 ```
 
 ## Create and edit the config files for your local dev environment
