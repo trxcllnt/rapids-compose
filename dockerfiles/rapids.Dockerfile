@@ -79,6 +79,7 @@ RUN pip --no-cache-dir install \
     # install VSCode python debugger
     ptvsd \
     pytest \
+    flake8 \
     cffi==${CFFI_VERSION} \
     numba==${NUMBA_VERSION} \
     cython==${CYTHON_VERSION} \
@@ -86,25 +87,6 @@ RUN pip --no-cache-dir install \
     pyarrow==${PYARROW_VERSION} \
  # cleanup
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
- # https://github.com/pywren/runtimes/blob/5d6c8272fe595f16c226ae13cc6fc5b26db292ab/condaruntime.md
- # https://towardsdatascience.com/how-to-shrink-numpy-scipy-pandas-and-matplotlib-for-your-data-product-4ec8d7e86ee4
- # delete unit test dirs
-#  && echo "before delete unit test dirs: $(du -sh /usr/local/lib)" \
-#  && rm -rf $(find /usr/local/lib/python${PYTHON_VERSION} -type d | grep -e "/\(test\|tests\)$") \
-#  && echo " after delete unit test dirs: $(du -sh /usr/local/lib)" \
-#  # delete *.pyc files
-#  && echo "before delete *.pyc: $(du -sh /usr/local/lib)" \
-#  && find /usr/local/lib/python${PYTHON_VERSION} -type f -name '*.pyc' -delete \
-#  && echo " after delete *.pyc: $(du -sh /usr/local/lib)" \
-#  # strip shared libs (gcc)
-#  && echo "before strip shared libs: $(du -sh /usr/local/lib)" \
-#  && SOS=$(find /usr -type f -name '*.so') \
-#  && for SO in ${SOS}; do strip --strip-all ${SO} 2>/dev/null; done; \
-#     echo " after strip shared libs: $(du -sh /usr/local/lib)" \
-#  # Smoke test
-#  && python -c "from cudf.dataframe import DataFrame" \
-#  && python -c "from cudf import Series; \
-#     print(Series([1, 2], dtype='int8') + Series([3, 4], dtype='int16'))" \
  # Add tini to reap container subprocesses on exit
  && curl -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user

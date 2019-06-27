@@ -21,58 +21,61 @@ RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 
 all: rapids notebooks
 
 rapids:
-	$(MAKE) dc svc="base" cmd="build"
-	$(MAKE) dc svc="base" cmd="run"
-	$(MAKE) dc svc="rapids" cmd="build"
+	@$(MAKE) -s dc svc="base" cmd="build"
+	@$(MAKE) -s dc svc="base" cmd="run"
+	@$(MAKE) -s dc svc="rapids" cmd="build"
 
 notebooks: args ?=
 notebooks: cmd_args ?=
 notebooks:
-	$(MAKE) dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 notebooks.up: args ?=
 notebooks.up: cmd_args ?= -d
 notebooks.up:
-	$(MAKE) dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 notebooks.exec: args ?=
 notebooks.exec: cmd_args ?=
 notebooks.exec:
-	$(MAKE) dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 notebooks.logs: args ?=
 notebooks.logs: cmd_args ?= -f
 notebooks.logs:
-	$(MAKE) dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 rapids.run: args ?=
 rapids.run:
-	$(MAKE) dc.run svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args)
 
 rapids.exec: args ?=
 rapids.exec:
-	$(MAKE) dc.exec svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.exec svc="rapids" svc_args=$(args)
 
 rapids.logs: args ?=
 rapids.logs:
-	$(MAKE) dc.logs svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.logs svc="rapids" svc_args=$(args)
 
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
-	$(MAKE) dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /opt/rapids/cudf $(cmd_args) -u $(UID):$(GID)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /opt/rapids/cudf $(cmd_args) -u $(UID):$(GID)"
 
 rapids.cudf.test: expr ?= _
 rapids.cudf.test: args ?= pytest -v -x
 rapids.cudf.test:
-	$(MAKE) rapids.cudf.run args="$(args) -k '$(expr)'"
+	@$(MAKE) -s rapids.cudf.run args="$(args) -k '$(expr)'"
 
 rapids.cudf.test.debug: expr ?= _
 rapids.cudf.test.debug: args ?= pytest -v -x
 rapids.cudf.test.debug:
-	$(MAKE) rapids.cudf.run cmd_args="-d" args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k '$(expr)'"
+	@$(MAKE) -s rapids.cudf.run cmd_args="-d" args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k '$(expr)'"
 	docker network inspect compose_default | jq -c \
 		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
+
+rapids.cudf.lint:
+	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /opt/rapids/compose/etc/check-style.sh"
 
 # Build the docker-in-docker container
 dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)
@@ -121,32 +124,32 @@ dc.build: svc_args ?=
 dc.build: cmd_args ?= -f
 dc.build: file ?= docker-compose.yml
 dc.build:
-	$(MAKE) dc cmd="build"
+	@$(MAKE) -s dc cmd="build"
 
 dc.up: svc ?=
 dc.up: svc_args ?=
 dc.up: cmd_args ?=
 dc.up: file ?= docker-compose.yml
 dc.up:
-	$(MAKE) dc cmd="up"
+	@$(MAKE) -s dc cmd="up"
 
 dc.run: svc ?=
 dc.run: svc_args ?=
 dc.run: cmd_args ?=
 dc.run: file ?= docker-compose.yml
 dc.run:
-	$(MAKE) dc cmd="run" cmd_args="--rm $(cmd_args)"
+	@$(MAKE) -s dc cmd="run" cmd_args="--rm $(cmd_args)"
 
 dc.exec: svc ?=
 dc.exec: svc_args ?=
 dc.exec: cmd_args ?=
 dc.exec: file ?= docker-compose.yml
 dc.exec:
-	$(MAKE) dc cmd="exec"
+	@$(MAKE) -s dc cmd="exec"
 
 dc.logs: svc ?=
 dc.logs: svc_args ?=
 dc.logs: cmd_args ?= -f
 dc.logs: file ?= docker-compose.yml
 dc.logs:
-	$(MAKE) dc cmd="logs"
+	@$(MAKE) -s dc cmd="logs"

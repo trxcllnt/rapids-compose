@@ -45,6 +45,7 @@ services:
       - "5678:5678"
     volumes:
       - &ptvsd_logs "${COMPOSE_SOURCE:-.}/etc/log:/var/log/ptvsd"
+      - *compose
       - *rmm
       - *cudf
       - *cugraph

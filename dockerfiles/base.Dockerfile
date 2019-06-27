@@ -90,6 +90,7 @@ ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include/nvstrings
 ENV RMM_HEADER=/opt/rapids/rmm/include/rmm/rmm_api.h
 
 COPY compose/etc/build-rapids.sh /opt/rapids/compose/etc/build-rapids.sh
+COPY compose/etc/check-style.sh /opt/rapids/compose/etc/check-style.sh
 
 SHELL ["/bin/bash", "-c"]
 
