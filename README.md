@@ -32,6 +32,16 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
     ```
 
 ## Fork or clone these repos
+
+* [rapidsai/rmm](http://github.com/rapidsai/rmm)
+* [rapidsai/cudf](http://github.com/rapidsai/cudf)
+* [rapidsai/cugraph](http://github.com/rapidsai/cugraph)
+* [rapidsai/custrings](http://github.com/rapidsai/custrings)
+* [rapidsai/notebooks](http://github.com/rapidsai/notebooks)
+* [rapidsai/notebooks-extended](http://github.com/rapidsai/notebooks-extended)
+
+Then check out your forks locally:
+
 ```bash
 $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 $ bash << EOF
