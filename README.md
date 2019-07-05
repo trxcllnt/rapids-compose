@@ -27,16 +27,16 @@
 ## Clone and set up local compose environment
 
 ```bash
-# Create a directory for all the Rapids projects to live (optional)
+# Create a directory for all the Rapids projects to live
 $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 
-# Check out the rapids-compose repo into $PWD/compose (required)
+# Check out the rapids-compose repo into $PWD/compose
 $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git "$PWD/compose"
 
-# Create gitignored directories for Python debugger logs and scratchpad notebooks (required)
+# Create gitignored directories for Python debugger logs and scratchpad notebooks
 $ mkdir -p "$PWD/compose/etc/log" "$PWD/compose/etc/notebooks"
 
-# Create a .env file to define container environment variables (required)
+# Create a .env file to define container environment variables
 $ cat << EOF >> "$PWD/compose/.env"
 CUDA_VERSION=10.0
 PYTHON_VERSION=3.7
@@ -49,7 +49,7 @@ CMAKE_BUILD_TYPE=Release
 NVIDIA_VISIBLE_DEVICES=0
 EOF
 
-# Now create a gitignored `.localpaths` file that will point to your rapids projects (required)
+# Now create a gitignored `.localpaths` file that will point to your rapids projects
 $ cat << EOF >> "$PWD/compose/.localpaths"
 COMPOSE_SOURCE="$PWD/compose"
 RMM_SOURCE="$PWD/rmm"
@@ -60,6 +60,21 @@ NOTEBOOKS_SOURCE="$PWD/notebooks"
 NOTEBOOKS_EXTENDED_SOURCE="$PWD/notebooks-extended"
 EOF
 
+# Create a vscode workspace for your project (optional)
+$ cat << EOF >> "$PWD/rapids.code-workspace"
+{
+	"folders": [
+		{"name": "compose", "path": "compose"},
+        {"name": "cudf", "path": "cudf/python/cudf"},
+        {"name": "dask_cudf", "path": "cudf/python/dask_cudf"},
+        {"name": "cugraph", "path": "cugraph"},
+        {"name": "custrings", "path": "custrings"},
+        {"name": "rmm", "path": "rmm"},
+        {"name": "notebooks", "path": "notebooks"},
+        {"name": "notebooks-extended", "path": "notebooks-extended }
+	]
+}
+EOF
 ```
 
 ## Fork and clone the Rapids projects
@@ -106,6 +121,7 @@ $ make notebooks
 ## Run the containers with your file system mounted in
 
 ```bash
+$ cd ~/dev/rapids/compose
 # args is appended to the end of: `docker-compose run --rm rapids $args`
 $ make rapids.run args="bash"
 root@xxx:/# echo "No not in the ocean -- *inside* the ocean."
@@ -119,6 +135,7 @@ $ make dc cmd="run" svc="rapids" args="bash"
 
 ## Run cudf pytests (and optionally apply a test filter expression)
 ```sh
+$ cd ~/dev/rapids/compose
 $ make rapids.cudf.test expr="test_string_index"
 # ...
 ============================================================ test session starts =============================================================
@@ -131,6 +148,7 @@ python/cudf/tests/test_string.py::test_string_index PASSED                      
 
 ## Launch a notebook container with your file system mounted in
 ```bash
+$ cd ~/dev/rapids/compose
 $ make notebooks.up
 > Creating compose_notebooks_1 ... done
 # Monitor the jupyterlab stdout/err logs
@@ -152,33 +170,34 @@ $ docker-compose down
 
 Install the [VSCode Python Debugger](https://github.com/Microsoft/ptvsd)
 
-Create a `.vscode/launch.json` [debug configuration](https://code.visualstudio.com/docs/python/debugging). It should look something like this:
-
-```json
+Create a VSCode Python Debugger [launch configuration](https://code.visualstudio.com/docs/python/debugging):
+```bash
+$ cat << EOF >> ~/dev/rapids/cudf/python/cudf/.vscode/launch.json
 {
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Remote Attach",
+            "name": "Debug Python",
             "type": "python",
             "request": "attach",
             "port": 5678,
             "host": "172.18.0.2",
             "pathMappings": [
                 {
-                    "localRoot": "${workspaceFolder}",
-                    "remoteRoot": "/opt/rapids"
+                    "localRoot": "\${workspaceFolder}",
+                    "remoteRoot": "/opt/rapids/cudf/python/cudf"
                 }
             ]
         }
     ]
 }
-
+EOF
 ```
 
-Then launch the unit tests (with an optional pytest expression filter):
+Launch the unit tests in the container (with an optional pytest expression filter):
 
 ```sh
+$ cd ~/dev/rapids/compose
 $ make rapids.cudf.test.debug expr="test_reindex_dataframe"
 # ...
 make[1]: Leaving directory '/home/ptaylor/dev/rapids/compose'
