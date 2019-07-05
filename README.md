@@ -1,14 +1,10 @@
 
 # Rapids docker-compose environment
 
-```bash
-$ cd ~/dev/rapids
-$ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose
-```
-
 ### Quick links
 * [Prerequisites](#prerequisites)
-* [Fork or clone the repos](#fork-or-clone-these-repos)
+* [Clone and set up local compose environment](#clone-and-set-up-local-compose-environment)
+* [Fork and clone the Rapids projects](#fork-and-clone-the-rapids-projects)
 * [Create and edit config files for your environment](#create-and-edit-the-config-files-for-your-local-dev-environment)
 * [Build the containers](#build-the-containers)
 * [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
@@ -17,21 +13,56 @@ $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git
 * [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
 
 ## Prerequisites
-* [`docker-compose`](https://github.com/docker/compose/releases)
-
-    Quick install:
-    ```bash
-    $ sudo curl -L https://github.com/docker/compose/releases/download/1.25.0-rc1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-    $ sudo chmod +x /usr/local/bin/docker-compose
-    ```
-* [`jq`](https://stedolan.github.io/jq/)
-
-    Quick install:
+* [`jq`](https://stedolan.github.io/jq/):
     ```
     $ sudo apt install jq
     ```
+* [`docker-compose`](https://github.com/docker/compose/releases)
+    ```bash
+    $ sudo curl \
+    -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` \
+    -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+    ```
 
-## Fork or clone these repos
+## Clone and set up local compose environment
+
+```bash
+# Create a directory for all the Rapids projects to live (optional)
+$ mkdir -p ~/dev/rapids && cd ~/dev/rapids
+
+# Check out the rapids-compose repo into $PWD/compose (required)
+$ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git "$PWD/compose"
+
+# Create gitignored directories for Python debugger logs and scratchpad notebooks (required)
+$ mkdir -p "$PWD/compose/etc/log" "$PWD/compose/etc/notebooks"
+
+# Create a .env file to define container environment variables (required)
+$ cat << EOF >> "$PWD/compose/.env"
+CUDA_VERSION=10.0
+PYTHON_VERSION=3.7
+LINUX_VERSION=ubuntu18.04
+# Whether to build C++/cuda tests during \`make rapids\` target
+BUILD_TESTS=OFF
+# Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
+CMAKE_BUILD_TYPE=Release
+# Set which GPU the containers should see when running tests/notebooks
+NVIDIA_VISIBLE_DEVICES=0
+EOF
+
+# Now create a gitignored `.localpaths` file that will point to your rapids projects (required)
+$ cat << EOF >> "$PWD/compose/.localpaths"
+COMPOSE_SOURCE="$PWD/compose"
+RMM_SOURCE="$PWD/rmm"
+CUSTRINGS_SOURCE="$PWD/custrings"
+CUDF_SOURCE="$PWD/cudf"
+CUGRAPH_SOURCE="$PWD/cugraph"
+NOTEBOOKS_SOURCE="$PWD/notebooks"
+NOTEBOOKS_EXTENDED_SOURCE="$PWD/notebooks-extended"
+EOF
+
+```
+
+## Fork and clone the Rapids projects
 
 * [rapidsai/rmm](http://github.com/rapidsai/rmm)
 * [rapidsai/cudf](http://github.com/rapidsai/cudf)
@@ -44,6 +75,7 @@ Then check out your forks locally:
 
 ```bash
 $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
+
 # Be sure to replace `GITHUB_USER` with your github username here
 $ GITHUB_USER="rapidsai" bash << "EOF"
 REPOS="rmm cudf cugraph custrings notebooks notebooks-extended"
@@ -56,20 +88,13 @@ do
     cd -
 done
 EOF
-```
 
-## Create and edit the config files for your local dev environment
-```bash
-# Set any container environment variables in the .env file
-$ cp .env.example > .env
-# Configure the paths where your local copies of RAPIDS repos live
-$ cp .localpaths.example > .localpaths
-$ gedit .localpaths
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
 
 ```bash
+$ cd ~/dev/rapids/compose
 # Builds base containers, compiles rapids projects, builds notebook containers
 $ make
 # Builds base containers and compiles rapids projects
