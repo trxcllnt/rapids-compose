@@ -54,18 +54,20 @@ ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/rmm/build"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/cpp/build"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/cpp/build"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/python/cudf/build/lib.linux-x86_64-$PYTHON_VERSION"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/cpp/build"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/python/build/lib.linux-x86_64-$PYTHON_VERSION"
 
 ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/rmm/build/python"
 ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python"
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python/cudf"
+ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python/dask_cudf"
 ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cugraph/python"
 
 ARG UID=1000
 ARG GID=1000
 ARG GOSU_VERSION=1.11
+ARG DASK_VERSION=2.0.0
 ARG TINI_VERSION=v0.18.0
 ARG CFFI_VERSION=1.11.5
 ARG NUMBA_VERSION=0.43.0
@@ -80,11 +82,14 @@ RUN pip --no-cache-dir install \
     ptvsd \
     pytest \
     flake8 \
+    msgpack \
     cffi==${CFFI_VERSION} \
     numba==${NUMBA_VERSION} \
     cython==${CYTHON_VERSION} \
-    pandas>=${PANDAS_VERSION} \
+    pandas==${PANDAS_VERSION} \
     pyarrow==${PYARROW_VERSION} \
+    distributed>=${DASK_VERSION} \
+    dask[dataframe]==${DASK_VERSION} \
  # cleanup
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Add tini to reap container subprocesses on exit
