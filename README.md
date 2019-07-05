@@ -44,17 +44,16 @@ Then check out your forks locally:
 
 ```bash
 $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
-$ bash << EOF
-# Replace this with your github user
-GITHUB_USER="rapidsai"
+# Be sure to replace `GITHUB_USER` with your github username here
+$ GITHUB_USER="rapidsai" bash << "EOF"
 REPOS="rmm cudf cugraph custrings notebooks notebooks-extended"
 for REPO in $REPOS
 do
     git clone git@github.com:$GITHUB_USER/$REPO.git
-    pushd $REPO
+    cd $REPO
     git submodule update --init --remote --recursive
-    git remote add upstream git@github.com:rapidsai/$REPO.git
-    popd
+    git remote add -f upstream git@github.com:rapidsai/$REPO.git
+    cd -
 done
 EOF
 ```
