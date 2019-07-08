@@ -66,28 +66,34 @@ RUN pip install --no-cache-dir \
 
 WORKDIR /opt/rapids
 
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
 
 ARG UID=1000
 ARG GID=1000
 ENV _UID=$UID
 ENV _GID=$GID
+
 ENV RMM_HOME=/opt/rapids/rmm
 ENV CUDF_HOME=/opt/rapids/cudf
 ENV CUGRAPH_HOME=/opt/rapids/cugraph
 ENV CUSTRINGS_HOME=/opt/rapids/custrings
 
-ENV PYNI_PATH=/usr/local
-ENV RMM_ROOT=${PYNI_PATH}
-ENV CUDF_ROOT=${PYNI_PATH}
-ENV CUGRAPH_ROOT=${PYNI_PATH}
-ENV CUSTRINGS_ROOT=${PYNI_PATH}
-ENV NVSTRINGS_ROOT=${PYNI_PATH}
-ENV RMM_INCLUDE=${RMM_ROOT}/include/rmm
-ENV CUDF_INCLUDE=${CUDF_ROOT}/include/cudf
-ENV CUGRAPH_INCLUDE=${CUGRAPH_ROOT}/include/cugraph
-ENV CUSTRINGS_INCLUDE=${CUSTRINGS_ROOT}/include/nvstrings
-ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include/nvstrings
-ENV RMM_HEADER=/opt/rapids/rmm/include/rmm/rmm_api.h
+ENV RMM_ROOT=${RMM_HOME}/build
+ENV RMM_INCLUDE=${RMM_ROOT}/include
+ENV RMM_HEADER=${RMM_INCLUDE}/rmm/rmm_api.h
+
+ENV CUDF_ROOT=${CUDF_HOME}/cpp/build
+ENV CUDF_INCLUDE=${CUDF_ROOT}/include
+
+ENV CUGRAPH_ROOT=${CUGRAPH_HOME}/cpp/build
+ENV CUGRAPH_INCLUDE=${CUGRAPH_ROOT}/include
+
+ENV CUSTRINGS_ROOT=${CUSTRINGS_HOME}/cpp/build
+ENV NVSTRINGS_ROOT=${CUSTRINGS_HOME}/cpp/build
+ENV CUSTRINGS_INCLUDE=${CUSTRINGS_ROOT}/include
+ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include
 
 COPY compose/etc/build-rapids.sh /opt/rapids/compose/etc/build-rapids.sh
 COPY compose/etc/check-style.sh /opt/rapids/compose/etc/check-style.sh
