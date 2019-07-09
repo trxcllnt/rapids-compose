@@ -51,7 +51,7 @@ CMAKE_BUILD_TYPE=Release
 NVIDIA_VISIBLE_DEVICES=0
 EOF
 
-# Create VScode workspaces for the projects (optional)
+# Create a VSCode workspace for the projects (optional)
 $ cat << EOF > "$PWD/rapids.code-workspace"
 {
     "folders": [
@@ -115,8 +115,6 @@ Now configure VSCode C++ intellisense:
 
 ```bash
 $ cd ~/dev/rapids
-
-# Create VSCode C++ configurations
 $ mkdir -p "$PWD/rmm/.vscode"
 
 cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
@@ -148,6 +146,34 @@ cp -r "$PWD/rmm/.vscode" "$PWD/cudf/"
 cp -r "$PWD/rmm/.vscode" "$PWD/cugraph/"
 cp -r "$PWD/rmm/.vscode" "$PWD/custrings/"
 
+```
+
+I recommend adding this to your VSCode settings.json:
+
+```json
+    "search.exclude": {
+        "**/build/include": true
+    },
+    "files.associations": {
+        "*.cu": "cpp",
+        "*.cuh": "cpp"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/*.egg": true,
+        "**/*.egg-info": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        "**/build/include": true,
+        "**/build/lib.linux-x86_64*": true,
+        "**/build/temp.linux-x86_64*": true,
+        "**/build/bdist.linux-x86_64*": true,
+    },
+    "C_Cpp.exclusionPolicy": "checkFolders"
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
