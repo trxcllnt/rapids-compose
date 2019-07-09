@@ -117,6 +117,7 @@ $ cd ~/dev/rapids
 $  mkdir -p "$PWD/compose/etc/include"
 ln -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/include/cugraph"
 ln -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/include/nvstrings"
+ln -s "$PWD/cudf/java/src/main/native/include/jni_utils.hpp" "$PWD/compose/etc/include/jni_utils.hpp"
 
 # Create the VSCode C++ intellisense configuration in compose/etc/.vscode
 # Symlink that directory into each rapids project.
@@ -129,13 +130,19 @@ cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
             "name": "Linux",
             "includePath": [
                 "\${workspaceFolder}/**",
-                "/usr/local/cuda/lib64",
                 "/usr/local/cuda/include",
-                "/usr/local/cuda/nvvm/lib64",
                 "$PWD/rmm/include",
                 "$PWD/cudf/cpp/include",
                 "$PWD/compose/etc/include"
             ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "\${workspaceFolder}",
+                    "/usr/local/cuda/include",
+                    "$PWD"
+                ]
+            },
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
@@ -157,9 +164,11 @@ ln -s "$PWD/compose/etc/.vscode" "$PWD/custrings/cpp/.vscode"
 
 ```
 
-I recommend adding this to your VSCode settings.json:
+Now create workspace-specific settings. Feel free to copy these to your global `settings.json` file if you find them useful:
 
-```json
+```bash
+$ cat << EOF > "$PWD/compose/etc/.vscode/settings.json"
+{
     "search.exclude": {
         "**/build/include": true
     },
@@ -182,7 +191,10 @@ I recommend adding this to your VSCode settings.json:
         "**/build/temp.linux-x86_64*": true,
         "**/build/bdist.linux-x86_64*": true,
     },
-    "C_Cpp.exclusionPolicy": "checkFolders"
+    "C_Cpp.exclusionPolicy": "checkFolders",
+    "C_Cpp.intelliSenseCachePath": "$PWD/compose/etc/.vscode/.vscode-cpptools"
+}
+EOF
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
