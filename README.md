@@ -42,7 +42,7 @@ PYTHON_VERSION=3.7
 LINUX_VERSION=ubuntu18.04
 
 # Whether to build C++/cuda tests during \`make rapids\` target
-BUILD_TESTS=on
+BUILD_TESTS=ON
 
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=Release
