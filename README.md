@@ -57,6 +57,7 @@ $ cat << EOF > "$PWD/rapids.code-workspace"
     "folders": [
         {"name": "compose", "path": "compose"},
         {"name": "cudf-cpp", "path": "cudf/cpp"},
+        {"name": "cudf-java", "path": "cudf/java"},
         {"name": "cudf-python", "path": "cudf/python/cudf"},
         {"name": "cugraph-cpp", "path": "cugraph/cpp"},
         {"name": "cugraph-python", "path": "cugraph/python"},
