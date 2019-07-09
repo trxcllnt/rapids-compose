@@ -1,5 +1,5 @@
 .env
-.localpaths
-.ipynb_checkpoints
-etc/log
-etc/notebooks
+etc/log/*
+etc/notebooks/*
+!etc/log/.keepDir
+!etc/notebooks/.keepDir

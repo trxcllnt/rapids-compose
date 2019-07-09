@@ -7,13 +7,11 @@ GID.Darwin := $(shell id -g $$USER)
 UID := $(or ${UID.${PLATFORM}}, 1000)
 GID := $(or ${GID.${PLATFORM}}, 1000)
 
-CUDA_VERSION := $(shell echo $${CUDA_VERSION:-10.0})
-PYTHON_VERSION := $(shell echo $${PYTHON_VERSION:-3.7})
-LINUX_VERSION := $(shell echo $${LINUX_VERSION:-"ubuntu18.04"})
-
-RAPIDS_NAMESPACE := $(shell echo $$USER)
-RAPIDS_HOME := $(shell echo $${RAPIDS_HOME:-$$(realpath ..)})
-RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
+DEFAULT_CUDA_VERSION := 10.0
+DEFAULT_PYTHON_VERSION := 3.7
+DEFAULT_LINUX_VERSION := ubuntu18.04
+DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
+DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
 
 .PHONY: all rapids notebooks
 .SILENT: dind dc up run exec logs build rapids notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug notebooks.up notebooks.exec notebooks.logs
@@ -60,7 +58,7 @@ rapids.logs:
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /opt/rapids/cudf/python/cudf $(cmd_args) -u $(UID):$(GID)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /rapids/cudf/python/cudf $(cmd_args) -u $(UID):$(GID)"
 
 rapids.cudf.test: expr ?= _
 rapids.cudf.test: args ?= pytest -v -x
@@ -75,14 +73,18 @@ rapids.cudf.test.debug:
 		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /opt/rapids/compose/etc/check-style.sh"
+	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /rapids/compose/etc/check-style.sh"
 
 # Build the docker-in-docker container
 dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)
 dind:
-	docker build \
-		-q --build-arg DOCKER_VERSION=$(docker_version) \
-		-t $(RAPIDS_NAMESPACE)/rapids/dind:$(RAPIDS_VERSION) \
+	set -a && . .env && set +a && \
+	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
+	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
+	docker build -q \
+		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
+		--build-arg DOCKER_VERSION=$(docker_version) \
+		-t "$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" \
 		-f dockerfiles/dind.Dockerfile .
 
 # Run docker-compose inside the docker-in-docker container
@@ -93,31 +95,21 @@ dc: svc_args ?=
 dc: cmd_args ?=
 dc: file ?= docker-compose.yml
 dc: dind
-	set -a && . .localpaths && set +a && \
-	docker run -it --rm --entrypoint "/opt/rapids/compose/etc/dind/$(cmd).sh" \
-		-e _UID=$(UID) \
-		-e _GID=$(GID) \
-		-e CUDA_VERSION=$(CUDA_VERSION) \
-		-e LINUX_VERSION=$(LINUX_VERSION) \
-		-e PYTHON_VERSION=$(PYTHON_VERSION) \
-		-e RAPIDS_VERSION=$(RAPIDS_VERSION) \
-		-e RAPIDS_NAMESPACE=$(RAPIDS_NAMESPACE) \
-		-e COMPOSE_SOURCE="$$COMPOSE_SOURCE" \
-		-e RMM_SOURCE="$$RMM_SOURCE" \
-		-e CUDF_SOURCE="$$CUDF_SOURCE" \
-		-e CUGRAPH_SOURCE="$$CUGRAPH_SOURCE" \
-		-e CUSTRINGS_SOURCE="$$CUSTRINGS_SOURCE" \
-		-e NOTEBOOKS_SOURCE="$$NOTEBOOKS_SOURCE" \
-		-e NOTEBOOKS_EXTENDED_SOURCE="$$NOTEBOOKS_EXTENDED_SOURCE" \
+	set -a && . .env && set +a && \
+	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
+	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
+	docker run -it --rm --entrypoint "$$RAPIDS_HOME/compose/etc/dind/$(cmd).sh" \
+		-v "$$RAPIDS_HOME":"$$RAPIDS_HOME" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		-v "$$COMPOSE_SOURCE":/opt/rapids/compose \
-		-v "$$RMM_SOURCE":/opt/rapids/rmm \
-		-v "$$CUDF_SOURCE":/opt/rapids/cudf \
-		-v "$$CUGRAPH_SOURCE":/opt/rapids/cugraph \
-		-v "$$CUSTRINGS_SOURCE":/opt/rapids/custrings \
-		-v "$$NOTEBOOKS_SOURCE":/opt/rapids/notebooks \
-		-v "$$NOTEBOOKS_EXTENDED_SOURCE":/opt/rapids/notebooks-extended \
-		$(RAPIDS_NAMESPACE)/rapids/dind:$(RAPIDS_VERSION) $(file) $(cmd_args) $(svc) $(svc_args)
+		-e _UID=$${UID:-$(UID)} \
+		-e _GID=$${GID:-$(GID)} \
+		-e RAPIDS_HOME="$$RAPIDS_HOME" \
+		-e CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
+		-e LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
+		-e PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
+		-e RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} \
+		-e RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
+		"$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" $(file) $(cmd_args) $(svc) $(svc_args)
 
 dc.build: svc ?=
 dc.build: svc_args ?=

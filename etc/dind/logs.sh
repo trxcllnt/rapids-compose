@@ -1,8 +1,6 @@
 #!/bin/sh -e
 
-cd /opt/rapids/compose
-
-etc/dind/paths.sh
+cd "$COMPOSE_HOME"
 
 args="";
 file=${1:-""};

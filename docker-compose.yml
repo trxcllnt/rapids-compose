@@ -9,16 +9,11 @@ x-service-settings: &service_settings
       GID: ${_GID:-1000}
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "3.7"
+      RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       CUDA_VERSION: "${CUDA_VERSION:-10.0}"
-      LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
-      RMM_SOURCE: "${RMM_SOURCE:-../rmm}"
-      CUDF_SOURCE: "${CUDF_SOURCE:-../cudf}"
-      CUGRAPH_SOURCE: "${CUGRAPH_SOURCE:-../cugraph}"
-      CUSTRINGS_SOURCE: "${CUSTRINGS_SOURCE:-../custrings}"
-      NOTEBOOKS_SOURCE: "${NOTEBOOKS_SOURCE:-../notebooks}"
-      NOTEBOOKS_EXTENDED_SOURCE: "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}"
+      LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
 
 services:
 
@@ -29,11 +24,7 @@ services:
       <<: *build_settings
       dockerfile: compose/dockerfiles/base.Dockerfile
     volumes:
-      - &compose "${COMPOSE_SOURCE:-./}:/opt/rapids/compose"
-      - &rmm "${RMM_SOURCE:-../rmm}:/opt/rapids/rmm"
-      - &cudf "${CUDF_SOURCE:-../cudf}:/opt/rapids/cudf"
-      - &cugraph "${CUGRAPH_SOURCE:-../cugraph}:/opt/rapids/cugraph"
-      - &custrings "${CUSTRINGS_SOURCE:-../custrings}:/opt/rapids/custrings"
+      - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
 
   rapids:
     <<: *service_settings
@@ -44,12 +35,8 @@ services:
     ports:
       - "5678:5678"
     volumes:
-      - &ptvsd_logs "${COMPOSE_SOURCE:-.}/etc/log:/var/log/ptvsd"
-      - *compose
-      - *rmm
-      - *cudf
-      - *cugraph
-      - *custrings
+      - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/log:/var/log/ptvsd"
+      - *rapids_home
 
   notebooks:
     <<: *service_settings
@@ -62,11 +49,8 @@ services:
       - "8888:8888"
     volumes:
       - *ptvsd_logs
-      - *rmm
-      - *cudf
-      - *cugraph
-      - *custrings
-      - &notebooks_core "${NOTEBOOKS_SOURCE:-../notebooks}/cugraph:/home/rapids/notebooks/core"
-      - &notebooks_sandbox "${COMPOSE_SOURCE:-.}/etc/notebooks:/home/rapids/notebooks/sandbox"
-      - &notebooks_data "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}/data:/home/rapids/notebooks/data"
-      - &notebooks_extended "${NOTEBOOKS_EXTENDED_SOURCE:-../notebooks-extended}:/home/rapids/notebooks/extended"
+      - *rapids_home
+      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
+      - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks:/home/rapids/notebooks/sandbox"
+      - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-extended/data:/home/rapids/notebooks/data"
+      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-extended:/home/rapids/notebooks/extended"

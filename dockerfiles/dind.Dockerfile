@@ -39,27 +39,30 @@ RUN set -x && \
     # Basic check it works
     docker-compose version
 
+ARG RAPIDS_HOME
+ENV RAPIDS_HOME="$RAPIDS_HOME"
+ENV RMM_HOME="$RAPIDS_HOME/rmm"
+ENV CUDF_HOME="$RAPIDS_HOME/cudf"
+ENV COMPOSE_HOME="$RAPIDS_HOME/compose"
+ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
+ENV CUSTRINGS_HOME="$RAPIDS_HOME/custrings"
+ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
+ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
+
 ENV _UID=1000
 ENV _GID=1000
 
-ENV CUDA_VERSION=9.2
+ENV CUDA_VERSION=10.0
 ENV LINUX_VERSION=ubuntu18.04
 
 ENV PYTHON_VERSION=3.7
 ENV RAPIDS_VERSION=latest
 ENV RAPIDS_NAMESPACE=anon
 
-ENV RMM_SOURCE=/opt/rapids/rmm
-ENV CUDF_SOURCE=/opt/rapids/cudf
-ENV CUGRAPH_SOURCE=/opt/rapids/cugraph
-ENV CUSTRINGS_SOURCE=/opt/rapids/custrings
-ENV NOTEBOOKS_SOURCE=/opt/rapids/notebooks
-ENV NOTEBOOKS_EXTENDED_SOURCE=/opt/rapids/notebooks-extended
-
-WORKDIR /opt/rapids
+WORKDIR "$RAPIDS_HOME"
 
 COPY etc/dind/.dockerignore .dockerignore
 
-ENTRYPOINT ["/opt/rapids/compose/etc/dind/build.sh"]
+ENTRYPOINT ["$RAPIDS_HOME/compose/etc/dind/build.sh"]
 
 CMD [""]

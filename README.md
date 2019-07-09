@@ -5,11 +5,11 @@
 * [Prerequisites](#prerequisites)
 * [Clone and set up local compose environment](#clone-and-set-up-local-compose-environment)
 * [Fork and clone the Rapids projects](#fork-and-clone-the-rapids-projects)
-* [Create and edit config files for your environment](#create-and-edit-the-config-files-for-your-local-dev-environment)
-* [Build the containers](#build-the-containers)
+* [Setup VSCode for C++ and Python development](#setup-vscode-for-c-and-python-development)
+* [Build the containers](#build-the-containers-only-builds-stages-that-have-been-invalidated)
 * [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
-* [Run cudf pytests](#run-cudf-pytests)
-* [Launch the containers with your file system mounted in](#launch-a-notebook-container-with-your-file-system-mounted-in)
+* [Run cudf pytests](#run-cudf-pytests-and-optionally-apply-a-test-filter-expression)
+* [Launch a notebook container with your file system mounted in](#launch-a-notebook-container-with-your-file-system-mounted-in)
 * [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
 
 ## Prerequisites
@@ -33,48 +33,46 @@ $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 # Check out the rapids-compose repo into $PWD/compose
 $ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git "$PWD/compose"
 
-# Create gitignored directories for Python debugger logs and scratchpad notebooks
-$ mkdir -p "$PWD/compose/etc/log" "$PWD/compose/etc/notebooks"
-
-# Create a .env file to define container environment variables
-$ cat << EOF >> "$PWD/compose/.env"
+# Create a file to customize container build args/env vars
+$ cat << EOF > "$PWD/compose/.env"
+# Build arguments
+RAPIDS_HOME=$PWD
 CUDA_VERSION=10.0
 PYTHON_VERSION=3.7
 LINUX_VERSION=ubuntu18.04
+
 # Whether to build C++/cuda tests during \`make rapids\` target
 BUILD_TESTS=OFF
+
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=Release
+
 # Set which GPU the containers should see when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=0
 EOF
 
-# Now create a gitignored `.localpaths` file that will point to your rapids projects
-$ cat << EOF >> "$PWD/compose/.localpaths"
-COMPOSE_SOURCE="$PWD/compose"
-RMM_SOURCE="$PWD/rmm"
-CUSTRINGS_SOURCE="$PWD/custrings"
-CUDF_SOURCE="$PWD/cudf"
-CUGRAPH_SOURCE="$PWD/cugraph"
-NOTEBOOKS_SOURCE="$PWD/notebooks"
-NOTEBOOKS_EXTENDED_SOURCE="$PWD/notebooks-extended"
-EOF
-
 # Create a vscode workspace for your project (optional)
-$ cat << EOF >> "$PWD/rapids.code-workspace"
+$ cat << EOF > "$PWD/rapids.code-workspace"
 {
-	"folders": [
-		{"name": "compose", "path": "compose"},
-        {"name": "cudf", "path": "cudf/python/cudf"},
-        {"name": "dask_cudf", "path": "cudf/python/dask_cudf"},
-        {"name": "cugraph", "path": "cugraph"},
-        {"name": "custrings", "path": "custrings"},
-        {"name": "rmm", "path": "rmm"},
+    "folders": [
+        {"name": "cudf-cpp", "path": "cudf/cpp"},
+        {"name": "cudf-python", "path": "cudf/python/cudf"},
+        {"name": "dask_cudf-python", "path": "cudf/python/dask_cudf"},
+        {"name": "cugraph-cpp", "path": "cugraph/cpp"},
+        {"name": "cugraph-python", "path": "cugraph/python"},
+        {"name": "custrings-cpp", "path": "custrings/cpp"},
+        {"name": "custrings-python", "path": "custrings/python"},
+        {"name": "compose", "path": "compose"},
         {"name": "notebooks", "path": "notebooks"},
-        {"name": "notebooks-extended", "path": "notebooks-extended }
-	]
+        {"name": "notebooks-extended", "path": "notebooks-extended" },
+        {"name": "cudf (root)", "path": "cudf"},
+        {"name": "cugraph (root)", "path": "cugraph"},
+        {"name": "custrings (root)", "path": "custrings"},
+        {"name": "rmm (root)", "path": "rmm"}
+    ]
 }
 EOF
+
 ```
 
 ## Fork and clone the Rapids projects
@@ -89,7 +87,7 @@ EOF
 Then check out your forks locally:
 
 ```bash
-$ mkdir -p ~/dev/rapids && cd ~/dev/rapids
+$ cd ~/dev/rapids
 
 # Be sure to replace `GITHUB_USER` with your github username here
 $ GITHUB_USER="rapidsai" bash << "EOF"
@@ -104,6 +102,63 @@ do
 done
 EOF
 
+```
+
+## Setup VSCode for C++ and Python development
+
+Install the [CMake Tools Helper](https://marketplace.visualstudio.com/items?itemName=maddouri.cmake-tools-helper)
+```
+ext install maddouri.cmake-tools-helper
+```
+
+This should install these 4 other extensions as dependencies:
+ * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+ * [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+ * [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
+ * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=vector-of-bool.cmake-tools)
+
+Now configure VSCode C++ intellisense:
+
+```bash
+$ cd ~/dev/rapids
+
+# Create VSCode C++ configurations
+$ mkdir -p \
+    "$PWD/rmm/.vscode" \
+    "$PWD/cudf/cpp/.vscode" \
+    "$PWD/cugraph/cpp/.vscode" \
+    "$PWD/custrings/cpp/.vscode"
+
+$ cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "\${workspaceFolder}/**",
+                "/usr/local/cuda/lib64",
+                "/usr/local/cuda/include",
+                "/usr/local/cuda/nvvm/lib64",
+                "$PWD/rmm/include",
+                "$PWD/cudf/cpp/include",
+                "$PWD/cugraph/cpp/include",
+                "$PWD/custrings/cpp/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "configurationProvider": "vector-of-bool.cmake-tools"
+        }
+    ],
+    "version": 4
+}
+EOF
+
+$ cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/cudf/cpp/.vscode" && \
+  cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/cugraph/cpp/.vscode" && \
+  cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/custrings/cpp/.vscode"
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
@@ -124,9 +179,9 @@ $ make notebooks
 $ cd ~/dev/rapids/compose
 # args is appended to the end of: `docker-compose run --rm rapids $args`
 $ make rapids.run args="bash"
-root@xxx:/# echo "No not in the ocean -- *inside* the ocean."
-root@xxx:/# cd /opt/rapids/cudf && py.test -v -x -k test_my_feature
-root@xxx:/# exit
+root@xxx:/rapids# echo "No not in the ocean -- *inside* the ocean."
+root@xxx:/rapids# cd cudf && py.test -v -x -k test_my_feature
+root@xxx:/rapids# exit
 ###
 # Or the long way, expands out to: `docker-compose $cmd $svc $args`
 ###
@@ -165,14 +220,12 @@ $ docker-compose down
 > Removing network compose_default
 ```
 
-
 ## Debug Python running in the container with VSCode
-
-Install the [VSCode Python Debugger](https://github.com/Microsoft/ptvsd)
 
 Create a VSCode Python Debugger [launch configuration](https://code.visualstudio.com/docs/python/debugging):
 ```bash
-$ cat << EOF >> ~/dev/rapids/cudf/python/cudf/.vscode/launch.json
+$ cd ~/dev/rapids
+$ cat << EOF > "$PWD/cudf/python/cudf/.vscode/launch.json"
 {
     "version": "0.2.0",
     "configurations": [
@@ -185,7 +238,7 @@ $ cat << EOF >> ~/dev/rapids/cudf/python/cudf/.vscode/launch.json
             "pathMappings": [
                 {
                     "localRoot": "\${workspaceFolder}",
-                    "remoteRoot": "/opt/rapids/cudf/python/cudf"
+                    "remoteRoot": "\${workspaceFolder}"
                 }
             ]
         }
@@ -196,13 +249,10 @@ EOF
 
 Launch the unit tests in the container (with an optional pytest expression filter):
 
-```sh
+```bash
 $ cd ~/dev/rapids/compose
 $ make rapids.cudf.test.debug expr="test_reindex_dataframe"
-# ...
-make[1]: Leaving directory '/home/ptaylor/dev/rapids/compose'
 "Debugger listening at: 172.18.0.2"
-$ 
 ```
 
 Ensure the IP address printed on the last line matches the `"host"` entry in `.vscode/launch.json`.

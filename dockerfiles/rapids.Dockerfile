@@ -43,6 +43,16 @@ RUN apt update -y --fix-missing \
  && echo "pip at $(which pip) version after alias: $(pip --version)" \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ARG RAPIDS_HOME
+ENV RAPIDS_HOME="$RAPIDS_HOME"
+ENV RMM_HOME="$RAPIDS_HOME/rmm"
+ENV CUDF_HOME="$RAPIDS_HOME/cudf"
+ENV COMPOSE_HOME="$RAPIDS_HOME/compose"
+ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
+ENV CUSTRINGS_HOME="$RAPIDS_HOME/custrings"
+ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
+ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
+
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME=/usr/local/cuda-${CUDA_SHORT_VERSION}
 ENV NUMBAPRO_LIBDEVICE=${CUDA_HOME}/nvvm/libdevice
@@ -50,19 +60,19 @@ ENV NUMBAPRO_NVVM=${CUDA_HOME}/nvvm/lib64/libnvvm.so
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/rmm/build/lib"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/cpp/build/lib"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/cpp/build/lib"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cudf/python/cudf/build/lib.linux-x86_64-$PYTHON_VERSION"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/cpp/build/lib"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/rapids/cugraph/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$RMM_HOME/build/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUSTRINGS_HOME/cpp/build/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUSTRINGS_HOME/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDF_HOME/cpp/build/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDF_HOME/python/cudf/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUGRAPH_HOME/cpp/build/lib"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUGRAPH_HOME/python/build/lib.linux-x86_64-$PYTHON_VERSION"
 
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/rmm/build/python"
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/custrings/python/build/lib.linux-x86_64-$PYTHON_VERSION"
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python/cudf"
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cudf/python/dask_cudf"
-ENV PYTHONPATH="$PYTHONPATH:/opt/rapids/cugraph/python"
+ENV PYTHONPATH="$PYTHONPATH:$RMM_HOME/build/python"
+ENV PYTHONPATH="$PYTHONPATH:$CUSTRINGS_HOME/python/build/lib.linux-x86_64-$PYTHON_VERSION"
+ENV PYTHONPATH="$PYTHONPATH:$CUDF_HOME/python/cudf"
+ENV PYTHONPATH="$PYTHONPATH:$CUDF_HOME/python/dask_cudf"
+ENV PYTHONPATH="$PYTHONPATH:$CUGRAPH_HOME/python"
 
 ARG UID=1000
 ARG GID=1000
@@ -97,12 +107,9 @@ RUN pip --no-cache-dir install \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
- && mkdir -p /home/rapids ${PTVSD_LOG_DIR} \
- && mkdir -p /opt/rapids/cudf /opt/rapids/cugraph \
- # Symlink dirs to root for compatibility with existing scripts
- && ln -s /opt/rapids /rapids \
- && ln -s /opt/rapids/cudf /cudf \
- && ln -s /opt/rapids/cugraph /cugraph \
+ && mkdir -p /home/rapids "$PTVSD_LOG_DIR" "$RAPIDS_HOME" \
+ # Symlink to root for compatibility with existing scripts
+ && ln -s "$RAPIDS_HOME" /rapids \
  # Create a rapids user with the same GID/UID as your outside OS user,
  # so you own files created by the container when using volume mounts.
  && groupadd -g ${GID} rapids && useradd -u ${UID} -g rapids \
@@ -110,12 +117,14 @@ RUN pip --no-cache-dir install \
     # 2. Add this user to the tty group
     # 3. Assign bash as the login shell
     -d /home/rapids -G tty -s /bin/bash rapids \
- && chown -R rapids /rapids /cudf /cugraph /home/rapids \
- && chmod 0777 /tmp && chmod 0755 /var/log ${PTVSD_LOG_DIR}
+ && chown -R ${UID}:${GID} /rapids /home/rapids \
+ && chmod 0777 /tmp && chmod 0755 /var/log "$PTVSD_LOG_DIR"
 
 # Expose VSCode debugger port
 EXPOSE 5678
 
 ENTRYPOINT [ "/usr/bin/tini", "--" ]
+
+WORKDIR /rapids
 
 CMD ["/bin/bash"]

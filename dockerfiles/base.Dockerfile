@@ -18,9 +18,12 @@ ENV CC=/usr/bin/gcc-${GCC_VERSION}
 ENV CXX=/usr/bin/g++-${CXX_VERSION}
 
 # avoid "OSError: library nvvm not found" error
-ENV CUDA_HOME=/usr/local/cuda-${CUDA_SHORT_VERSION}
-ENV NUMBAPRO_LIBDEVICE=${CUDA_HOME}/nvvm/libdevice
-ENV NUMBAPRO_NVVM=${CUDA_HOME}/nvvm/lib64/libnvvm.so
+ENV CUDA_HOME="/usr/local/cuda"
+ENV PATH="$PATH:$CUDA_HOME/bin"
+ENV NUMBAPRO_LIBDEVICE="$CUDA_HOME/nvvm/libdevice"
+ENV NUMBAPRO_NVVM="$CUDA_HOME/nvvm/lib64/libnvvm.so"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
 
 RUN apt update -y --fix-missing \
  && apt upgrade -y \
@@ -64,40 +67,50 @@ RUN pip install --no-cache-dir \
     numpy==${NUMPY_VERSION} \
     cython==${CYTHON_VERSION}
 
-WORKDIR /opt/rapids
-
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
-
 ARG UID=1000
-ARG GID=1000
 ENV _UID=$UID
+
+ARG GID=1000
 ENV _GID=$GID
 
-ENV RMM_HOME=/opt/rapids/rmm
-ENV CUDF_HOME=/opt/rapids/cudf
-ENV CUGRAPH_HOME=/opt/rapids/cugraph
-ENV CUSTRINGS_HOME=/opt/rapids/custrings
+ARG RAPIDS_HOME
+ENV RAPIDS_HOME="$RAPIDS_HOME"
 
-ENV RMM_ROOT=${RMM_HOME}/build
-ENV RMM_INCLUDE=${RMM_ROOT}/include
-ENV RMM_HEADER=${RMM_INCLUDE}/rmm/rmm_api.h
+ARG BUILD_TESTS=1000
+ENV BUILD_TESTS=$BUILD_TESTS
 
-ENV CUDF_ROOT=${CUDF_HOME}/cpp/build
-ENV CUDF_INCLUDE=${CUDF_ROOT}/include
+ARG CMAKE_BUILD_TYPE=Release
+ENV CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 
-ENV CUGRAPH_ROOT=${CUGRAPH_HOME}/cpp/build
-ENV CUGRAPH_INCLUDE=${CUGRAPH_ROOT}/include
+ENV COMPOSE_HOME="$RAPIDS_HOME/compose"
 
-ENV CUSTRINGS_ROOT=${CUSTRINGS_HOME}/cpp/build
-ENV NVSTRINGS_ROOT=${CUSTRINGS_HOME}/cpp/build
-ENV CUSTRINGS_INCLUDE=${CUSTRINGS_ROOT}/include
-ENV NVSTRINGS_INCLUDE=${NVSTRINGS_ROOT}/include
+ENV RMM_HOME="$RAPIDS_HOME/rmm"
+ENV RMM_ROOT="$RMM_HOME/build"
+ENV RMM_INCLUDE="$RMM_HOME/include"
+ENV RMM_HEADER="$RMM_INCLUDE/rmm/rmm_api.h"
 
-COPY compose/etc/build-rapids.sh /opt/rapids/compose/etc/build-rapids.sh
-COPY compose/etc/check-style.sh /opt/rapids/compose/etc/check-style.sh
+ENV CUDF_HOME="$RAPIDS_HOME/cudf"
+ENV CUDF_ROOT="$CUDF_HOME/cpp/build"
+ENV CUDF_INCLUDE="$CUDF_HOME/cpp/include"
+
+ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
+ENV CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build"
+ENV CUGRAPH_INCLUDE="$CUGRAPH_HOME/cpp/include"
+
+ENV CUSTRINGS_HOME="$RAPIDS_HOME/custrings"
+ENV CUSTRINGS_ROOT="$CUSTRINGS_HOME/cpp/build"
+ENV NVSTRINGS_ROOT="$CUSTRINGS_HOME/cpp/build"
+ENV CUSTRINGS_INCLUDE="$CUSTRINGS_HOME/cpp/include"
+ENV NVSTRINGS_INCLUDE="$CUSTRINGS_HOME/cpp/include"
+
+ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
+ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
+
+WORKDIR $RAPIDS_HOME
+
+COPY compose/etc/build-rapids.sh "$RAPIDS_HOME/compose/etc/build-rapids.sh"
+COPY compose/etc/check-style.sh "$RAPIDS_HOME/compose/etc/check-style.sh"
 
 SHELL ["/bin/bash", "-c"]
 
-CMD ["/opt/rapids/compose/etc/build-rapids.sh"]
+CMD ["compose/etc/build-rapids.sh"]
