@@ -1,5 +1,6 @@
 .env
 etc/log/*
+etc/include
 etc/notebooks/*
 !etc/log/.keepDir
 !etc/notebooks/.keepDir

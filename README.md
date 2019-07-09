@@ -42,7 +42,7 @@ PYTHON_VERSION=3.7
 LINUX_VERSION=ubuntu18.04
 
 # Whether to build C++/cuda tests during \`make rapids\` target
-BUILD_TESTS=OFF
+BUILD_TESTS=on
 
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=Release
@@ -51,24 +51,20 @@ CMAKE_BUILD_TYPE=Release
 NVIDIA_VISIBLE_DEVICES=0
 EOF
 
-# Create a vscode workspace for your project (optional)
+# Create VScode workspaces for the projects (optional)
 $ cat << EOF > "$PWD/rapids.code-workspace"
 {
     "folders": [
+        {"name": "compose", "path": "compose"},
         {"name": "cudf-cpp", "path": "cudf/cpp"},
         {"name": "cudf-python", "path": "cudf/python/cudf"},
-        {"name": "dask_cudf-python", "path": "cudf/python/dask_cudf"},
         {"name": "cugraph-cpp", "path": "cugraph/cpp"},
         {"name": "cugraph-python", "path": "cugraph/python"},
         {"name": "custrings-cpp", "path": "custrings/cpp"},
         {"name": "custrings-python", "path": "custrings/python"},
-        {"name": "compose", "path": "compose"},
+        {"name": "rmm-cpp", "path": "rmm"},
         {"name": "notebooks", "path": "notebooks"},
-        {"name": "notebooks-extended", "path": "notebooks-extended" },
-        {"name": "cudf (root)", "path": "cudf"},
-        {"name": "cugraph (root)", "path": "cugraph"},
-        {"name": "custrings (root)", "path": "custrings"},
-        {"name": "rmm (root)", "path": "rmm"}
+        {"name": "notebooks-extended", "path": "notebooks-extended" }
     ]
 }
 EOF
@@ -100,22 +96,20 @@ do
     git remote add -f upstream git@github.com:rapidsai/$REPO.git
     cd -
 done
+mkdir -p "$PWD/compose/etc/include"
+ln -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/include/cugraph"
+ln -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/include/nvstrings"
 EOF
 
 ```
 
 ## Setup VSCode for C++ and Python development
 
-Install the [CMake Tools Helper](https://marketplace.visualstudio.com/items?itemName=maddouri.cmake-tools-helper)
-```
-ext install maddouri.cmake-tools-helper
-```
-
-This should install these 4 other extensions as dependencies:
+Install these extensions:
  * [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
- * [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
  * [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
- * [CMake Tools](https://marketplace.visualstudio.com/items?itemName=vector-of-bool.cmake-tools)
+ * [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+ * [Language-Cython](https://marketplace.visualstudio.com/items?itemName=guyskk.language-cython)
 
 Now configure VSCode C++ intellisense:
 
@@ -123,13 +117,9 @@ Now configure VSCode C++ intellisense:
 $ cd ~/dev/rapids
 
 # Create VSCode C++ configurations
-$ mkdir -p \
-    "$PWD/rmm/.vscode" \
-    "$PWD/cudf/cpp/.vscode" \
-    "$PWD/cugraph/cpp/.vscode" \
-    "$PWD/custrings/cpp/.vscode"
+$ mkdir -p "$PWD/rmm/.vscode"
 
-$ cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
+cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
 {
     "configurations": [
         {
@@ -141,24 +131,23 @@ $ cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
                 "/usr/local/cuda/nvvm/lib64",
                 "$PWD/rmm/include",
                 "$PWD/cudf/cpp/include",
-                "$PWD/cugraph/cpp/include",
-                "$PWD/custrings/cpp/include"
+                "$PWD/compose/etc/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "clang-x64",
-            "configurationProvider": "vector-of-bool.cmake-tools"
+            "intelliSenseMode": "\${default}"
         }
     ],
     "version": 4
 }
 EOF
 
-$ cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/cudf/cpp/.vscode" && \
-  cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/cugraph/cpp/.vscode" && \
-  cp "$PWD/rmm/.vscode/c_cpp_properties.json" "$PWD/custrings/cpp/.vscode"
+cp -r "$PWD/rmm/.vscode" "$PWD/cudf/"
+cp -r "$PWD/rmm/.vscode" "$PWD/cugraph/"
+cp -r "$PWD/rmm/.vscode" "$PWD/custrings/"
+
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
