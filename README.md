@@ -96,9 +96,6 @@ do
     git remote add -f upstream git@github.com:rapidsai/$REPO.git
     cd -
 done
-mkdir -p "$PWD/compose/etc/include"
-ln -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/include/cugraph"
-ln -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/include/nvstrings"
 EOF
 
 ```
@@ -115,9 +112,17 @@ Now configure VSCode C++ intellisense:
 
 ```bash
 $ cd ~/dev/rapids
-$ mkdir -p "$PWD/rmm/.vscode"
 
-cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
+# Create a directory to hold symlinks to the include dirs so the source paths match the include paths
+$  mkdir -p "$PWD/compose/etc/include"
+ln -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/include/cugraph"
+ln -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/include/nvstrings"
+
+# Create the VSCode C++ intellisense configuration in compose/etc/.vscode
+# Symlink that directory into each rapids project.
+$ mkdir -p "$PWD/compose/etc/.vscode"
+
+cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
 {
     "configurations": [
         {
@@ -142,9 +147,13 @@ cat << EOF > "$PWD/rmm/.vscode/c_cpp_properties.json"
 }
 EOF
 
-cp -r "$PWD/rmm/.vscode" "$PWD/cudf/"
-cp -r "$PWD/rmm/.vscode" "$PWD/cugraph/"
-cp -r "$PWD/rmm/.vscode" "$PWD/custrings/"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/rmm/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/cudf/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/cugraph/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/custrings/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/cudf/cpp/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/cugraph/cpp/.vscode"
+ln -s "$PWD/compose/etc/.vscode" "$PWD/custrings/cpp/.vscode"
 
 ```
 
