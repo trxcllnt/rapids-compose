@@ -122,7 +122,12 @@ ln -s "$PWD/cudf/java/src/main/native/include/jni_utils.hpp" "$PWD/compose/etc/i
 
 # Create the VSCode C++ intellisense configuration in compose/etc/.vscode
 # Symlink that directory into each rapids project.
-$ mkdir -p "$PWD/compose/etc/.vscode"
+$ mkdir -p \
+    "$PWD/compose/etc/.vscode" \
+    "$PWD/cugraph/python/.vscode" \
+    "$PWD/custrings/python/.vscode" \
+    "$PWD/cudf/python/cudf/.vscode" \
+    "$PWD/cudf/python/dask_cudf/.vscode"
 
 cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
 {
@@ -188,6 +193,8 @@ $ cat << EOF > "$PWD/compose/etc/.vscode/settings.json"
         "**/__pycache__": true,
         "**/.pytest_cache": true,
         "**/build/include": true,
+        "**/cudf/bindings/**/*.so": true,
+        "**/cudf/bindings/**/*.cpp": true,
         "**/build/lib.linux-x86_64*": true,
         "**/build/temp.linux-x86_64*": true,
         "**/build/bdist.linux-x86_64*": true,
@@ -196,6 +203,12 @@ $ cat << EOF > "$PWD/compose/etc/.vscode/settings.json"
     "C_Cpp.intelliSenseCachePath": "$PWD/compose/etc/.vscode/.vscode-cpptools"
 }
 EOF
+
+ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cugraph/python/.vscode/settings.json"
+ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/custrings/python/.vscode/settings.json"
+ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cudf/python/cudf/.vscode/settings.json"
+ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cudf/python/dask_cudf/.vscode/settings.json"
+
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
