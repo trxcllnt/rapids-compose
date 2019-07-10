@@ -7,6 +7,7 @@ cd $RAPIDS_HOME
 ###
 mkdir -p "$RMM_ROOT/build" && cd "$RMM_ROOT/build" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
+             -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$RMM_ROOT/build" \
              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release} \
  && make install -j \
@@ -19,6 +20,7 @@ mkdir -p "$RMM_ROOT/build" && cd "$RMM_ROOT/build" \
 ###
 mkdir -p "$NVSTRINGS_ROOT/build" && cd "$NVSTRINGS_ROOT/build" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
+             -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$NVSTRINGS_ROOT/build" \
              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release} \
  && make install -j \
@@ -33,6 +35,7 @@ mkdir -p "$NVSTRINGS_ROOT/build" && cd "$NVSTRINGS_ROOT/build" \
 ###
 mkdir -p "$CUDF_ROOT/build" && cd "$CUDF_ROOT/build" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
+             -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$CUDF_ROOT/build" \
              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release} \
  && make install -j \
@@ -44,6 +47,7 @@ mkdir -p "$CUDF_ROOT/build" && cd "$CUDF_ROOT/build" \
 # Build libcugraph and cuGraph
 mkdir -p "$CUGRAPH_ROOT/build" && cd "$CUGRAPH_ROOT/build" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
+             -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$CUGRAPH_ROOT/build" \
              -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release} \
  && make install -j \

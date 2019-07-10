@@ -28,7 +28,7 @@ ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/nvvm/lib64"
 RUN apt update -y --fix-missing \
  && apt upgrade -y \
  && apt install -y --no-install-recommends \
-    git curl \
+    git curl doxygen \
     apt-utils software-properties-common \
     libssl-dev build-essential libboost-all-dev \
     autoconf gcc-${GCC_VERSION} g++-${CXX_VERSION}
@@ -54,19 +54,6 @@ RUN apt-add-repository ppa:deadsnakes/ppa \
  && echo "pip at $(which pip) version after alias: $(pip --version)" \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ARG CFFI_VERSION=1.11.5
-ARG NUMBA_VERSION=0.42.0
-ARG NUMPY_VERSION=1.16.0
-ARG CYTHON_VERSION=0.29.1
-
-# Install cudf setup requirements
-RUN pip install --no-cache-dir \
-    wheel cmake_setuptools \
-    cffi==${CFFI_VERSION} \
-    numba==${NUMBA_VERSION} \
-    numpy==${NUMPY_VERSION} \
-    cython==${CYTHON_VERSION}
-
 ARG UID=1000
 ENV _UID=$UID
 
@@ -76,8 +63,11 @@ ENV _GID=$GID
 ARG RAPIDS_HOME
 ENV RAPIDS_HOME="$RAPIDS_HOME"
 
-ARG BUILD_TESTS=1000
+ARG BUILD_TESTS=OFF
 ENV BUILD_TESTS=$BUILD_TESTS
+
+ARG BUILD_BENCHMARKS=OFF
+ENV BUILD_BENCHMARKS=$BUILD_BENCHMARKS
 
 ARG CMAKE_BUILD_TYPE=Release
 ENV CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
@@ -105,6 +95,12 @@ ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
 
 WORKDIR $RAPIDS_HOME
+
+# Copy in pip requirements.txt
+COPY compose/etc/base/requirements.txt "$RAPIDS_HOME/compose/etc/base/requirements.txt"
+
+# Install cudf setup requirements
+RUN pip install --no-cache-dir -r "$RAPIDS_HOME/compose/etc/base/requirements.txt"
 
 COPY compose/etc/build-rapids.sh "$RAPIDS_HOME/compose/etc/build-rapids.sh"
 COPY compose/etc/check-style.sh "$RAPIDS_HOME/compose/etc/check-style.sh"

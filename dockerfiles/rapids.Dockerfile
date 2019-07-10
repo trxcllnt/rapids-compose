@@ -5,9 +5,8 @@ ARG LINUX_VERSION=ubuntu16.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 ###
-# RAPIDS runtime container
+# RAPIDS runtime dev container
 ###
-# FROM nvidia/cuda:${CUDA_VERSION}-runtime-${LINUX_VERSION}
 FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG CUDA_SHORT_VERSION
@@ -87,19 +86,10 @@ ARG PYARROW_VERSION=0.12.1
 ARG PTVSD_LOG_DIR=/var/log/ptvsd
 ENV PTVSD_LOG_DIR=$PTVSD_LOG_DIR
 
-RUN pip --no-cache-dir install \
-    # install VSCode python debugger
-    ptvsd \
-    pytest \
-    flake8 \
-    msgpack \
-    cffi==${CFFI_VERSION} \
-    numba==${NUMBA_VERSION} \
-    cython==${CYTHON_VERSION} \
-    pandas==${PANDAS_VERSION} \
-    pyarrow==${PYARROW_VERSION} \
-    distributed>=${DASK_VERSION} \
-    dask[dataframe]==${DASK_VERSION} \
+# Copy in pip requirements.txt
+COPY compose/etc/rapids/requirements.txt "$RAPIDS_HOME/compose/etc/rapids/requirements.txt"
+
+RUN pip install --no-cache-dir -r "$RAPIDS_HOME/compose/etc/rapids/requirements.txt" \
  # cleanup
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  # Add tini to reap container subprocesses on exit

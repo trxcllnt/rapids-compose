@@ -35,7 +35,7 @@ services:
     ports:
       - "5678:5678"
     volumes:
-      - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/log:/var/log/ptvsd"
+      - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/rapids/log:/var/log/ptvsd"
       - *rapids_home
 
   notebooks:
@@ -50,7 +50,8 @@ services:
     volumes:
       - *ptvsd_logs
       - *rapids_home
+      - &jupyter "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
-      - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks:/home/rapids/notebooks/sandbox"
+      - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
       - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-extended/data:/home/rapids/notebooks/data"
       - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-extended:/home/rapids/notebooks/extended"

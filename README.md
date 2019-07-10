@@ -41,8 +41,9 @@ CUDA_VERSION=10.0
 PYTHON_VERSION=3.7
 LINUX_VERSION=ubuntu18.04
 
-# Whether to build C++/cuda tests during \`make rapids\` target
+# Whether to build C++/cuda tests/benchmarks during `make rapids` target
 BUILD_TESTS=ON
+BUILD_BENCHMARKS=ON
 
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=Release
@@ -115,21 +116,20 @@ Now configure VSCode C++ intellisense:
 $ cd ~/dev/rapids
 
 # Create a directory to hold symlinks to the include dirs so the source paths match the include paths
-$  mkdir -p "$PWD/compose/etc/include"
-ln -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/include/cugraph"
-ln -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/include/nvstrings"
-ln -s "$PWD/cudf/java/src/main/native/include/jni_utils.hpp" "$PWD/compose/etc/include/jni_utils.hpp"
+$ mkdir -p "$PWD/compose/etc/rapids/include"
+ln -f -n -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/rapids/include/cugraph"
+ln -f -n -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/rapids/include/nvstrings"
+ln -f -n -s "$PWD/cudf/java/src/main/native/include/jni_utils.hpp" "$PWD/compose/etc/rapids/include/jni_utils.hpp"
 
-# Create the VSCode C++ intellisense configuration in compose/etc/.vscode
+# Create the VSCode C++ intellisense configuration in compose/etc/rapids/.vscode
 # Symlink that directory into each rapids project.
 $ mkdir -p \
-    "$PWD/compose/etc/.vscode" \
     "$PWD/cugraph/python/.vscode" \
     "$PWD/custrings/python/.vscode" \
     "$PWD/cudf/python/cudf/.vscode" \
     "$PWD/cudf/python/dask_cudf/.vscode"
 
-cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
+cat << EOF > "$PWD/compose/etc/rapids/.vscode/c_cpp_properties.json"
 {
     "configurations": [
         {
@@ -139,7 +139,7 @@ cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
                 "/usr/local/cuda/include",
                 "$PWD/rmm/include",
                 "$PWD/cudf/cpp/include",
-                "$PWD/compose/etc/include"
+                "$PWD/compose/etc/rapids/include"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
@@ -160,20 +160,21 @@ cat << EOF > "$PWD/compose/etc/.vscode/c_cpp_properties.json"
 }
 EOF
 
-ln -s "$PWD/compose/etc/.vscode" "$PWD/rmm/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/cudf/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/cugraph/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/custrings/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/cudf/cpp/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/cugraph/cpp/.vscode"
-ln -s "$PWD/compose/etc/.vscode" "$PWD/custrings/cpp/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/rmm/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cugraph/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/custrings/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/cpp/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/java/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cugraph/cpp/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/custrings/cpp/.vscode"
 
 ```
 
 Now create workspace-specific settings. Feel free to copy these to your global `settings.json` file if you find them useful:
 
 ```bash
-$ cat << EOF > "$PWD/compose/etc/.vscode/settings.json"
+$ cat << EOF > "$PWD/compose/etc/rapids/.vscode/settings.json"
 {
     "search.exclude": {
         "**/build/include": true
@@ -200,14 +201,14 @@ $ cat << EOF > "$PWD/compose/etc/.vscode/settings.json"
         "**/build/bdist.linux-x86_64*": true,
     },
     "C_Cpp.exclusionPolicy": "checkFolders",
-    "C_Cpp.intelliSenseCachePath": "$PWD/compose/etc/.vscode/.vscode-cpptools"
+    "C_Cpp.intelliSenseCachePath": "$PWD/compose/etc/rapids/.vscode/.vscode-cpptools"
 }
 EOF
 
-ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cugraph/python/.vscode/settings.json"
-ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/custrings/python/.vscode/settings.json"
-ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cudf/python/cudf/.vscode/settings.json"
-ln -s "$PWD/compose/etc/.vscode/settings.json" "$PWD/cudf/python/dask_cudf/.vscode/settings.json"
+ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cugraph/python/.vscode/settings.json"
+ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/custrings/python/.vscode/settings.json"
+ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cudf/python/cudf/.vscode/settings.json"
+ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cudf/python/dask_cudf/.vscode/settings.json"
 
 ```
 
