@@ -139,6 +139,7 @@ cat << EOF > "$PWD/compose/etc/rapids/.vscode/c_cpp_properties.json"
                 "/usr/local/cuda/include",
                 "$PWD/rmm/include",
                 "$PWD/cudf/cpp/include",
+                "$PWD/custrings/cpp/include",
                 "$PWD/compose/etc/rapids/include"
             ],
             "browse": {
@@ -168,6 +169,7 @@ ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/cpp/.vscode"
 ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/java/.vscode"
 ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cugraph/cpp/.vscode"
 ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/custrings/cpp/.vscode"
+ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/custrings/python/.vscode"
 
 ```
 
@@ -206,7 +208,6 @@ $ cat << EOF > "$PWD/compose/etc/rapids/.vscode/settings.json"
 EOF
 
 ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cugraph/python/.vscode/settings.json"
-ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/custrings/python/.vscode/settings.json"
 ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cudf/python/cudf/.vscode/settings.json"
 ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cudf/python/dask_cudf/.vscode/settings.json"
 
