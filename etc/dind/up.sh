@@ -36,4 +36,4 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file up $args $services;
+exec docker-compose -f $file up $args $services;

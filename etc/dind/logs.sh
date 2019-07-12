@@ -23,4 +23,4 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file logs $args $services;
+exec docker-compose -f $file logs $args $services;

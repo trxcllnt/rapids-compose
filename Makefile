@@ -20,6 +20,8 @@ all: rapids notebooks
 
 rapids:
 	@$(MAKE) -s dc.build svc="base"
+	@$(MAKE) -s dc.run svc="base"
+	@$(MAKE) -s dc.build svc="rapids"
 
 notebooks: args ?=
 notebooks: cmd_args ?=
@@ -66,9 +68,7 @@ rapids.cudf.test:
 rapids.cudf.test.debug: expr ?= _
 rapids.cudf.test.debug: args ?= pytest -v -x
 rapids.cudf.test.debug:
-	@$(MAKE) -s rapids.cudf.run cmd_args="-d" args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k '$(expr)'"
-	docker network inspect compose_default | jq -c \
-		'.[].Containers | to_entries | .[].value | select(.Name | startswith("compose_rapids")) | .IPv4Address | "Debugger listening at: \(.[0:-3])"'
+	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k '$(expr)'"
 
 rapids.cudf.lint:
 	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /rapids/compose/etc/check-style.sh"

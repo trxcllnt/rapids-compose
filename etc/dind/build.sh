@@ -28,4 +28,4 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file build $args $services;
+exec docker-compose -f $file build $args $services;

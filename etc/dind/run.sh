@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 cd "$COMPOSE_HOME"
 
@@ -33,4 +33,27 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file run $args $services;
+docker-compose -f $file run $args $services &
+pid=$!
+
+print_svc_ip() {
+    service="compose_$1"
+    query=".[].Containers | to_entries | .[].value"
+    query="$query | select(.Name | startswith(\"$service\"))"
+    query="$query | .IPv4Address | \"$service ip: \(.[0:-3])\""
+    result="$(docker network inspect compose_default 2>/dev/null | jq -c "$(echo "$query")")"
+    echo $result;
+}
+
+# docker-compose -f $file run $args $services;
+
+for service in $services; do
+    until [ "$(print_svc_ip $service)" != "" ]; do
+        sleep 1;
+    done;
+    echo "$(print_svc_ip $service)"
+    break;
+done
+
+wait $pid
+exit $?

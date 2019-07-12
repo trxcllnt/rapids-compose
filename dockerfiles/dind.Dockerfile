@@ -23,7 +23,7 @@ ENV LD_LIBRARY_PATH=/lib:/usr/lib
 RUN set -x && \
     apk add --no-cache -t .deps ca-certificates && \
     # Required dependencies.
-    apk add --no-cache zlib libgcc && \
+    apk add --no-cache zlib libgcc bash jq && \
     # Install docker-compose.
     # https://docs.docker.com/compose/install/
     DOCKER_COMPOSE_URL=https://github.com$(wget -q -O- https://github.com/docker/compose/releases/latest \
@@ -61,8 +61,11 @@ ENV RAPIDS_NAMESPACE=anon
 
 WORKDIR "$RAPIDS_HOME"
 
-COPY etc/dind/.dockerignore .dockerignore
+COPY etc/dind/ "$RAPIDS_HOME/compose/etc/dind"
+COPY etc/dind/.dockerignore "$RAPIDS_HOME/.dockerignore"
+
+RUN cat "$RAPIDS_HOME/.dockerignore"
 
 ENTRYPOINT ["$RAPIDS_HOME/compose/etc/dind/build.sh"]
 
-CMD [""]
+CMD ["$RAPIDS_HOME/compose/etc/dind/print_build_context.sh"]

@@ -27,4 +27,4 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file exec $args $services;
+exec docker-compose -f $file exec $args $services;
