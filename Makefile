@@ -111,6 +111,9 @@ dc: dind
 		-e RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
 		"$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" $(file) $(cmd_args) $(svc) $(svc_args)
 
+dc.print_build_context:
+	@$(MAKE) -s dc cmd="print_build_context"
+
 dc.build: svc ?=
 dc.build: svc_args ?=
 dc.build: cmd_args ?= -f
