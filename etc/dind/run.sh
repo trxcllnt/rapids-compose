@@ -33,7 +33,7 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file run $args $services &
+docker-compose -f $file run $args $services | tee /dev/null &
 pid=$!
 
 print_svc_ip() {
