@@ -1,5 +1,9 @@
-.env
-.git
-etc/log
-etc/notebooks
-.ipynb_checkpoints
+**/.env
+**/.git
+**/.vscode
+**/etc/rapids/log
+**/etc/rapids/include
+**/etc/rapids/.vscode
+**/etc/notebooks/sandbox
+**/etc/notebooks/.jupyter
+**/.ipynb_checkpoints

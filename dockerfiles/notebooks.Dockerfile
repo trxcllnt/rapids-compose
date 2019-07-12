@@ -17,10 +17,10 @@ RUN pip install --no-cache-dir -r /home/rapids/compose/etc/notebooks/requirement
     /usr/local/share/jupyter/lab/schemas/\@jupyterlab/apputils-extension/themes.json
 
 # Add notebooks and util scripts
-COPY --chown=rapids:rapids notebooks /home/rapids/notebooks/core
-COPY --chown=rapids:rapids notebooks-extended/data /home/rapids/notebooks/data
-COPY --chown=rapids:rapids notebooks-extended/ /home/rapids/notebooks/extended
-COPY --chown=rapids:rapids compose/etc/notebooks/.jupyter /home/rapids/.jupyter
+# COPY --chown=rapids:rapids notebooks /home/rapids/notebooks/core
+# COPY --chown=rapids:rapids notebooks-extended/data /home/rapids/notebooks/data
+# COPY --chown=rapids:rapids notebooks-extended/ /home/rapids/notebooks/extended
+# COPY --chown=rapids:rapids compose/etc/notebooks/.jupyter /home/rapids/.jupyter
 
 WORKDIR /home/rapids/notebooks
 

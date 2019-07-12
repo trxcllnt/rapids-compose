@@ -25,6 +25,11 @@ services:
       dockerfile: compose/dockerfiles/base.Dockerfile
     volumes:
       - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
+      - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
+      - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
+      - &compose "${RAPIDS_HOME:-$PWD}/compose:${RAPIDS_HOME:-$PWD}/compose"
+      - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
+      - &custrings "${RAPIDS_HOME:-$PWD}/custrings:${RAPIDS_HOME:-$PWD}/custrings"
 
   rapids:
     <<: *service_settings
@@ -36,7 +41,11 @@ services:
       - "5678:5678"
     volumes:
       - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/rapids/log:/var/log/ptvsd"
-      - *rapids_home
+      - *rmm
+      - *cudf
+      - *compose
+      - *cugraph
+      - *custrings
 
   notebooks:
     <<: *service_settings
@@ -49,7 +58,11 @@ services:
       - "8888:8888"
     volumes:
       - *ptvsd_logs
-      - *rapids_home
+      - *rmm
+      - *cudf
+      - *compose
+      - *cugraph
+      - *custrings
       - &jupyter "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"

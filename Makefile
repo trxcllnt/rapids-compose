@@ -19,9 +19,7 @@ DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0
 all: rapids notebooks
 
 rapids:
-	@$(MAKE) -s dc svc="base" cmd="build"
-	@$(MAKE) -s dc svc="base" cmd="run"
-	@$(MAKE) -s dc svc="rapids" cmd="build"
+	@$(MAKE) -s dc.build svc="base"
 
 notebooks: args ?=
 notebooks: cmd_args ?=
@@ -99,7 +97,13 @@ dc: dind
 	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker run -it --rm --entrypoint "$$RAPIDS_HOME/compose/etc/dind/$(cmd).sh" \
-		-v "$$RAPIDS_HOME":"$$RAPIDS_HOME" \
+		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
+		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
+		-v "$$RAPIDS_HOME/compose:$$RAPIDS_HOME/compose" \
+		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
+		-v "$$RAPIDS_HOME/custrings:$$RAPIDS_HOME/custrings" \
+		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
+		-v "$$RAPIDS_HOME/notebooks-extended:$$RAPIDS_HOME/notebooks-extended" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \

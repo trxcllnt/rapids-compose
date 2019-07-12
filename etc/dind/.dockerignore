@@ -1,18 +1,27 @@
+**/img
+**/.git
 **/dist
+**/data
 **/build
 **/.cache
 **/.github
 **/*.vscode
 **/__pycache__
+**/.pytest_cache
 **/.ipynb_checkpoints
+**/notebooks-extended/*
 
 **/.env
 **/*.pyc
 **/*.so*
 **/*.egg*
+**/*.log
 **/.DS_STORE
 **/.gitignore
 
 **/Makefile
 **/*Dockerfile*
 **/*compose*.yml
+
+**/cudf/bindings/**/*.so
+**/cudf/bindings/**/*.cpp
