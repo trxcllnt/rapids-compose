@@ -58,7 +58,7 @@ rapids.logs:
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /rapids/cudf/python/cudf $(cmd_args) -u $(UID):$(GID)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /rapids/cudf $(cmd_args) -u $(UID):$(GID)"
 
 rapids.cudf.test: expr ?= _
 rapids.cudf.test: args ?= pytest -v -x
