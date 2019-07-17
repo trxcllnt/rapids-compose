@@ -5,7 +5,7 @@ cd $RAPIDS_HOME
 ###
 # Build librmm
 ###
-mkdir -p "$RMM_ROOT/build" && cd "$RMM_ROOT/build" \
+mkdir -p "$RMM_ROOT/build" && cd "$RMM_ROOT/build" && rm -rf "$RMM_ROOT/build/include" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
              -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$RMM_ROOT/build" \
@@ -18,7 +18,7 @@ mkdir -p "$RMM_ROOT/build" && cd "$RMM_ROOT/build" \
 ###
 # Build nvstrings
 ###
-mkdir -p "$NVSTRINGS_ROOT/build" && cd "$NVSTRINGS_ROOT/build" \
+mkdir -p "$NVSTRINGS_ROOT/build" && cd "$NVSTRINGS_ROOT/build" && rm -rf "$NVSTRINGS_ROOT/build/include" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
              -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$NVSTRINGS_ROOT/build" \
@@ -33,7 +33,7 @@ mkdir -p "$NVSTRINGS_ROOT/build" && cd "$NVSTRINGS_ROOT/build" \
 ###
 # Build libcudf and cuDF
 ###
-mkdir -p "$CUDF_ROOT/build" && cd "$CUDF_ROOT/build" \
+mkdir -p "$CUDF_ROOT/build" && cd "$CUDF_ROOT/build" && rm -rf "$CUDF_ROOT/build/include" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
              -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$CUDF_ROOT/build" \
@@ -45,7 +45,7 @@ mkdir -p "$CUDF_ROOT/build" && cd "$CUDF_ROOT/build" \
  && cd "$CUDF_HOME/python/dask_cudf" && python setup.py build_ext --inplace
 
 # Build libcugraph and cuGraph
-mkdir -p "$CUGRAPH_ROOT/build" && cd "$CUGRAPH_ROOT/build" \
+mkdir -p "$CUGRAPH_ROOT/build" && cd "$CUGRAPH_ROOT/build" && rm -rf "$CUGRAPH_ROOT/build/include" \
  && cmake .. -DBUILD_TESTS=${BUILD_TESTS:-OFF} \
              -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF} \
              -DCMAKE_INSTALL_PREFIX="$CUGRAPH_ROOT/build" \
