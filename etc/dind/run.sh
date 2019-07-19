@@ -41,19 +41,18 @@ print_svc_ip() {
     query=".[].Containers | to_entries | .[].value"
     query="$query | select(.Name | startswith(\"$service\"))"
     query="$query | .IPv4Address | \"$service ip: \(.[0:-3])\""
-    result="$(docker network inspect compose_default 2>/dev/null | jq -c "$(echo "$query")")"
-    echo $result;
+    docker network inspect compose_default 2>/dev/null | jq -r -c "$(echo "$query")"
 }
 
-# docker-compose -f $file run $args $services;
-
-for service in $services; do
-    until [ "$(print_svc_ip $service)" != "" ]; do
-        sleep 1;
+service=${services[0]}
+if [ "$service" != "" ]; then
+    result=""
+    until [ "$result" != "" ]; do
+        sleep 0.1;
+        result="$(print_svc_ip $service)"
     done;
-    echo "$(print_svc_ip $service)"
-    break;
-done
+    echo -e -n "$result\n\r"
+fi
 
 wait $pid
 exit $?
