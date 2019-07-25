@@ -7,7 +7,7 @@ ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 ###
 # RAPIDS runtime dev container
 ###
-FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
+FROM rapidsai/${RAPIDS_NAMESPACE:-anon}/base:${RAPIDS_VERSION:-latest}
 
 ARG CUDA_SHORT_VERSION
 ARG PYTHON_VERSION=3.7
@@ -20,26 +20,8 @@ SHELL ["/bin/bash", "-c"]
 RUN apt update -y --fix-missing \
  && apt upgrade -y \
  && apt install -y --no-install-recommends \
-    curl \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
-    apt-utils \
-    build-essential \
-    software-properties-common \
- && apt-add-repository ppa:deadsnakes/ppa \
- # Install python
- && apt install -y --no-install-recommends \
-    python${PYTHON_VERSION} \
-    python${PYTHON_VERSION}-dev \
-    python${PYTHON_VERSION}-distutils \
- && curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
- && ln -s $(which python${PYTHON_VERSION}) /usr/local/bin/python3 \
- && ln -s $(which python${PYTHON_VERSION}) /usr/local/bin/python \
- && echo "python3 at $(which python3) version after alias: $(python3 --version)" \
- && echo "python at $(which python) version after alias: $(python --version)" \
- && python /tmp/get-pip.py \
- && echo "pip3 at $(which pip3) version after alias: $(pip3 --version)" \
- && echo "pip at $(which pip) version after alias: $(pip --version)" \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG RAPIDS_HOME
@@ -76,13 +58,7 @@ ENV PYTHONPATH="$PYTHONPATH:$CUGRAPH_HOME/python"
 ARG UID=1000
 ARG GID=1000
 ARG GOSU_VERSION=1.11
-ARG DASK_VERSION=2.0.0
 ARG TINI_VERSION=v0.18.0
-ARG CFFI_VERSION=1.11.5
-ARG NUMBA_VERSION=0.43.0
-ARG PANDAS_VERSION=0.23.4
-ARG CYTHON_VERSION=0.29.10
-ARG PYARROW_VERSION=0.12.1
 ARG PTVSD_LOG_DIR=/var/log/ptvsd
 ENV PTVSD_LOG_DIR=$PTVSD_LOG_DIR
 

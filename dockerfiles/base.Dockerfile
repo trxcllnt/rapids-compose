@@ -44,6 +44,7 @@ RUN apt-add-repository ppa:deadsnakes/ppa \
  && apt install -y --no-install-recommends \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-dev \
+    python${PYTHON_VERSION}-distutils \
  && curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
  && ln -s $(which python${PYTHON_VERSION}) /usr/local/bin/python3 \
  && ln -s $(which python${PYTHON_VERSION}) /usr/local/bin/python \
@@ -53,6 +54,10 @@ RUN apt-add-repository ppa:deadsnakes/ppa \
  && echo "pip3 at $(which pip3) version after alias: $(pip3 --version)" \
  && echo "pip at $(which pip) version after alias: $(pip --version)" \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN cd /usr/src && git clone https://github.com/dmlc/dlpack.git \
+ && cd dlpack && mkdir -p build && cd build \
+ && cmake .. && make install -j
 
 ARG UID=1000
 ENV _UID=$UID
