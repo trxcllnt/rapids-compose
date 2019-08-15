@@ -22,6 +22,7 @@
 **/Makefile
 **/*Dockerfile*
 **/*compose*.yml
+**/compose/etc/conda
 
 **/cudf/bindings/**/*.so
 **/cudf/bindings/**/*.cpp

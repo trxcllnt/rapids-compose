@@ -1,6 +1,7 @@
 **/.env
 **/.git
 **/.vscode
+**/etc/conda
 **/etc/rapids/log
 **/etc/rapids/include
 **/etc/rapids/.vscode

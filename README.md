@@ -85,17 +85,33 @@ EOF
 Then check out your forks locally:
 
 ```bash
-$ cd ~/dev/rapids
-
-# Be sure to replace `GITHUB_USER` with your github username here
-$ GITHUB_USER="rapidsai" bash << "EOF"
+$ cd ~/dev/rapids && bash << "EOF"
+read -p "enter your github username: " GITHUB_USER </dev/tty
 REPOS="rmm cudf cugraph custrings notebooks notebooks-extended"
 for REPO in $REPOS
 do
-    git clone git@github.com:$GITHUB_USER/$REPO.git
+    git clone --recurse-submodules git@github.com:$GITHUB_USER/$REPO.git
+    cd $REPO && git remote add -f upstream git@github.com:rapidsai/$REPO.git
+    cd -
+done
+EOF
+
+```
+
+Use this script to fetch and merge changes from upstream:
+
+```bash
+$ cd ~/dev/rapids && bash << "EOF"
+read -p "enter the upstream branch to pull from: " BRANCH_NAME </dev/tty
+REPOS="rmm cudf cugraph custrings"
+for REPO in $REPOS
+do
     cd $REPO
-    git submodule update --init --remote --recursive
-    git remote add -f upstream git@github.com:rapidsai/$REPO.git
+    DIRTY="$(git status -s)"
+    [ -n "${DIRTY// }" ] && git stash -u
+    git fetch upstream && git checkout "$BRANCH_NAME"
+    git pull --recurse-submodules upstream "$BRANCH_NAME"
+    [ -n "${DIRTY// }" ] && git stash pop
     cd -
 done
 EOF
@@ -119,6 +135,7 @@ $ cd ~/dev/rapids
 $ mkdir -p "$PWD/compose/etc/rapids/include"
 ln -f -n -s "$PWD/cugraph/cpp/include" "$PWD/compose/etc/rapids/include/cugraph"
 ln -f -n -s "$PWD/custrings/cpp/include" "$PWD/compose/etc/rapids/include/nvstrings"
+ln -f -n -s "$PWD/cudf/cpp/build/compile_commands.json" "$PWD/cudf/cpp/compile_commands.json"
 ln -f -n -s "$PWD/cudf/java/src/main/native/include/jni_utils.hpp" "$PWD/compose/etc/rapids/include/jni_utils.hpp"
 
 # Create the VSCode C++ intellisense configuration in compose/etc/rapids/.vscode
@@ -217,9 +234,9 @@ ln -f -s "$PWD/compose/etc/rapids/.vscode/settings.json" "$PWD/cudf/python/dask_
 
 ```bash
 $ cd ~/dev/rapids/compose
-# Builds base containers, compiles rapids projects, builds notebook containers
+# Builds containers, compiles rapids projects, builds notebook containers
 $ make
-# Builds base containers and compiles rapids projects
+# Builds containers and compiles rapids projects
 $ make rapids
 # Builds notebook containers
 $ make notebooks

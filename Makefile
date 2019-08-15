@@ -13,39 +13,42 @@ DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
 
-.PHONY: all rapids notebooks
+.PHONY: all build rapids notebooks
 .SILENT: dind dc up run exec logs build rapids notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug notebooks.up notebooks.exec notebooks.logs
 
-all: rapids notebooks
+all: build rapids
+# all: build rapids notebooks
 
-rapids:
-	@$(MAKE) -s dc.build svc="base"
-	@$(MAKE) -s dc.run svc="base"
+build:
 	@$(MAKE) -s dc.build svc="rapids"
 
-notebooks: args ?=
-notebooks: cmd_args ?=
-notebooks:
-	@$(MAKE) -s dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+rapids: build
+	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)"
 
-notebooks.up: args ?=
-notebooks.up: cmd_args ?= -d
-notebooks.up:
-	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+# notebooks: args ?=
+# notebooks: cmd_args ?=
+# notebooks:
+# 	@$(MAKE) -s dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
-notebooks.exec: args ?=
-notebooks.exec: cmd_args ?=
-notebooks.exec:
-	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+# notebooks.up: args ?=
+# notebooks.up: cmd_args ?= -d
+# notebooks.up:
+# 	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
-notebooks.logs: args ?=
-notebooks.logs: cmd_args ?= -f
-notebooks.logs:
-	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+# notebooks.exec: args ?=
+# notebooks.exec: cmd_args ?=
+# notebooks.exec:
+# 	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+# notebooks.logs: args ?=
+# notebooks.logs: cmd_args ?= -f
+# notebooks.logs:
+# 	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 rapids.run: args ?=
+rapids.run: cmd_args ?=
 rapids.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="$(cmd_args) -u $(id -u):$(id -g)"
 
 rapids.exec: args ?=
 rapids.exec:
@@ -60,15 +63,13 @@ rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
 	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /rapids/cudf $(cmd_args) -u $(UID):$(GID)"
 
-rapids.cudf.test: expr ?= _
-rapids.cudf.test: args ?= pytest -v -x
+rapids.cudf.test: args ?= -v -x
 rapids.cudf.test:
-	@$(MAKE) -s rapids.cudf.run args="$(args) -k '$(expr)'"
+	@$(MAKE) -s rapids.cudf.run args="pytest $(args) ."
 
-rapids.cudf.test.debug: expr ?= _
-rapids.cudf.test.debug: args ?= pytest -v -x
+rapids.cudf.test.debug: args ?= -v -x
 rapids.cudf.test.debug:
-	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m $(args) -k '$(expr)'"
+	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $(args) ."
 
 rapids.cudf.lint:
 	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /rapids/compose/etc/check-style.sh"
@@ -107,6 +108,8 @@ dc: dind
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \
+		-e LINES=$(shell tput lines) \
+		-e COLUMNS=$(shell tput cols) \
 		-e RAPIDS_HOME="$$RAPIDS_HOME" \
 		-e CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		-e LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \

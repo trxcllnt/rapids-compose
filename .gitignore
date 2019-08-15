@@ -1,4 +1,7 @@
 .env
+etc/conda
+etc/rapids/rapids.yml
+
 etc/rapids/log/*
 etc/rapids/include/*
 etc/rapids/.vscode/*

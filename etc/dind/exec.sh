@@ -27,4 +27,6 @@ file="$file";
 args="$args";
 services=$*;
 
-exec docker-compose -f $file exec $args $services;
+exec docker-compose -f $file exec \
+    -e LINES="$LINES" -e COLUMNS="$COLUMNS" \
+    $args $services;
