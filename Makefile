@@ -48,7 +48,7 @@ rapids: build
 rapids.run: args ?=
 rapids.run: cmd_args ?=
 rapids.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="$(cmd_args) -u $(id -u):$(id -g)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="-u $(UID):$(GID) $(cmd_args)"
 
 rapids.exec: args ?=
 rapids.exec:
@@ -61,7 +61,7 @@ rapids.logs:
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
 rapids.cudf.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-w /rapids/cudf $(cmd_args) -u $(UID):$(GID)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-u $(UID):$(GID) -w /rapids/cudf $(cmd_args)"
 
 rapids.cudf.test: args ?= -v -x
 rapids.cudf.test:
@@ -72,7 +72,7 @@ rapids.cudf.test.debug:
 	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $(args) ."
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run cmd_args="--entrypoint /rapids/compose/etc/check-style.sh"
+	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/check-style.sh"
 
 # Build the docker-in-docker container
 dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)
