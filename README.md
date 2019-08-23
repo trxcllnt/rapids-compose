@@ -41,9 +41,9 @@ CUDA_VERSION=10.0
 PYTHON_VERSION=3.7
 LINUX_VERSION=ubuntu18.04
 
-# Whether to build C++/cuda tests/benchmarks during `make rapids` target
+# Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=ON
-BUILD_BENCHMARKS=ON
+BUILD_BENCHMARKS=OFF
 
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=Release

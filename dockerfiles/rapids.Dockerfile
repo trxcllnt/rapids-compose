@@ -56,7 +56,7 @@ RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
- && mkdir -p /home/rapids/.conda "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
+ && mkdir -p /var/log /home/rapids /home/rapids/.conda "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
  # Create a rapids user with the same GID/UID as your outside OS user,
