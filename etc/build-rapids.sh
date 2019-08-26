@@ -36,8 +36,8 @@ cd $RAPIDS_HOME
  \
  && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete \
  && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete \
- && find "$CUDF_HOME/python/cudf/cudf/bindings" -type f -name '*.so' -delete \
- && find "$CUDF_HOME/python/cudf/cudf/bindings" -type f -name '*.cpp' -delete \
+ && find "$CUDF_HOME/python/cudf/cudf/_lib" -type f -name '*.so' -delete \
+ && find "$CUDF_HOME/python/cudf/cudf/_lib" -type f -name '*.cpp' -delete \
  ;
 
 D_CMAKE_ARGS="-DCMAKE_CXX11_ABI=ON
