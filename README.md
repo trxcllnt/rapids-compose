@@ -13,10 +13,6 @@
 * [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
 
 ## Prerequisites
-* [`jq`](https://stedolan.github.io/jq/):
-    ```
-    $ sudo apt install jq
-    ```
 * [`docker-compose`](https://github.com/docker/compose/releases)
     ```bash
     $ sudo curl \

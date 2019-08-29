@@ -16,34 +16,17 @@ DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0
 .PHONY: all build rapids notebooks
 .SILENT: dind dc up run exec logs build rapids notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug notebooks.up notebooks.exec notebooks.logs
 
-all: build rapids
-# all: build rapids notebooks
+all: build rapids notebooks
 
 build:
 	@$(MAKE) -s dc.build svc="rapids"
+	@$(MAKE) -s dc.build svc="notebooks"
 
 rapids: build
 	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)"
 
-# notebooks: args ?=
-# notebooks: cmd_args ?=
-# notebooks:
-# 	@$(MAKE) -s dc.build svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
-
-# notebooks.up: args ?=
-# notebooks.up: cmd_args ?= -d
-# notebooks.up:
-# 	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
-
-# notebooks.exec: args ?=
-# notebooks.exec: cmd_args ?=
-# notebooks.exec:
-# 	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
-
-# notebooks.logs: args ?=
-# notebooks.logs: cmd_args ?= -f
-# notebooks.logs:
-# 	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+notebooks: build
+	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="echo 'notebooks build complete'"
 
 rapids.run: args ?=
 rapids.run: cmd_args ?=
@@ -72,7 +55,27 @@ rapids.cudf.test.debug:
 	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $(args) ."
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/check-style.sh"
+	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/rapids/lint.sh"
+
+notebooks.run: args ?=
+notebooks.run: cmd_args ?=
+notebooks.run:
+	@$(MAKE) -s dc.run svc="notebooks" svc_args=$(args) cmd_args="-u $(UID):$(GID) $(cmd_args)"
+
+notebooks.up: args ?=
+notebooks.up: cmd_args ?= -d
+notebooks.up:
+	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+notebooks.exec: args ?=
+notebooks.exec: cmd_args ?=
+notebooks.exec:
+	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+
+notebooks.logs: args ?=
+notebooks.logs: cmd_args ?= -f
+notebooks.logs:
+	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 # Build the docker-in-docker container
 dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)

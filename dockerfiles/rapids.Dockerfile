@@ -56,7 +56,8 @@ RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
- && mkdir -p /var/log /home/rapids /home/rapids/.conda "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
+ && mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
+             /home/rapids /home/rapids/.conda /home/rapids/notebooks \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
  # Create a rapids user with the same GID/UID as your outside OS user,
@@ -67,7 +68,7 @@ RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}
     # 3. Assign bash as the login shell
     -d /home/rapids -G tty -s /bin/bash rapids \
  && chmod 0777 /tmp \
- && chown -R ${UID}:${GID} /home/rapids "$CONDA_HOME" \
+ && chown -R ${_UID}:${_GID} /home/rapids "$CONDA_HOME" \
  && chmod -R 0755 /var/log /home/rapids "$CONDA_HOME" "$PTVSD_LOG_DIR"
 
 # Add conda environments and recipes
@@ -91,8 +92,6 @@ ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 ENV LD_LIBRARY_PATH="$CONDA_HOME/lib:$LD_LIBRARY_PATH"
 ENV LD_LIBRARY_PATH="$CONDA_HOME/envs/rapids/lib:$LD_LIBRARY_PATH"
 
-ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
-
 # Expose VSCode debugger port
 EXPOSE 5678
 
@@ -105,21 +104,31 @@ ENV BUILD_BENCHMARKS="$BUILD_BENCHMARKS"
 ARG CMAKE_BUILD_TYPE="Release"
 ENV CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE"
 
-WORKDIR $RAPIDS_HOME
+# COPY --chown=rapids compose/etc/rapids/lint.sh "$RAPIDS_HOME/compose/etc/rapids/lint.sh"
+# COPY --chown=rapids compose/etc/rapids/clean.sh "$RAPIDS_HOME/compose/etc/rapids/clean.sh"
+# COPY --chown=rapids compose/etc/rapids/build.sh "$RAPIDS_HOME/compose/etc/rapids/build.sh"
+# COPY --chown=rapids compose/etc/rapids/start.sh "$RAPIDS_HOME/compose/etc/rapids/start.sh"
+# COPY --chown=rapids compose/etc/conda-merge.sh "$RAPIDS_HOME/compose/etc/conda-merge.sh"
+# COPY --chown=rapids compose/etc/conda-install.sh "$RAPIDS_HOME/compose/etc/conda-install.sh"
 
-COPY --chown=rapids compose/etc/check-style.sh "$RAPIDS_HOME/compose/etc/check-style.sh"
-COPY --chown=rapids compose/etc/build-rapids.sh "$RAPIDS_HOME/compose/etc/build-rapids.sh"
-COPY --chown=rapids compose/etc/start-rapids.sh "/entrypoint.sh"
+ARG FRESH_CONDA_ENV=0
+ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
 # Create a bashrc that preserves history
 RUN bash -c "echo -e '\n\
 shopt -s histappend;\n\
-export PS1=\"\W\$ \";\n\
+# export PS1=\"\W\$ \";\n\
 export HISTCONTROL=ignoreboth;\n\
 export HISTSIZE=INFINITE;\n\
 export HISTFILESIZE=10000000;\n\
-'" > /home/rapids/.bashrc && chown ${UID}:${GID} /home/rapids/.bashrc
+'" > /home/rapids/.bashrc && chown ${_UID}:${_GID} /home/rapids/.bashrc \
+ \
+ && bash -c "echo -e '#!/bin/bash -e\n\
+exec \"$RAPIDS_HOME/compose/etc/rapids/start.sh\" \"\$@\"\n\
+'" > /entrypoint.sh && chown ${_UID}:${_GID} /entrypoint.sh && chmod +x /entrypoint.sh
 
-# SHELL ["/bin/bash", "-c"]
+WORKDIR $RAPIDS_HOME
 
-CMD ["compose/etc/build-rapids.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
+
+CMD ["compose/etc/rapids/build.sh"]

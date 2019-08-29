@@ -1,12 +1,14 @@
 .env
 etc/conda
-etc/rapids/rapids.yml
 
 etc/rapids/log/*
 etc/rapids/include/*
 etc/rapids/.vscode/*
+etc/rapids/rapids.yml
+
 etc/notebooks/sandbox/*
 etc/notebooks/.jupyter/*
+etc/notebooks/notebooks.yml
 
 !etc/rapids/log/.keepDir
 !etc/rapids/include/.keepDir
