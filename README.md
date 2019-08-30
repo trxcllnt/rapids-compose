@@ -3,7 +3,7 @@
 
 ### Quick links
 * [Prerequisites](#prerequisites)
-* [Clone and create local rapids dev compose environment](#clone-and-create-local-rapids-dev-compose-environment)
+* [Installation](#installation)
 * [Build the containers](#build-the-containers-only-builds-stages-that-have-been-invalidated)
 * [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
 * [Run cudf pytests](#run-cudf-pytests-and-optionally-apply-a-test-filter-expression)
@@ -32,17 +32,17 @@
       && sudo chmod +x /usr/local/bin/docker-compose
     ```
 
-## Clone and create local rapids dev compose environment
+## Installation
 
 ```shell
 # 1. Create a directory for all the Rapids projects to live
+$ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 # 2. Check out the rapids-compose repo into $PWD/compose
+$ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose && cd compose
 # 3. Check out the rapids repos and setup intellisense
+$ bash ./setup.sh
 # 4. Build the rapids and notebook containers
-$ mkdir -p ~/dev/rapids && cd ~/dev/rapids \
- && git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose && cd compose \
- && bash ./setup.sh \
- && make
+$ make
 ```
 
 ## Build the containers (only builds stages that have been invalidated)
@@ -73,26 +73,30 @@ rapids@xx:/rapids# exit
 $ cd ~/dev/rapids/compose
 $ make rapids.cudf.test args="-k 'test_string_index'"
 # ...
-============================================================ test session starts =============================================================
+========================== test session starts ===========================
 # ...
-collected 11735 items / 11733 deselected / 2 skipped                                                                                         
-python/cudf/tests/test_multiindex.py::test_string_index PASSED                                                                         [ 50%]
-python/cudf/tests/test_string.py::test_string_index PASSED                                                                             [100%]
-===================================== 2 passed, 2 skipped, 11733 deselected, 1 warnings in 3.09 seconds ======================================
+collected 11735 items / 11733 deselected / 2 skipped                    
+python/cudf/tests/test_multiindex.py::test_string_index PASSED     [ 50%]
+python/cudf/tests/test_string.py::test_string_index PASSED         [100%]
+=== 2 passed, 2 skipped, 11733 deselected, 1 warnings in 3.09 seconds ====
 ```
 
 ## Launch a notebook container with your file system mounted in
 ```shell
 $ cd ~/dev/rapids/compose
 $ make notebooks.run
-> Creating compose_notebooks_1 ... done
-> notebooks_1  | [I 10:13:25.192 LabApp] Writing notebook server cookie secret to /home/rapids/.local/share/jupyter/runtime/notebook_cookie_secret
-> notebooks_1  | [W 10:13:25.336 LabApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
-> notebooks_1  | [I 10:13:25.343 LabApp] JupyterLab extension loaded from /usr/local/lib/python3.7/dist-packages/jupyterlab
+> sha256:e3aa0faab509acaef49f48797c6dc783ec8ff7bffa1a2ecfea92e1ccc83bf919
+> [I 06:49:38.659 LabApp] Writing notebook server cookie secret to /home/rapids/.local/share/jupyter/runtime/notebook_cookie_secret
+> [W 06:49:38.822 LabApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
+> [I 06:49:39.214 LabApp] JupyterLab extension loaded from /home/ptaylor/dev/rapids/compose/etc/conda/envs/notebooks/lib/python3.7/site-packages/jupyterlab
+> [I 06:49:39.214 LabApp] JupyterLab application directory is /home/ptaylor/dev/rapids/compose/etc/conda/envs/notebooks/share/jupyter/lab
+> [I 06:49:39.216 LabApp] Serving notebooks from local directory: /home/rapids/notebooks
+> [I 06:49:39.216 LabApp] The Jupyter Notebook is running at:
+> [I 06:49:39.216 LabApp] http://localhost:8888/
+> [I 06:49:39.216 LabApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
 > ...^C
-> Stopping compose_notebooks_1 ... done
-> Removing compose_notebooks_1 ... done
-> Removing network compose_default
+> [C 06:50:27.934 LabApp] Shutdown confirmed
+> [I 06:50:27.935 LabApp] Shutting down 0 kernels
 ```
 
 ## Debug Python running in the container with VSCode
