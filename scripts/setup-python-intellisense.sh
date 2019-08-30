@@ -36,5 +36,4 @@ for PYDIR in $PYTHON_DIRS; do
     ]
 }
 EOF
-    fi
 done
