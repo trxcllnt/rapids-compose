@@ -27,7 +27,7 @@ create_vscode_workspace() {
             "$PWD/cugraph/cpp/build/include": true,
             "$PWD/custrings/cpp/build/include": true,
         },
-        "files.associations": { "*.cu": "cpp", "*.cuh": "cpp", }
+        "files.associations": { "*.cu": "cpp", "*.cuh": "cpp", },
         "files.exclude": {
 
             "**/.git": true,
