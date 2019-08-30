@@ -33,28 +33,4 @@ file="$file";
 args="$args";
 services=$*;
 
-docker-compose -f $file run \
-    -e LINES="$LINES" -e COLUMNS="$COLUMNS" \
-    $args $services | tee /dev/null &
-pid=$!
-
-print_svc_ip() {
-    service="compose_$1"
-    query=".[].Containers | to_entries | .[].value"
-    query="$query | select(.Name | startswith(\"$service\"))"
-    query="$query | .IPv4Address | \"$service ip: \(.[0:-3])\""
-    docker network inspect compose_default 2>/dev/null | jq -r -c "$(echo "$query")"
-}
-
-service=${services[0]}
-if [ "$service" != "" ]; then
-    result=""
-    until [ "$result" != "" ]; do
-        sleep 0.1;
-        result="$(print_svc_ip $service)"
-    done;
-    echo -e -n "$result\n\r"
-fi
-
-wait $pid
-exit $?
+exec docker-compose -f $file run $args $services

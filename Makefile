@@ -100,7 +100,7 @@ dc: dind
 	set -a && . .env && set +a && \
 	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
-	docker run -it --rm --entrypoint "$$RAPIDS_HOME/compose/etc/dind/$(cmd).sh" \
+	docker run -it --rm --net=host --entrypoint "$$RAPIDS_HOME/compose/etc/dind/$(cmd).sh" \
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
 		-v "$$RAPIDS_HOME/compose:$$RAPIDS_HOME/compose" \
@@ -111,8 +111,6 @@ dc: dind
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \
-		-e LINES=$(shell tput lines) \
-		-e COLUMNS=$(shell tput cols) \
 		-e RAPIDS_HOME="$$RAPIDS_HOME" \
 		-e CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		-e LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \

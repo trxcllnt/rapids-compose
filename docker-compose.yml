@@ -2,6 +2,7 @@ version: "3.6"
 
 x-service-settings: &service_settings
   env_file: .env
+  network_mode: host
   build: &build_settings
     context: ..
     args:
@@ -9,6 +10,8 @@ x-service-settings: &service_settings
       GID: ${_GID:-1000}
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "3.7"
+      GCC_VERSION: "${GCC_VERSION:-5}"
+      CXX_VERSION: "${CXX_VERSION:-5}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       CUDA_VERSION: "${CUDA_VERSION:-10.0}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
