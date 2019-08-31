@@ -8,12 +8,15 @@ create_vscode_workspace() {
     "folders": [
         { "name": "compose", "path": "compose" },
         { "name": "rmm", "path": "rmm" },
+        { "name": "cudf", "path": "cudf" },
         { "name": "cudf-cpp", "path": "cudf/cpp" },
         { "name": "cudf-java", "path": "cudf/java" },
         { "name": "cudf-python", "path": "cudf/python/cudf" },
         { "name": "dask-cudf-python", "path": "cudf/python/dask_cudf" },
+        { "name": "cugraph", "path": "cugraph" },
         { "name": "cugraph-cpp", "path": "cugraph/cpp" },
         { "name": "cugraph-python", "path": "cugraph/python" },
+        { "name": "custrings", "path": "custrings" },
         { "name": "custrings-cpp", "path": "custrings/cpp" },
         { "name": "custrings-python", "path": "custrings/python" },
         { "name": "notebooks", "path": "notebooks" },
@@ -27,7 +30,6 @@ create_vscode_workspace() {
             "$PWD/cugraph/cpp/build/include": true,
             "$PWD/custrings/cpp/build/include": true,
         },
-        "files.associations": { "*.cu": "cpp", "*.cuh": "cpp", },
         "files.exclude": {
 
             "**/.git": true,
