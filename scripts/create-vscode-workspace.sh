@@ -31,8 +31,22 @@ create_vscode_workspace() {
             "$PWD/cugraph/cpp/build/include": true,
             "$PWD/custrings/cpp/build/include": true,
         },
-        "files.exclude": {
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/**": true,
 
+            "**/etc/conda/**": true,
+            "**/build/include": true,
+            "**/cudf/**/*.so": true,
+            "**/cudf/**/*.cpp": true,
+            "**/cugraph/**/*.so": true,
+            "**/cugraph/**/*.cpp": true,
+            "**/build/lib.linux-x86_64*": true,
+            "**/build/temp.linux-x86_64*": true,
+            "**/build/bdist.linux-x86_64*": true,
+        },
+        "files.exclude": {
             "**/.git": true,
             "**/.svn": true,
             "**/.hg": true,
@@ -43,32 +57,14 @@ create_vscode_workspace() {
             "**/__pycache__": true,
             "**/.pytest_cache": true,
 
-            "$PWD/rmm/build/include": true,
-            "$PWD/rmm/python/build/lib.linux-x86_64*": true,
-            "$PWD/rmm/python/build/temp.linux-x86_64*": true,
-            "$PWD/rmm/python/build/bdist.linux-x86_64*": true,
-
-            "$PWD/cudf/cpp/build/include": true,
-            "$PWD/cudf/python/cudf/_lib/**/*.so": true,
-            "$PWD/cudf/python/cudf/_lib/**/*.cpp": true,
-            "$PWD/cudf/python/cudf/build/lib.linux-x86_64*": true,
-            "$PWD/cudf/python/cudf/build/temp.linux-x86_64*": true,
-            "$PWD/cudf/python/cudf/build/bdist.linux-x86_64*": true,
-            "$PWD/cudf/python/dask_cudf/build/lib.linux-x86_64*": true,
-            "$PWD/cudf/python/dask_cudf/build/temp.linux-x86_64*": true,
-            "$PWD/cudf/python/dask_cudf/build/bdist.linux-x86_64*": true,
-
-            "$PWD/cugraph/cpp/build/include": true,
-            "$PWD/cugraph/python/**/*.so": true,
-            "$PWD/cugraph/python/**/*.cpp": true,
-            "$PWD/cugraph/python/build/lib.linux-x86_64*": true,
-            "$PWD/cugraph/python/build/temp.linux-x86_64*": true,
-            "$PWD/cugraph/python/build/bdist.linux-x86_64*": true,
-
-            "$PWD/custrings/cpp/build/include": true,
-            "$PWD/custrings/python/build/lib.linux-x86_64*": true,
-            "$PWD/custrings/python/build/temp.linux-x86_64*": true,
-            "$PWD/custrings/python/build/bdist.linux-x86_64*": true,
+            "**/build/include": true,
+            "**/cudf/**/*.so": true,
+            "**/cudf/**/*.cpp": true,
+            "**/cugraph/**/*.so": true,
+            "**/cugraph/**/*.cpp": true,
+            "**/build/lib.linux-x86_64*": true,
+            "**/build/temp.linux-x86_64*": true,
+            "**/build/bdist.linux-x86_64*": true,
         }
     }
 }
