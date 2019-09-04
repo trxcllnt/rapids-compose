@@ -3,12 +3,7 @@
 
 ### Quick links
 * [Prerequisites](#prerequisites)
-* [Installation](#installation)
-* [Build the containers](#build-the-containers-only-builds-stages-that-have-been-invalidated)
-* [Run the containers with your file system mounted in](#run-the-containers-with-your-file-system-mounted-in)
-* [Run cudf pytests](#run-cudf-pytests-and-optionally-apply-a-test-filter-expression)
-* [Launch a notebook container with your file system mounted in](#launch-a-notebook-container-with-your-file-system-mounted-in)
-* [Debug Python running in the container with VSCode](#debug-python-running-in-the-container-with-vscode)
+* [Installation and Usage](#installation-and-usage)
 
 ## Prerequisites
 * ### [VSCode](https://code.visualstudio.com/docs/setup/linux)
@@ -32,80 +27,35 @@
       && sudo chmod +x /usr/local/bin/docker-compose
     ```
 
-## Installation
+## Installation and Usage
 
 ```shell
-# 1. Create a directory for all the Rapids projects to live
+# 1. Create a directory for all the rapids projects to live
 $ mkdir -p ~/dev/rapids && cd ~/dev/rapids
-# 2. Check out the rapids-compose repo into $PWD/compose
-$ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose && cd compose
-# 3. Check out the rapids repos and setup intellisense
-$ bash ./setup.sh
+
+# 2. Check out the rapids-compose repo into ./compose
+$ git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose \
+  && cd compose
+
+# 3. Check out the rapids repos and setup VSCode Python and C++ intellisense
+$ make init
+
 # 4. Build the rapids and notebook containers
+#   a. Only build the rapids container: `make rapids`
+#   b. Only build the notebook container: `make notebooks`
 $ make
-```
 
-## Build the containers (only builds stages that have been invalidated)
-
-```shell
-$ cd ~/dev/rapids/compose
-# Builds containers, compiles rapids projects, builds notebook containers
-$ make
-# Builds containers and compiles rapids projects
-$ make rapids
-# Builds notebook containers
-$ make notebooks
-```
-
-## Run the containers with your file system mounted in
-
-```shell
-$ cd ~/dev/rapids/compose
-# args is appended to the end of: `docker-compose run --rm rapids $args`
-$ make rapids.run args="bash"
-rapids@xx:/rapids# echo "No not in the ocean -- *inside* the ocean."
-rapids@xx:/rapids# cd cudf && py.test -v -x -k test_my_feature
-rapids@xx:/rapids# exit
-```
-
-## Run cudf pytests
-```sh
-$ cd ~/dev/rapids/compose
-$ make rapids.cudf.test args="-k 'test_string_index'"
-# ...
-========================== test session starts ===========================
-# ...
-collected 11735 items / 11733 deselected / 2 skipped                    
-python/cudf/tests/test_multiindex.py::test_string_index PASSED     [ 50%]
-python/cudf/tests/test_string.py::test_string_index PASSED         [100%]
-=== 2 passed, 2 skipped, 11733 deselected, 1 warnings in 3.09 seconds ====
-```
-
-## Launch a notebook container with your file system mounted in
-```shell
-$ cd ~/dev/rapids/compose
+# 5. Launch the notebook container
 $ make notebooks.run
-> sha256:e3aa0faab509acaef49f48797c6dc783ec8ff7bffa1a2ecfea92e1ccc83bf919
-> [I 06:49:38.659 LabApp] Writing notebook server cookie secret to /home/rapids/.local/share/jupyter/runtime/notebook_cookie_secret
-> [W 06:49:38.822 LabApp] All authentication is disabled.  Anyone who can connect to this server will be able to run code.
-> [I 06:49:39.214 LabApp] JupyterLab extension loaded from /home/ptaylor/dev/rapids/compose/etc/conda/envs/notebooks/lib/python3.7/site-packages/jupyterlab
-> [I 06:49:39.214 LabApp] JupyterLab application directory is /home/ptaylor/dev/rapids/compose/etc/conda/envs/notebooks/share/jupyter/lab
-> [I 06:49:39.216 LabApp] Serving notebooks from local directory: /home/rapids/notebooks
-> [I 06:49:39.216 LabApp] The Jupyter Notebook is running at:
-> [I 06:49:39.216 LabApp] http://localhost:8888/
-> [I 06:49:39.216 LabApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-> ...^C
-> [C 06:50:27.934 LabApp] Shutdown confirmed
-> [I 06:50:27.935 LabApp] Shutting down 0 kernels
-```
 
-## Debug Python running in the container with VSCode
+# 6. Run cudf pytests (accepts any valid pytest args)
+#   a. Run pytests in parallel with pytest-xdist, pass `args="-n auto"`
+$ make rapids.cudf.test args="-k 'test_string_index'"
 
-Launch the unit tests in the container (with an optional pytest expression filter):
-
-```shell
-$ cd ~/dev/rapids/compose
+# 7. Debug pytests running in the container (accepts any valid pytest args)
+#   a. This launches pytest with `ptvsd` for debugging in VSCode
 $ make rapids.cudf.test.debug args="-k 'test_reindex_dataframe'"
-```
 
-Set breakpoints in the python code and hit the green `Start Debugging` button in VSCode.
+# 8. Run the rapids container and launch a tty to explore the container
+$ make rapids.run args="bash"
+```

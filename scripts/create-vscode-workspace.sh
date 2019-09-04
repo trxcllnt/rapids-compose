@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+cd $(dirname "$(realpath "$0")")/../../
 
 create_vscode_workspace() {
     cat << EOF > "$PWD/rapids.code-workspace"

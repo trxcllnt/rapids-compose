@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+cd $(dirname "$(realpath "$0")")/../../
 
 # Setup C++
 for REPO in $CODE_REPOS; do

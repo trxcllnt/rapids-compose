@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+cd $(dirname "$(realpath "$0")")/../../
 
 PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
                             cugraph/python

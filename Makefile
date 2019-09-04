@@ -13,10 +13,36 @@ DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
 
-.PHONY: all build rapids notebooks
-.SILENT: dind dc up run exec logs build rapids notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug notebooks.up notebooks.exec notebooks.logs
+.PHONY: all init build rapids notebooks
+		dind dc dc.up dc.run dc.exec dc.logs
+		rapids.run rapids.exec rapids.logs
+		rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug
+		notebooks.up notebooks.exec notebooks.logs
+
+.SILENT: all init build rapids notebooks
+		 dind dc dc.up dc.run dc.exec dc.logs
+		 rapids.run rapids.exec rapids.logs
+		 rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug
+		 notebooks.up notebooks.exec notebooks.logs
 
 all: build rapids notebooks
+
+init:
+	export vGCC=$(shell gcc -dumpversion | cut -f1 -d.) && \
+	export vGXX=$(shell g++ -dumpversion | cut -f1 -d.) && \
+	export CODE_REPOS="rmm cugraph custrings cudf" && \
+	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-extended" && \
+	export PYTHON_DIRS="rmm/python \
+						cugraph/python \
+						custrings/python \
+						cudf/python/cudf \
+						cudf/python/dask_cudf" && \
+	bash -i ./scripts/create-compose-env.sh && \
+	bash -i ./scripts/create-vscode-workspace.sh && \
+	bash -i ./scripts/clone-rapids-repositories.sh && \
+	bash -i ./scripts/setup-c++-intellisense.sh && \
+	bash -i ./scripts/setup-python-intellisense.sh && \
+	echo "RAPIDS workspace init success!"
 
 build:
 	@$(MAKE) -s dc.build svc="rapids"

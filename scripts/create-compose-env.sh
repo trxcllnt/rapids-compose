@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+cd $(dirname "$(realpath "$0")")/../../
 
 cat << EOF > "$PWD/compose/.env"
 # Build arguments
