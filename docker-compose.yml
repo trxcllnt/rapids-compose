@@ -32,7 +32,6 @@ services:
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
       - &compose "${RAPIDS_HOME:-$PWD}/compose:${RAPIDS_HOME:-$PWD}/compose"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
-      - &custrings "${RAPIDS_HOME:-$PWD}/custrings:${RAPIDS_HOME:-$PWD}/custrings"
       - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/rapids/log:/var/log/ptvsd"
 
   notebooks:
@@ -50,7 +49,6 @@ services:
       - *cudf
       - *compose
       - *cugraph
-      - *custrings
       - &jupyter "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"

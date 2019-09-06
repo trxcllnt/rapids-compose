@@ -48,7 +48,6 @@ ENV CONDA_HOME="$COMPOSE_HOME/etc/conda"
 ENV RMM_HOME="$RAPIDS_HOME/rmm"
 ENV CUDF_HOME="$RAPIDS_HOME/cudf"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
-ENV NVSTRINGS_HOME="$RAPIDS_HOME/custrings"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
 
@@ -75,7 +74,6 @@ RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}
 COPY --chown=rapids rmm/conda "$RMM_HOME/conda"
 COPY --chown=rapids cudf/conda "$CUDF_HOME/conda"
 COPY --chown=rapids cugraph/conda "$CUGRAPH_HOME/conda"
-COPY --chown=rapids custrings/conda "$NVSTRINGS_HOME/conda"
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"

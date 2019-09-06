@@ -1,60 +1,58 @@
-#!/bin/bash -ex
+#!/usr/bin/env bash
+
+set -e
+set -x
 
 cd "$RAPIDS_HOME"
 
-D_CMAKE_ARGS="-DCMAKE_CXX11_ABI=ON
+D_CMAKE_ARGS="\
+    -DCONDA_BUILD=0
+    -DCMAKE_CXX11_ABI=ON
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}
     -DBUILD_TESTS=${BUILD_TESTS:-OFF}
+    -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}
+    -DCMAKE_SYSTEM_PREFIX_PATH=${CONDA_PREFIX}
     -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}"
 
-CUDA_VERSION_NO_DOT=$(echo $CUDA_SHORT_VERSION | tr -d '.');
-
-make_compile_commands_json_compatible_with_clangd() {
+_make_compile_commands_json_compatible_with_clangd() {
     cp "$1" "$1.tmp" \
     && sed -r "s/ -x cu / -x cu -x cuda /g" "$1.tmp" > "$1" \
     && rm "$1.tmp"
 }
 
-###
-# Build librmm
-###
-cd "$RMM_HOME" && mkdir -p "$RMM_HOME/build" \
- && cd "$RMM_HOME/build" && cmake .. $D_CMAKE_ARGS && make install -j \
- && make_compile_commands_json_compatible_with_clangd "$RMM_HOME/build/compile_commands.json" \
- && cd "$RMM_HOME/python" && python setup.py build_ext -j $(nproc) --inplace && python setup.py install \
- && rm -rf "$RMM_HOME/python/librmm_cffi.egg-info" \
- ;
+_build_cpp() {
+    cd "$1" && mkdir -p "$1/build" \
+ && cd "$1/build" && cmake $D_CMAKE_ARGS .. && make -j install \
+ && _make_compile_commands_json_compatible_with_clangd "$1/build/compile_commands.json"
+}
 
-###
-# Build nvstrings
-###
-cd "$NVSTRINGS_HOME" && mkdir -p "$NVSTRINGS_HOME/cpp/build" \
- && cd "$NVSTRINGS_HOME/cpp/build" && cmake .. $D_CMAKE_ARGS && make install -j \
- && make_compile_commands_json_compatible_with_clangd "$NVSTRINGS_HOME/cpp/build/compile_commands.json" \
- && cd "$NVSTRINGS_HOME/python" && python setup.py install \
- && rm -rf "$NVSTRINGS_HOME/python/nvstrings_cuda$CUDA_VERSION_NO_DOT.egg-info" \
- ;
+_build_python() {
+    cd "$1" \
+ && python setup.py build_ext -j $(nproc) $2 \
+ && python setup.py install \
+ && rm -rf *.egg-info
+}
 
-###
-# Build cudf
-###
-cd "$CUDF_HOME" && mkdir -p "$CUDF_HOME/cpp/build" \
- && cd "$CUDF_HOME/cpp/build" && cmake .. $D_CMAKE_ARGS && make install -j \
- && make_compile_commands_json_compatible_with_clangd "$CUDF_HOME/cpp/build/compile_commands.json" \
- && cd "$CUDF_HOME/python/cudf" && python setup.py build_ext -j $(nproc) --inplace && python setup.py install \
- && cd "$CUDF_HOME/python/dask_cudf" && python setup.py build_ext -j $(nproc) --inplace && python setup.py install \
- && rm -rf "$CUDF_HOME/python/cudf/cudf.egg-info" \
-           "$CUDF_HOME/python/dask_cudf/dask_cudf.egg-info" \
- ;
+_print_heading() {
+    echo -e "\n\n\n\n################\n\n\n\n# Build $1 \n\n\n\n################\n\n\n\n"
+}
 
-###
-# Build cugraph
-###
-cd "$CUGRAPH_HOME" && mkdir -p "$CUGRAPH_HOME/cpp/build" \
- && cd "$CUGRAPH_HOME/cpp/build" && cmake .. $D_CMAKE_ARGS && make install -j \
- && make_compile_commands_json_compatible_with_clangd "$CUGRAPH_HOME/cpp/build/compile_commands.json" \
- && cd "$CUGRAPH_HOME/python" && python setup.py build_ext -j $(nproc) --inplace && python setup.py install \
- && rm -rf "$CUGRAPH_HOME/python/cugraph.egg-info" \
+# This gets around the cudf CMakeList.txt's new "Conda environment detected"
+# feature. This feature adds CONDA_PREFIX to the INCLUDE_DIRS and LINK_DIRS
+# lists, and causes g++ to relink all the shared objects when the conda env
+# changes. This leads to the notebooks container recompiling all the C++
+# artifacts when nothing material has changed since they were built by the
+# rapids container.
+unset CONDA_PREFIX
+
+echo -e "\n\n\n\n# Building rapids projects" \
+ && _print_heading "librmm"     && _build_cpp "$RMM_HOME" \
+ && _print_heading "libcudf"    && _build_cpp "$CUDF_HOME/cpp" \
+ && _print_heading "libcugraph" && _build_cpp "$CUGRAPH_HOME/cpp" \
+ && _print_heading "rmm"        && _build_python "$RMM_HOME/python" --inplace \
+ && _print_heading "nvstrings"  && _build_python "$CUDF_HOME/python/nvstrings" \
+ && _print_heading "cudf"       && _build_python "$CUDF_HOME/python/cudf" --inplace \
+ && _print_heading "dask_cudf"  && _build_python "$CUDF_HOME/python/dask_cudf" --inplace \
+ && _print_heading "cugraph"    && _build_python "$CUGRAPH_HOME/python" --inplace \
  ;

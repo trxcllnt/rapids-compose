@@ -17,9 +17,7 @@ create_vscode_workspace() {
         { "name": "cugraph", "path": "cugraph" },
         { "name": "cugraph-cpp", "path": "cugraph/cpp" },
         { "name": "cugraph-python", "path": "cugraph/python" },
-        { "name": "custrings", "path": "custrings" },
-        { "name": "custrings-cpp", "path": "custrings/cpp" },
-        { "name": "custrings-python", "path": "custrings/python" },
+        { "name": "nvstrings-python", "path": "cudf/python/nvstrings" },
         { "name": "notebooks", "path": "notebooks" },
         { "name": "notebooks-extended", "path": "notebooks-extended" },
     ],
@@ -29,7 +27,6 @@ create_vscode_workspace() {
             "$PWD/rmm/build/include": true,
             "$PWD/cudf/cpp/build/include": true,
             "$PWD/cugraph/cpp/build/include": true,
-            "$PWD/custrings/cpp/build/include": true,
         },
         "files.watcherExclude": {
             "**/.git/objects/**": true,

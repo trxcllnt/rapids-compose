@@ -3,7 +3,7 @@
 set -e
 cd $(dirname "$(realpath "$0")")/../../
 
-ALL_REPOS="${ALL_REPOS:-rmm cugraph custrings cudf
+ALL_REPOS="${ALL_REPOS:-rmm cudf cugraph
                         notebooks notebooks-extended}"
 
 for REPO in $ALL_REPOS; do

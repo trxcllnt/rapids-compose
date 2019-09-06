@@ -1,4 +1,6 @@
-#!/bin/bash -ex
+#!/usr/bin/env bash
+
+set -ex
 
 cd $RAPIDS_HOME
 
@@ -6,16 +8,15 @@ cd $RAPIDS_HOME
 rm -rf "$RMM_HOME/build" \
        "$CUDF_HOME/cpp/build" \
        "$CUGRAPH_HOME/cpp/build" \
-       "$NVSTRINGS_HOME/cpp/build" \
        "$RMM_HOME/python/dist" \
        "$RMM_HOME/python/build" \
-       "$NVSTRINGS_HOME/python/dist" \
-       "$NVSTRINGS_HOME/python/build" \
-       "$NVSTRINGS_HOME/python/.pytest_cache" \
        "$CUDF_HOME/python/.hypothesis" \
        "$CUDF_HOME/python/cudf/dist" \
        "$CUDF_HOME/python/cudf/build" \
        "$CUDF_HOME/python/cudf/.pytest_cache" \
+       "$CUDF_HOME/python/nvstrings/dist" \
+       "$CUDF_HOME/python/nvstrings/build" \
+       "$CUDF_HOME/python/nvstrings/.pytest_cache" \
        "$CUDF_HOME/python/dask_cudf/dist" \
        "$CUDF_HOME/python/dask_cudf/build" \
        "$CUDF_HOME/python/dask_cudf/.pytest_cache" \
@@ -27,11 +28,9 @@ rm -rf "$RMM_HOME/build" \
  && find "$RMM_HOME" -type f -name '*.pyc' -delete \
  && find "$CUDF_HOME" -type f -name '*.pyc' -delete \
  && find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete \
- && find "$NVSTRINGS_HOME" -type f -name '*.pyc' -delete \
  && find "$RMM_HOME" -type d -name '__pycache__' -delete \
  && find "$CUDF_HOME" -type d -name '__pycache__' -delete \
  && find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete \
- && find "$NVSTRINGS_HOME" -type d -name '__pycache__' -delete \
  \
  && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete \
  && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete \

@@ -30,12 +30,12 @@ all: build rapids notebooks
 init:
 	export vGCC=$(shell gcc -dumpversion | cut -f1 -d.) && \
 	export vGXX=$(shell g++ -dumpversion | cut -f1 -d.) && \
-	export CODE_REPOS="rmm cugraph custrings cudf" && \
+	export CODE_REPOS="rmm cudf cugraph" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-extended" && \
 	export PYTHON_DIRS="rmm/python \
 						cugraph/python \
-						custrings/python \
 						cudf/python/cudf \
+						cudf/python/nvstrings \
 						cudf/python/dask_cudf" && \
 	bash -i ./scripts/create-compose-env.sh && \
 	bash -i ./scripts/create-vscode-workspace.sh && \
@@ -131,7 +131,6 @@ dc: dind
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
 		-v "$$RAPIDS_HOME/compose:$$RAPIDS_HOME/compose" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
-		-v "$$RAPIDS_HOME/custrings:$$RAPIDS_HOME/custrings" \
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
 		-v "$$RAPIDS_HOME/notebooks-extended:$$RAPIDS_HOME/notebooks-extended" \
 		-v /var/run/docker.sock:/var/run/docker.sock \

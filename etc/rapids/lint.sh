@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -e
 
 echo -e "\nrunning \`isort --recursive --atomic python\`"
 isort --recursive --atomic python
