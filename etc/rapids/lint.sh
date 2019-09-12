@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 echo -e "\nrunning \`isort --recursive --atomic python\`"
 isort --recursive --atomic python
 echo -e "\nrunning \`black python 2>/dev/null\`"
