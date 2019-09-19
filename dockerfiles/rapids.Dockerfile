@@ -19,6 +19,7 @@ RUN apt update -y --fix-missing && apt upgrade -y \
     tzdata \
     ccache \
     apt-utils \
+    ninja-build \
     libboost-all-dev \
     gcc-${GCC_VERSION} \
     g++-${CXX_VERSION} \

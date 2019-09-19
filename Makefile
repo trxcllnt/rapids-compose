@@ -28,8 +28,8 @@ DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0
 all: build rapids notebooks
 
 init:
-	export vGCC=$(shell gcc -dumpversion | cut -f1 -d.) && \
-	export vGXX=$(shell g++ -dumpversion | cut -f1 -d.) && \
+	export vGCC=5 && \
+	export vGXX=5 && \
 	export CODE_REPOS="rmm cudf cugraph" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-extended" && \
 	export PYTHON_DIRS="rmm/python \

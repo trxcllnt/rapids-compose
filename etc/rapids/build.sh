@@ -6,6 +6,7 @@ set -x
 cd "$RAPIDS_HOME"
 
 D_CMAKE_ARGS="\
+    -GNinja
     -DCONDA_BUILD=0
     -DCMAKE_CXX11_ABI=ON
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -23,7 +24,7 @@ _make_compile_commands_json_compatible_with_clangd() {
 
 _build_cpp() {
     cd "$1" && mkdir -p "$1/build" \
- && cd "$1/build" && cmake $D_CMAKE_ARGS .. && make -j install \
+ && cd "$1/build" && PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS .. && ninja install \
  && _make_compile_commands_json_compatible_with_clangd "$1/build/compile_commands.json"
 }
 
