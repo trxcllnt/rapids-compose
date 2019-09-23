@@ -120,6 +120,7 @@ shopt -s histappend;\n\
 export HISTCONTROL=ignoreboth;\n\
 export HISTSIZE=INFINITE;\n\
 export HISTFILESIZE=10000000;\n\
+export CCACHE_DIR=\"$RAPIDS_HOME/compose/etc/.ccache\";\n\
 '" > /home/rapids/.bashrc && chown ${_UID}:${_GID} /home/rapids/.bashrc \
  \
  && bash -c "echo -e '#!/bin/bash -e\n\

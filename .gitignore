@@ -1,5 +1,6 @@
 .env
 **/etc/conda
+**/etc/.ccache
 
 **/etc/rapids/log/*
 **/etc/rapids/include/*
