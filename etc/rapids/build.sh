@@ -24,8 +24,9 @@ _make_compile_commands_json_compatible_with_clangd() {
 
 _build_cpp() {
     cd "$1" && mkdir -p "$1/build" \
- && cd "$1/build" && PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS .. && ninja install \
- && _make_compile_commands_json_compatible_with_clangd "$1/build/compile_commands.json"
+ && cd "$1/build" && PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS .. \
+ && _make_compile_commands_json_compatible_with_clangd "$1/build/compile_commands.json" \
+ && ninja install
 }
 
 _build_python() {

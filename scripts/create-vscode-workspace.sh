@@ -24,9 +24,13 @@ create_vscode_workspace() {
     "settings": {
         "search.exclude": {
             "$PWD/compose/etc/conda": true,
+            "$PWD/compose/etc/.ccache": true,
             "$PWD/rmm/build/include": true,
             "$PWD/cudf/cpp/build/include": true,
             "$PWD/cugraph/cpp/build/include": true,
+        },
+        "files.associations": {
+            "**/libcudacxx/include/**/*": "cpp"
         },
         "files.watcherExclude": {
             "**/.git/objects/**": true,
@@ -34,6 +38,7 @@ create_vscode_workspace() {
             "**/node_modules/**": true,
 
             "**/etc/conda/**": true,
+            "**/etc/.ccache/**": true,
             "**/build/include": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,

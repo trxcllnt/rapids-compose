@@ -1,4 +1,7 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+
+set -e
+set -o errexit
 
 ENV_NAME=${1:-""}
 ENV_NAME="${ENV_NAME// }"

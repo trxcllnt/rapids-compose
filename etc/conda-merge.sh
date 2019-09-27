@@ -1,5 +1,6 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 
+set -e
 set -o errexit
 
 cd /home/rapids
@@ -23,18 +24,17 @@ dependencies:
   - pytest-xdist
 EOF
 
-cat "$RMM_HOME/conda/environments/rmm_dev_cuda$CUDA_SHORT_VERSION.yml" > rmm.yml
-
-cat "$CUDF_HOME/conda/environments/cudf_dev_cuda$CUDA_SHORT_VERSION.yml" > cudf.yml
-
 CUGRAPH_CUDA_VER=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2)
+
+cat "$RMM_HOME/conda/environments/rmm_dev_cuda$CUDA_SHORT_VERSION.yml" > rmm.yml
+cat "$CUDF_HOME/conda/environments/cudf_dev_cuda$CUDA_SHORT_VERSION.yml" > cudf.yml
 cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda$CUGRAPH_CUDA_VER.yml" > cugraph.yml
 
-conda-merge rmm.yml cudf.yml cugraph.yml rapids.yml 2>/dev/null 1> merged.yml
+conda-merge rmm.yml cudf.yml cugraph.yml rapids.yml > merged.yml
 
  # Strip out the rapids packages and save the combined environment
 cat merged.yml \
-  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|nvstrings|cudatoolkit)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|nvstrings)(.*?)$' \
   > rapids.yml
 
 ####
@@ -46,11 +46,8 @@ cat << EOF > notebooks.yml
 name: notebooks
 channels:
 - rapidsai/label/cuda${CUDA_SHORT_VERSION}
-- rapidsai
 - nvidia/label/cuda${CUDA_SHORT_VERSION}
-- nvidia
 - rapidsai-nightly/label/cuda${CUDA_SHORT_VERSION}
-- rapidsai-nightly
 - numba
 - conda-forge
 - anaconda
@@ -73,4 +70,4 @@ dependencies:
   - git+https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git
 EOF
 
-conda-merge rapids.yml notebooks.yml 2>/dev/null 1> merged.yml && mv merged.yml notebooks.yml
+conda-merge rapids.yml notebooks.yml > merged.yml && mv merged.yml notebooks.yml
