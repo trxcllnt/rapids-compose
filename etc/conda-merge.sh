@@ -46,8 +46,11 @@ cat << EOF > notebooks.yml
 name: notebooks
 channels:
 - rapidsai/label/cuda${CUDA_SHORT_VERSION}
+- rapidsai
 - nvidia/label/cuda${CUDA_SHORT_VERSION}
+- nvidia
 - rapidsai-nightly/label/cuda${CUDA_SHORT_VERSION}
+- rapidsai-nightly
 - numba
 - conda-forge
 - anaconda
