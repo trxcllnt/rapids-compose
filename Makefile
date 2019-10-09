@@ -104,14 +104,12 @@ notebooks.logs:
 	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
 
 # Build the docker-in-docker container
-dind: docker_version ?= $(shell docker --version | cut -d' ' -f3 | cut -d',' -f1)
 dind:
 	set -a && . .env && set +a && \
 	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker build -q \
 		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
-		--build-arg DOCKER_VERSION=$(docker_version) \
 		-t "$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" \
 		-f dockerfiles/dind.Dockerfile .
 

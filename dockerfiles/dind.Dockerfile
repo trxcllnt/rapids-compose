@@ -1,5 +1,4 @@
-ARG DOCKER_VERSION
-FROM docker:${DOCKER_VERSION}-dind
+FROM docker:stable-dind
 
 ###
 # Install docker-compose
