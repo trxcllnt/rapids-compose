@@ -81,7 +81,7 @@ ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 
 COPY --chown=rapids compose/etc/conda-merge.sh "$RAPIDS_HOME/compose/etc/conda-merge.sh"
 
-RUN pip3 install --no-cache-dir conda-merge==0.1.4 \
+RUN pip3 install --no-cache-dir conda-merge==0.1.5 \
  # Merge the conda environment dependencies lists
  && gosu rapids bash "$RAPIDS_HOME/compose/etc/conda-merge.sh"
 
