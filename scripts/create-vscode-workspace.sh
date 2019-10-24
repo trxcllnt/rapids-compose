@@ -30,6 +30,8 @@ create_vscode_workspace() {
             "$PWD/cugraph/cpp/build/include": true,
         },
         "files.associations": {
+            "*.cu": "cuda",
+            "*.cuh": "cuda",
             "**/libcudacxx/include/**/*": "cpp"
         },
         "files.watcherExclude": {
