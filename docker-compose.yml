@@ -33,6 +33,7 @@ services:
       - &compose "${RAPIDS_HOME:-$PWD}/compose:${RAPIDS_HOME:-$PWD}/compose"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &ptvsd_logs "${RAPIDS_HOME:-$PWD}/compose/etc/rapids/log:/var/log/ptvsd"
+      - "${RAPIDS_HOME:-$PWD}/compose/etc/rapids/.bash_history:/home/rapids/.bash_history"
 
   notebooks:
     <<: *service_settings

@@ -15,6 +15,7 @@ RUN apt update -y --fix-missing && apt upgrade -y \
  && apt install -y \
     git \
     curl \
+    ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     ccache \
@@ -103,29 +104,18 @@ ENV BUILD_BENCHMARKS="$BUILD_BENCHMARKS"
 ARG CMAKE_BUILD_TYPE="Release"
 ENV CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE"
 
-# COPY --chown=rapids compose/etc/rapids/lint.sh "$RAPIDS_HOME/compose/etc/rapids/lint.sh"
-# COPY --chown=rapids compose/etc/rapids/clean.sh "$RAPIDS_HOME/compose/etc/rapids/clean.sh"
-# COPY --chown=rapids compose/etc/rapids/build.sh "$RAPIDS_HOME/compose/etc/rapids/build.sh"
-# COPY --chown=rapids compose/etc/rapids/start.sh "$RAPIDS_HOME/compose/etc/rapids/start.sh"
-# COPY --chown=rapids compose/etc/conda-merge.sh "$RAPIDS_HOME/compose/etc/conda-merge.sh"
-# COPY --chown=rapids compose/etc/conda-install.sh "$RAPIDS_HOME/compose/etc/conda-install.sh"
-
 ARG FRESH_CONDA_ENV=0
 ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
-# Create a bashrc that preserves history
-RUN bash -c "echo -e '\n\
-shopt -s histappend;\n\
-# export PS1=\"\W\$ \";\n\
-export HISTCONTROL=ignoreboth;\n\
-export HISTSIZE=INFINITE;\n\
-export HISTFILESIZE=10000000;\n\
-export CCACHE_DIR=\"$RAPIDS_HOME/compose/etc/.ccache\";\n\
-'" > /home/rapids/.bashrc && chown ${_UID}:${_GID} /home/rapids/.bashrc \
- \
- && bash -c "echo -e '#!/bin/bash -e\n\
+# Copy in a bashrc that preserves history
+COPY --chown=rapids compose/etc/rapids/.bashrc /home/rapids/.bashrc
+
+RUN bash -c "echo -e '#!/bin/bash -e\n\
 exec \"$RAPIDS_HOME/compose/etc/rapids/start.sh\" \"\$@\"\n\
-'" > /entrypoint.sh && chown ${_UID}:${_GID} /entrypoint.sh && chmod +x /entrypoint.sh
+'" > /entrypoint.sh \
+ && touch /home/rapids/.bash_history \
+ && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
+ && chmod +x /entrypoint.sh
 
 WORKDIR $RAPIDS_HOME
 
