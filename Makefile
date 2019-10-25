@@ -37,6 +37,7 @@ init:
 						cudf/python/cudf \
 						cudf/python/nvstrings \
 						cudf/python/dask_cudf" && \
+	touch ./etc/rapids/.bash_history && \
 	bash -i ./scripts/create-compose-env.sh && \
 	bash -i ./scripts/create-vscode-workspace.sh && \
 	bash -i ./scripts/clone-rapids-repositories.sh && \
