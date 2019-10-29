@@ -55,3 +55,14 @@ services:
       - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
       - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-extended/data:/home/rapids/notebooks/data"
       - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-extended:/home/rapids/notebooks/extended"
+
+  apt-cacher-ng:
+    restart: always
+    image: sameersbn/apt-cacher-ng:3.1-3
+    ports:
+    - "3142:3142"
+    volumes:
+    - apt-cache:/var/cache/apt-cacher-ng
+
+volumes:
+  apt-cache:

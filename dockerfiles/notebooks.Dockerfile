@@ -6,7 +6,7 @@ FROM rapidsai/${RAPIDS_NAMESPACE}/rapids:${RAPIDS_VERSION}
 ARG IPYTHON_VERSION=7.3.0
 ENV IPYTHON_VERSION=$IPYTHON_VERSION
 
-RUN apt update \
+RUN apt update -y --fix-missing && apt upgrade -y \
  && apt install -y graphviz \
  && rm -rf /var/lib/apt/lists/* /var/tmp/* /tmp/* \
  \

@@ -11,20 +11,23 @@ ARG GCC_VERSION=5
 ARG CXX_VERSION=5
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update -y --fix-missing && apt upgrade -y \
+RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
+ && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
+ && apt update -y --fix-missing && apt upgrade -y \
  && apt install -y \
     git \
-    curl \
+    sudo \
+    curl wget \
     ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
-    ccache \
     apt-utils \
     ninja-build \
     libboost-all-dev \
     gcc-${GCC_VERSION} \
     g++-${CXX_VERSION} \
     python3 python3-pip \
+    apt-transport-https \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ARG UID=1000
@@ -33,6 +36,8 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
+ARG CCACHE_VERSION=3.7.5
+ENV CCACHE_VERSION=${CCACHE_VERSION}
 
 ARG PYTHON_VERSION=3.7
 ENV PYTHON_VERSION="$PYTHON_VERSION"
@@ -53,7 +58,11 @@ ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
 
-RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
+RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
+ && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
+ && ./configure && make install -j && ln -s /usr/local/bin/ccache /usr/bin/ccache \
+ && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
+ && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
@@ -67,7 +76,8 @@ RUN curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}
     # 1. Set up a rapids home directory
     # 2. Add this user to the tty group
     # 3. Assign bash as the login shell
-    -d /home/rapids -G tty -s /bin/bash rapids \
+    -d /home/rapids -G tty -G sudo -s /bin/bash rapids \
+ && echo rapids:rapids | chpasswd \
  && chmod 0777 /tmp \
  && chown -R ${_UID}:${_GID} /home/rapids "$CONDA_HOME" \
  && chmod -R 0755 /var/log /home/rapids "$CONDA_HOME" "$PTVSD_LOG_DIR"
