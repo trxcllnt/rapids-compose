@@ -16,13 +16,13 @@ DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0
 .PHONY: all init build rapids notebooks
 		dind dc dc.up dc.run dc.exec dc.logs
 		rapids.run rapids.exec rapids.logs
-		rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug
+		rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
 		notebooks.up notebooks.exec notebooks.logs
 
 .SILENT: all init build rapids notebooks
 		 dind dc dc.up dc.run dc.exec dc.logs
 		 rapids.run rapids.exec rapids.logs
-		 rapids.cudf.run rapids.cudf.test rapids.cudf.test.debug
+		 rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
 		 notebooks.up notebooks.exec notebooks.logs
 
 all: build rapids notebooks
@@ -57,8 +57,9 @@ notebooks: build
 
 rapids.run: args ?=
 rapids.run: cmd_args ?=
+rapids.run: work_dir ?= /rapids
 rapids.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="-u $(UID):$(GID) $(cmd_args)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="-u $(UID):$(GID) -w $(work_dir) $(cmd_args)"
 
 rapids.exec: args ?=
 rapids.exec:
@@ -70,16 +71,17 @@ rapids.logs:
 
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
+rapids.cudf.run: work_dir ?= /rapids/cudf
 rapids.cudf.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-u $(UID):$(GID) -w /rapids/cudf $(cmd_args)"
+	@$(MAKE) -s rapids.run work_dir="$(work_dir)" args="$(args)" cmd_args="$(cmd_args)"
 
-rapids.cudf.test: args ?= -v -x
-rapids.cudf.test:
-	@$(MAKE) -s rapids.cudf.run args="pytest $(args) ."
+rapids.cudf.pytest: args ?= -v -x
+rapids.cudf.pytest:
+	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest $(args) ."
 
-rapids.cudf.test.debug: args ?= -v -x
-rapids.cudf.test.debug:
-	@$(MAKE) -s rapids.cudf.run args="python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $(args) ."
+rapids.cudf.pytest.debug: args ?= -v -x
+rapids.cudf.pytest.debug:
+	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args) ."
 
 rapids.cudf.lint:
 	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/rapids/lint.sh"
