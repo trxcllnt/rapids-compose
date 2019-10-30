@@ -3,6 +3,7 @@ export HISTCONTROL=ignoreboth;
 export HISTSIZE=INFINITE;
 export HISTFILESIZE=10000000;
 export CCACHE_DIR="$RAPIDS_HOME/compose/etc/.ccache";
+
 ninja-test() {
     NAMES=${1:-""}; CTESTS=""; GTESTS="";
     for NAME in ${NAMES//,/ }; do
@@ -17,3 +18,8 @@ ninja-test() {
     done;
 };
 export -f ninja-test;
+
+pytest-debug() {
+    python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $*
+}
+export -f pytest-debug;
