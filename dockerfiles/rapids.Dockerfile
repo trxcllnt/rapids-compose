@@ -56,7 +56,7 @@ ENV RMM_HOME="$RAPIDS_HOME/rmm"
 ENV CUDF_HOME="$RAPIDS_HOME/cudf"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
-ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-extended"
+ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
 
 RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
  && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \

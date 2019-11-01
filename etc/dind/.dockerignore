@@ -9,7 +9,7 @@
 **/__pycache__
 **/.pytest_cache
 **/.ipynb_checkpoints
-**/notebooks-extended/*
+**/notebooks-contrib/*
 
 **/.env
 **/*.pyc

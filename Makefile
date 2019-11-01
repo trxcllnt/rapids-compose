@@ -31,7 +31,7 @@ init:
 	export vGCC=5 && \
 	export vGXX=5 && \
 	export CODE_REPOS="rmm cudf cugraph" && \
-	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-extended" && \
+	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
 						cugraph/python \
 						cudf/python/cudf \
@@ -131,7 +131,7 @@ dc: dind
 		-v "$$RAPIDS_HOME/compose:$$RAPIDS_HOME/compose" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
-		-v "$$RAPIDS_HOME/notebooks-extended:$$RAPIDS_HOME/notebooks-extended" \
+		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \
