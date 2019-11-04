@@ -54,8 +54,8 @@ services:
       - &jupyter "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${RAPIDS_HOME:-$PWD}/compose/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
-      - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-extended/data:/home/rapids/notebooks/data"
-      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-extended:/home/rapids/notebooks/extended"
+      - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-contrib/data:/home/rapids/notebooks/data"
+      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:/home/rapids/notebooks/extended"
 
   apt-cacher-ng:
     restart: always

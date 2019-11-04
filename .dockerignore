@@ -9,5 +9,5 @@
 **/etc/notebooks/.jupyter
 **/.ipynb_checkpoints
 **/cugraph/datasets
-**/notebooks-extended/data
+**/notebooks-contrib/data
 **/cpp/build

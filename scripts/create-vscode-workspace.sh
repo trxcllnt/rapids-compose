@@ -19,7 +19,7 @@ create_vscode_workspace() {
         { "name": "cugraph-python", "path": "cugraph/python" },
         { "name": "nvstrings-python", "path": "cudf/python/nvstrings" },
         { "name": "notebooks", "path": "notebooks" },
-        { "name": "notebooks-extended", "path": "notebooks-extended" },
+        { "name": "notebooks-contrib", "path": "notebooks-contrib" },
     ],
     "settings": {
         "search.exclude": {
