@@ -50,11 +50,11 @@ $ make notebooks.run
 
 # 6. Run cudf pytests (accepts any valid pytest args)
 #   a. Run pytests in parallel with pytest-xdist, pass `args="-n auto"`
-$ make rapids.cudf.test args="-k 'test_string_index'"
+$ make rapids.cudf.pytest args="-k 'test_string_index'"
 
 # 7. Debug pytests running in the container (accepts any valid pytest args)
 #   a. This launches pytest with `ptvsd` for debugging in VSCode
-$ make rapids.cudf.test.debug args="-k 'test_reindex_dataframe'"
+$ make rapids.cudf.pytest.debug args="-k 'test_reindex_dataframe'"
 
 # 8. Run the rapids container and launch a tty to explore the container
 $ make rapids.run args="bash"
