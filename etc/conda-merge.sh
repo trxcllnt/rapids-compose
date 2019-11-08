@@ -27,6 +27,10 @@ EOF
 
 CUGRAPH_CUDA_VER=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2)
 
+if [ "$CUDA_SHORT_VERSION" = "10.1" ]; then
+    CUGRAPH_CUDA_VER=$(echo $CUDA_SHORT_VERSION | tr -d '.')
+fi
+
 cat "$RMM_HOME/conda/environments/rmm_dev_cuda$CUDA_SHORT_VERSION.yml" > rmm.yml
 cat "$CUDF_HOME/conda/environments/cudf_dev_cuda$CUDA_SHORT_VERSION.yml" > cudf.yml
 cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda$CUGRAPH_CUDA_VER.yml" > cugraph.yml
