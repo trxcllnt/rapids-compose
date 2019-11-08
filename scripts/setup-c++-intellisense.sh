@@ -11,6 +11,10 @@ for REPO in $CODE_REPOS; do
         CPP_DIR="$CPP_DIR/cpp"
         COMPILE_COMMANDS_JSON="cpp/$COMPILE_COMMANDS_JSON"
     fi
+    # local-ignore .clangd folders
+    if [ -z `grep .clangd $PWD/$REPO/.git/info/exclude` ]; then
+        echo ".clangd" >> "$PWD/$REPO/.git/info/exclude"
+    fi
     # local-ignore the compile_commands.json symlink we're about to create
     if [ -z `grep $COMPILE_COMMANDS_JSON $PWD/$REPO/.git/info/exclude` ]; then
         echo "$COMPILE_COMMANDS_JSON" >> "$PWD/$REPO/.git/info/exclude"
