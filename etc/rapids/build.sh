@@ -19,7 +19,7 @@ D_CMAKE_ARGS="\
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}"
 
 _make_compile_commands_json_compatible_with_clangd() {
-    cp "$1" "$1.tmp" \
+       sed -r "s/ &&.*[^\$DEP_FILE]/\",/g" "$1" > "$1.tmp" \
     && sed -r "s/ -x cu / -x cu -x cuda /g" "$1.tmp" > "$1" \
     && rm "$1.tmp"
 }
