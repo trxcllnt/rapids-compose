@@ -18,6 +18,27 @@ D_CMAKE_ARGS="\
     -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}"
 
+_build_all() {
+    # This gets around the cudf CMakeList.txt's new "Conda environment detected"
+    # feature. This feature adds CONDA_PREFIX to the INCLUDE_DIRS and LINK_DIRS
+    # lists, and causes g++ to relink all the shared objects when the conda env
+    # changes. This leads to the notebooks container recompiling all the C++
+    # artifacts when nothing material has changed since they were built by the
+    # rapids container.
+    unset CONDA_PREFIX
+
+    echo -e "\n\n\n\n# Building rapids projects" \
+    && _print_heading "librmm"       && _build_cpp "$RMM_HOME" \
+    && _print_heading "libcudf"      && _build_cpp "$CUDF_HOME/cpp" \
+    && _print_heading "libcugraph"   && _build_cpp "$CUGRAPH_HOME/cpp" \
+    && _print_heading "rmm"          && _build_python "$RMM_HOME/python" --inplace \
+    && _print_heading "nvstrings"    && _build_python "$CUDF_HOME/python/nvstrings" \
+    && _print_heading "cudf"         && _build_python "$CUDF_HOME/python/cudf" --inplace \
+    && _print_heading "dask_cudf"    && _build_python "$CUDF_HOME/python/dask_cudf" --inplace \
+    && _print_heading "cugraph"      && _build_python "$CUGRAPH_HOME/python" --inplace \
+    ;
+}
+
 _fix_nvcc_clangd_compile_commands() {
     ###
     # Make a few small modifications to the compile_commands.json file
@@ -33,7 +54,7 @@ _fix_nvcc_clangd_compile_commands() {
     # 4. Remove unsupported --expt-extended-lambda option
     # 5. Remove unsupported --expt-relaxed-constexpr option
     # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-    # 7. Always add `-I$CUDA_HOME/include` to nvcc invocations
+    # 7. Add `-I$CUDA_HOME/include` to nvcc invocations
     ###
     cat "$1"                                       \
     | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"          \
@@ -50,7 +71,8 @@ _build_cpp() {
     cd "$1" && mkdir -p "$1/build" && cd "$1/build"                    \
  && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS ..   \
  && _fix_nvcc_clangd_compile_commands "$1/build/compile_commands.json" \
- && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) install
+ && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) install \
+ && _build_cpp_launch_json "$1"
 }
 
 _build_python() {
@@ -64,21 +86,47 @@ _print_heading() {
     echo -e "\n\n\n\n################\n\n\n\n# Build $1 \n\n\n\n################\n\n\n\n"
 }
 
-# This gets around the cudf CMakeList.txt's new "Conda environment detected"
-# feature. This feature adds CONDA_PREFIX to the INCLUDE_DIRS and LINK_DIRS
-# lists, and causes g++ to relink all the shared objects when the conda env
-# changes. This leads to the notebooks container recompiling all the C++
-# artifacts when nothing material has changed since they were built by the
-# rapids container.
-unset CONDA_PREFIX
+_join_list_contents() {
+    local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
+}
 
-echo -e "\n\n\n\n# Building rapids projects" \
- && _print_heading "librmm"     && _build_cpp "$RMM_HOME" \
- && _print_heading "libcudf"    && _build_cpp "$CUDF_HOME/cpp" \
- && _print_heading "libcugraph" && _build_cpp "$CUGRAPH_HOME/cpp" \
- && _print_heading "rmm"        && _build_python "$RMM_HOME/python" --inplace \
- && _print_heading "nvstrings"  && _build_python "$CUDF_HOME/python/nvstrings" \
- && _print_heading "cudf"       && _build_python "$CUDF_HOME/python/cudf" --inplace \
- && _print_heading "dask_cudf"  && _build_python "$CUDF_HOME/python/dask_cudf" --inplace \
- && _print_heading "cugraph"    && _build_python "$CUGRAPH_HOME/python" --inplace \
- ;
+_build_cpp_launch_json() {
+    mkdir -p "$1/.vscode";
+    DEBUG_NAME="${1#$RAPIDS_HOME/}"
+    TEST_NAMES=$(echo \"$(_join_list_contents '","' $(ls $1/build/gtests))\");
+    cat << EOF > "$1/.vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "$DEBUG_NAME",
+            "type": "cppdbg",
+            "request": "launch",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "cwd": "$1",
+            "envFile": "\${workspaceFolder:compose}/.env",
+            "MIMode": "gdb", "miDebuggerPath": "/usr/local/cuda/bin/cuda-gdb",
+            "program": "$1/build/gtests/\${input:TEST_NAME}",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+    ],
+    "inputs": [
+        {
+            "id": "TEST_NAME",
+            "type": "pickString",
+            "description": "Please select a test to run",
+            "options": [$TEST_NAMES]
+        }
+    ]
+}
+EOF
+}
+
+_build_all

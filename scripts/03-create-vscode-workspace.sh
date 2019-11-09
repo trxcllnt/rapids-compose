@@ -22,6 +22,15 @@ create_vscode_workspace() {
         { "name": "notebooks-contrib", "path": "notebooks-contrib" },
     ],
     "settings": {
+
+        "C_Cpp.formatting": "Disabled",
+        "C_Cpp.autocomplete": "Disabled",
+        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.intelliSenseEngine": "Disabled",
+        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.autoAddFileAssociations": false,
+        "C_Cpp.vcpkg.enabled": false,
+
         "clangd.syncFileEvents": true,
         "clangd.path": "/usr/bin/clangd",
         "clangd.semanticHighlighting": true,

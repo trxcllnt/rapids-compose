@@ -20,9 +20,6 @@ fi
 # Install bear if not installed
 [ -z `which bear` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }bear"
 
-# Install wget if not installed
-[ -z `which wget` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }wget"
-
 # Install clangd-10 and clang-tools-10 if not installed
 if [ -z `which clangd` ]; then
     INSTALLED_CLANGD=1
