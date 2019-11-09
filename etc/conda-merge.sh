@@ -25,15 +25,20 @@ dependencies:
   - pytest-xdist
 EOF
 
-CUGRAPH_CUDA_VER=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2)
+cat "$RMM_HOME/conda/environments/rmm_dev_cuda10.0.yml" \
+  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_SHORT_VERSION/g" \
+  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
+  > rmm.yml
 
-if [ "$CUDA_SHORT_VERSION" = "10.1" ]; then
-    CUGRAPH_CUDA_VER=$(echo $CUDA_SHORT_VERSION | tr -d '.')
-fi
+cat "$CUDF_HOME/conda/environments/cudf_dev_cuda10.0.yml" \
+  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_SHORT_VERSION/g" \
+  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
+  > cudf.yml
 
-cat "$RMM_HOME/conda/environments/rmm_dev_cuda$CUDA_SHORT_VERSION.yml" > rmm.yml
-cat "$CUDF_HOME/conda/environments/cudf_dev_cuda$CUDA_SHORT_VERSION.yml" > cudf.yml
-cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda$CUGRAPH_CUDA_VER.yml" > cugraph.yml
+cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.yml" \
+  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_SHORT_VERSION/g" \
+  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
+  > cugraph.yml
 
 conda-merge rmm.yml cudf.yml cugraph.yml rapids.yml > merged.yml
 

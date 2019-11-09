@@ -18,17 +18,39 @@ D_CMAKE_ARGS="\
     -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}"
 
-_make_compile_commands_json_compatible_with_clangd() {
-       sed -r "s/ &&.*[^\$DEP_FILE]/\",/g" "$1" > "$1.tmp" \
-    && sed -r "s/ -x cu / -x cu -x cuda /g" "$1.tmp" > "$1" \
-    && rm "$1.tmp"
+_fix_nvcc_clangd_compile_commands() {
+    ###
+    # Make a few small modifications to the compile_commands.json file
+    # produced by CMake. This file is used by clangd to provide fast
+    # and smart intellisense, but `clang-10` doesn't yet support all
+    # the nvcc compilation options. This block translates or removes
+    # unsupported options, so `clangd` has an easier time producing
+    # usable intellisense results.
+    # 
+    # 1. Remove the second compiler invocation following the `&&`
+    # 2. Change `-x cu` to `-x cu -x cuda` (clang wants `-x cuda`)
+    # 3. Remove unsupported -gencode options
+    # 4. Remove unsupported --expt-extended-lambda option
+    # 5. Remove unsupported --expt-relaxed-constexpr option
+    # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+    # 7. Always add `-I$CUDA_HOME/include` to nvcc invocations
+    ###
+    cat "$1"                                       \
+    | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"          \
+    | sed -r "s/ -x cu / -x cu -x cuda /g"         \
+    | sed -r "s/\-gencode\ arch=([^\-])*//g"       \
+    | sed -r "s/ --expt-extended-lambda/ /g"       \
+    | sed -r "s/ --expt-relaxed-constexpr/ /g"     \
+    | sed -r "s/-Wall,-Werror/-Wall -Werror/g"     \
+    | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g" \
+    > "$1.tmp" && mv "$1.tmp" "$1"
 }
 
 _build_cpp() {
-    cd "$1" && mkdir -p "$1/build" \
- && cd "$1/build" && env PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS .. \
- && _make_compile_commands_json_compatible_with_clangd "$1/build/compile_commands.json" \
- && env JOBS=$(nproc) ninja install
+    cd "$1" && mkdir -p "$1/build" && cd "$1/build"                    \
+ && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS ..   \
+ && _fix_nvcc_clangd_compile_commands "$1/build/compile_commands.json" \
+ && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) install
 }
 
 _build_python() {
