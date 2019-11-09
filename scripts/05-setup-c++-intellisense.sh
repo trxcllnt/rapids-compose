@@ -24,7 +24,7 @@ for REPO in $CODE_REPOS; do
     ln -f -n -s "$CPP_DIR/build/compile_commands.json" "$CPP_DIR/compile_commands.json"
 done
 
-mkdir -p "$PWD/cudf/java/.vscode"
+# mkdir -p "$PWD/cudf/java/.vscode"
 # Symlink .vscode dir for cudf java bindings
 # ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/java/.vscode"
 

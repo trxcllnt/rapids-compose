@@ -3,7 +3,8 @@
 set -e
 cd $(dirname "$(realpath "$0")")/../../
 
-cat << EOF > "$PWD/compose/.env"
+create_compose_env() {
+    cat << EOF > "$PWD/compose/.env"
 # Build arguments
 RAPIDS_HOME=$PWD
 GCC_VERSION=$vGCC
@@ -22,3 +23,17 @@ CMAKE_BUILD_TYPE=Release
 # Set which GPU the containers should see when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=0
 EOF
+}
+
+if [ ! -f "$PWD/compose/.env" ]; then
+    create_compose_env
+else
+    while true; do
+        read -p "Do you wish to overwrite your current compose/.env file? (y/n) " yn </dev/tty
+        case $yn in
+            [Nn]* ) break;;
+            [Yy]* ) create_compose_env; break;;
+            * ) echo "Please answer 'y' or 'n'";;
+        esac
+    done
+fi

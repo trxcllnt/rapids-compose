@@ -11,7 +11,10 @@ DEFAULT_CUDA_VERSION := 10.0
 DEFAULT_PYTHON_VERSION := 3.7
 DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
-DEFAULT_RAPIDS_VERSION := $(shell cd ../cudf && echo "$$(git describe --abbrev=0 --tags 2>/dev/null || echo 'latest')")
+DEFAULT_RAPIDS_VERSION := $(shell RES="" \
+ && [ -z "$$RES" ] && RES=$$(cd ../cudf 2>/dev/null && git describe --abbrev=0 --tags) || true \
+ && [ -z "$$RES" ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
+ && echo $${RES:-"latest"})
 
 .PHONY: all init build rapids notebooks
 		dind dc dc.up dc.run dc.exec dc.logs
@@ -38,12 +41,14 @@ init:
 						cudf/python/nvstrings \
 						cudf/python/dask_cudf" && \
 	touch ./etc/rapids/.bash_history && \
-	bash -i ./scripts/create-compose-env.sh && \
-	bash -i ./scripts/create-vscode-workspace.sh && \
-	bash -i ./scripts/clone-rapids-repositories.sh && \
-	bash -i ./scripts/setup-c++-intellisense.sh && \
-	bash -i ./scripts/setup-python-intellisense.sh && \
-	echo "RAPIDS workspace init success!"
+	bash -i ./scripts/01-install-dependencies.sh && \
+	bash -i ./scripts/02-create-compose-env.sh && \
+	bash -i ./scripts/03-create-vscode-workspace.sh && \
+	bash -i ./scripts/04-clone-rapids-repositories.sh && \
+	bash -i ./scripts/05-setup-c++-intellisense.sh && \
+	bash -i ./scripts/06-setup-python-intellisense.sh && \
+	[ -n "$$NEEDS_REBOOT" ] && echo "Installed new dependencies, please reboot to continue." \
+	                || true && echo "RAPIDS workspace init success!"
 
 build:
 	@$(MAKE) -s dc.build svc="rapids"

@@ -22,6 +22,16 @@ create_vscode_workspace() {
         { "name": "notebooks-contrib", "path": "notebooks-contrib" },
     ],
     "settings": {
+        "clangd.syncFileEvents": true,
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.semanticHighlighting": true,
+        "clangd.trace": "$HOME/.vscode/clangd.log",
+        "clangd.arguments": [
+            "--log", "info",
+            "--pch-storage=memory",
+            // "--background-index=false",
+            "--fallback-style", "Chromium"
+        ],
         "search.exclude": {
             "$PWD/compose/etc/conda": true,
             "$PWD/compose/etc/.ccache": true,
@@ -79,7 +89,7 @@ if [ ! -f "$PWD/rapids.code-workspace" ]; then
     create_vscode_workspace
 else
     while true; do
-        read -p "Do you wish to overwrite the existing vscode rapids.code-workspace? (y/n) " yn </dev/tty
+        read -p "Do you wish to overwrite your existing vscode rapids.code-workspace? (y/n) " yn </dev/tty
         case $yn in
             [Nn]* ) break;;
             [Yy]* ) create_vscode_workspace; break;;
