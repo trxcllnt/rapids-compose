@@ -49,21 +49,29 @@ _fix_nvcc_clangd_compile_commands() {
     # usable intellisense results.
     # 
     # 1. Remove the second compiler invocation following the `&&`
-    # 2. Change `-x cu` to `-x cu -x cuda` (clang wants `-x cuda`)
-    # 3. Remove unsupported -gencode options
-    # 4. Remove unsupported --expt-extended-lambda option
-    # 5. Remove unsupported --expt-relaxed-constexpr option
-    # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+    # 2. Remove unsupported -gencode options
+    # 3. Remove unsupported --expt-extended-lambda option
+    # 4. Remove unsupported --expt-relaxed-constexpr option
+    # 5. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+    # 6. Change `-x cu` to `-x cuda` and add other clang cuda options
     # 7. Add `-I$CUDA_HOME/include` to nvcc invocations
+    # 8. Add flags to disable certain warnings for intellisense
     ###
-    cat "$1"                                       \
-    | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"          \
-    | sed -r "s/ -x cu / -x cu -x cuda /g"         \
-    | sed -r "s/\-gencode\ arch=([^\-])*//g"       \
-    | sed -r "s/ --expt-extended-lambda/ /g"       \
-    | sed -r "s/ --expt-relaxed-constexpr/ /g"     \
-    | sed -r "s/-Wall,-Werror/-Wall -Werror/g"     \
-    | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g" \
+    TOLERATED_WARNINGS="\
+        -Wno-unknown-pragmas \
+        -Wno-c++17-extensions \
+        -Wno-unevaluated-expression";
+    ALLOWED_WARNINGS="$(echo $TOLERATED_WARNINGS)";
+    CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
+    cat "$1"                                         \
+    | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
+    | sed -r "s/\-gencode\ arch=([^\-])*//g"         \
+    | sed -r "s/ --expt-extended-lambda/ /g"         \
+    | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
+    | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
+    | sed -r "s/ -x cu / $CLANG_CUDA_OPTIONS /g"     \
+    | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g"   \
+    | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
     > "$1.tmp" && mv "$1.tmp" "$1"
 }
 
