@@ -28,17 +28,19 @@ done
 # Symlink .vscode dir for cudf java bindings
 # ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/java/.vscode"
 
-# Install Microsoft C++ Tools if it isn't installed
-if [ -z `code --list-extensions | grep ms-vscode.cpptools` ]; then
-    code --install-extension ms-vscode.cpptools
-fi
+if [ -n `which code` ]; then
+    # Install Microsoft C++ Tools if it isn't installed
+    if [ -z `code --list-extensions | grep ms-vscode.cpptools` ]; then
+        code --install-extension ms-vscode.cpptools
+    fi
 
-# Install vscode-cudacpp if it isn't installed
-if [ -z `code --list-extensions | grep kriegalex.vscode-cudacpp` ]; then
-    code --install-extension kriegalex.vscode-cudacpp
-fi
+    # Install vscode-cudacpp if it isn't installed
+    if [ -z `code --list-extensions | grep kriegalex.vscode-cudacpp` ]; then
+        code --install-extension kriegalex.vscode-cudacpp
+    fi
 
-# Install vscode-clangd if it isn't installed
-if [ -z `code --list-extensions | grep llvm-vs-code-extensions.vscode-clangd` ]; then
-    code --install-extension llvm-vs-code-extensions.vscode-clangd
+    # Install vscode-clangd if it isn't installed
+    if [ -z `code --list-extensions | grep llvm-vs-code-extensions.vscode-clangd` ]; then
+        code --install-extension llvm-vs-code-extensions.vscode-clangd
+    fi
 fi

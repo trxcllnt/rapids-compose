@@ -5,6 +5,17 @@ cd $(dirname "$(realpath "$0")")/../../
 
 USE_SSH_URLS=1
 
+ask_before_install() {
+    while true; do
+        read -p "$1 " CHOICE </dev/tty
+        case $CHOICE in
+            [Nn]* ) break;;
+            [Yy]* ) eval $2; break;;
+            * ) echo "Please answer 'y' or 'n'";;
+        esac
+    done
+}
+
 read_github_username() {
     read -p "Please enter your github username (default: rapidsai) " GITHUB_USER </dev/tty
     if [ "$GITHUB_USER" = "" ]; then
@@ -23,34 +34,39 @@ read_git_remote_url_ssh_preference() {
     done
 }
 
-ensure_github_cli_is_installed() {
+install_github_cli() {
+    GITHUB_VERSION=$(curl -s https://api.github.com/repos/github/hub/releases/latest | jq -r ".tag_name" | tr -d 'v')
+    echo "Installing github-cli v$GITHUB_VERSION (https://github.com/github/hub)"
+    curl -o ./hub-linux-amd64-${GITHUB_VERSION}.tgz \
+        -L https://github.com/github/hub/releases/download/v${GITHUB_VERSION}/hub-linux-amd64-${GITHUB_VERSION}.tgz
+    tar -xvzf hub-linux-amd64-${GITHUB_VERSION}.tgz
+    sudo ./hub-linux-amd64-${GITHUB_VERSION}/install
+    sudo mv ./hub-linux-amd64-${GITHUB_VERSION}/etc/hub.bash_completion.sh /etc/bash_completion.d/hub
+    rm -rf ./hub-linux-amd64-${GITHUB_VERSION} hub-linux-amd64-${GITHUB_VERSION}.tgz
+}
+
+fork_repo() {
+    REPO="$1"
     # Install github cli if it isn't installed
     if [ -z `which hub` ]; then
-        GITHUB_VERSION=$(curl -s https://api.github.com/repos/github/hub/releases/latest | jq -r ".tag_name" | tr -d 'v')
-        echo "Installing github-cli v$GITHUB_VERSION (https://github.com/github/hub)"
-        curl -o ./hub-linux-amd64-${GITHUB_VERSION}.tgz \
-            -L https://github.com/github/hub/releases/download/v${GITHUB_VERSION}/hub-linux-amd64-${GITHUB_VERSION}.tgz
-        tar -xvzf hub-linux-amd64-${GITHUB_VERSION}.tgz
-        sudo ./hub-linux-amd64-${GITHUB_VERSION}/install
-        sudo mv ./hub-linux-amd64-${GITHUB_VERSION}/etc/hub.bash_completion.sh /etc/bash_completion.d/hub
-        rm -rf ./hub-linux-amd64-${GITHUB_VERSION} hub-linux-amd64-${GITHUB_VERSION}.tgz
+        ask_before_install "Github CLI not detected. Install Github CLI (y/n)?" "install_github_cli"
     fi
+    echo "Forking rapidsai/$REPO to $GITHUB_USER/$REPO"
+    cd $REPO
+    hub fork --remote-name=origin
+    cd -
 }
 
 clone_or_fork_repo() {
     REPO="$1"
-    REPO_RESPONSE_CODE="$(curl -I https://api.github.com/repos/$GITHUB_USER/$REPO 2>/dev/null | head -n 1 | cut -d$' ' -f2)"
-    if [ "$REPO_RESPONSE_CODE" = "200" ]; then
+    REPO_RESPONSE_CODE="$(curl -I https://github.com/$GITHUB_USER/$REPO 2>/dev/null | head -n 1 | cut -d$' ' -f2)"
+    if [ "$REPO_RESPONSE_CODE" = "403" ] || [ "$REPO_RESPONSE_CODE" = "200" ]; then
         git clone --recurse-submodules https://github.com/$GITHUB_USER/$REPO.git
     else
         git clone --recurse-submodules https://github.com/rapidsai/$REPO.git
         # Fork remote repo if the user doesn't have a fork and if the user isn't "rapidsai"
         if [ "$GITHUB_USER" != "rapidsai" ]; then
-            ensure_github_cli_is_installed
-            echo "Forking rapidsai/$REPO to $GITHUB_USER/$REPO"
-            cd $REPO
-            hub fork --remote-name=origin
-            cd -
+            ask_before_install "github.com/$GITHUB_USER/$REPO not found. Fork it now (y/n)?" "fork_repo $REPO"
         fi
     fi
     # Fixup remote URLs if user isn't "rapidsai"
@@ -60,7 +76,9 @@ clone_or_fork_repo() {
             git remote add -f upstream https://github.com/rapidsai/$REPO.git
         fi
         if [ "$USE_SSH_URLS" = "1" ]; then
-            git remote set-url origin git@github.com:$GITHUB_USER/$REPO.git
+            if [ -n "$(git remote show -v | grep $GITHUB_USER/$REPO)" ]; then
+                git remote set-url origin git@github.com:$GITHUB_USER/$REPO.git
+            fi
             git remote set-url upstream git@github.com:rapidsai/$REPO.git
         fi
         cd -
