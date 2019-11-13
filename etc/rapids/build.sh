@@ -16,7 +16,9 @@ D_CMAKE_ARGS="\
     -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}
     -DCMAKE_SYSTEM_PREFIX_PATH=${CONDA_PREFIX}
     -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
-    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}"
+    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
+    -DCONDA_LINK_DIRS=$RAPIDS_HOME/compose/etc/conda/envs/rapids/lib
+    -DCONDA_INCLUDE_DIRS=$RAPIDS_HOME/compose/etc/conda/envs/rapids/include"
 
 _build_all() {
     # This gets around the cudf CMakeList.txt's new "Conda environment detected"
@@ -25,6 +27,7 @@ _build_all() {
     # changes. This leads to the notebooks container recompiling all the C++
     # artifacts when nothing material has changed since they were built by the
     # rapids container.
+    unset CONDA_BUILD
     unset CONDA_PREFIX
 
     echo -e "\n\n\n\n# Building rapids projects" \
