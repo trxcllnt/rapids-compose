@@ -76,7 +76,7 @@ clone_or_fork_repo() {
             git remote add -f upstream https://github.com/rapidsai/$REPO.git
         fi
         if [ "$USE_SSH_URLS" = "1" ]; then
-            if [ -n "$(git remote show -v | grep $GITHUB_USER/$REPO)" ]; then
+            if [ -n "$(git remote -v show | grep $GITHUB_USER/$REPO)" ]; then
                 git remote set-url origin git@github.com:$GITHUB_USER/$REPO.git
             fi
             git remote set-url upstream git@github.com:rapidsai/$REPO.git
