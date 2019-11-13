@@ -64,15 +64,15 @@ rapids.run: args ?=
 rapids.run: cmd_args ?=
 rapids.run: work_dir ?= /rapids
 rapids.run:
-	@$(MAKE) -s dc.run svc="rapids" svc_args=$(args) cmd_args="-u $(UID):$(GID) -w $(work_dir) $(cmd_args)"
+	@$(MAKE) -s dc.run svc="rapids" svc_args="$(args)" cmd_args="-u $(UID):$(GID) -w $(work_dir) $(cmd_args)"
 
 rapids.exec: args ?=
 rapids.exec:
-	@$(MAKE) -s dc.exec svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.exec svc="rapids" svc_args="$(args)"
 
 rapids.logs: args ?=
 rapids.logs:
-	@$(MAKE) -s dc.logs svc="rapids" svc_args=$(args)
+	@$(MAKE) -s dc.logs svc="rapids" svc_args="$(args)"
 
 rapids.cudf.run: args ?=
 rapids.cudf.run: cmd_args ?=
@@ -82,11 +82,11 @@ rapids.cudf.run:
 
 rapids.cudf.pytest: args ?= -v -x
 rapids.cudf.pytest:
-	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest $(args) ."
+	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest $(args)"
 
 rapids.cudf.pytest.debug: args ?= -v -x
 rapids.cudf.pytest.debug:
-	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args) ."
+	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args)"
 
 rapids.cudf.lint:
 	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/rapids/lint.sh"
@@ -94,22 +94,22 @@ rapids.cudf.lint:
 notebooks.run: args ?=
 notebooks.run: cmd_args ?=
 notebooks.run:
-	@$(MAKE) -s dc.run svc="notebooks" svc_args=$(args) cmd_args="-u $(UID):$(GID) $(cmd_args)"
+	@$(MAKE) -s dc.run svc="notebooks" svc_args="$(args)" cmd_args="-u $(UID):$(GID) $(cmd_args)"
 
 notebooks.up: args ?=
 notebooks.up: cmd_args ?= -d
 notebooks.up:
-	@$(MAKE) -s dc.up svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.up svc="notebooks" svc_args="$(args)" cmd_args="$(cmd_args)"
 
 notebooks.exec: args ?=
 notebooks.exec: cmd_args ?=
 notebooks.exec:
-	@$(MAKE) -s dc.exec svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.exec svc="notebooks" svc_args="$(args)" cmd_args="$(cmd_args)"
 
 notebooks.logs: args ?=
 notebooks.logs: cmd_args ?= -f
 notebooks.logs:
-	@$(MAKE) -s dc.logs svc="notebooks" svc_args=$(args) cmd_args=$(cmd_args)
+	@$(MAKE) -s dc.logs svc="notebooks" svc_args="$(args)" cmd_args="$(cmd_args)"
 
 # Build the docker-in-docker container
 dind:
