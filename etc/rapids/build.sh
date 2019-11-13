@@ -32,7 +32,8 @@ _build_all() {
 
     echo -e "\n\n\n\n# Building rapids projects" \
     && _print_heading "librmm"       && _build_cpp "$RMM_HOME" \
-    && _print_heading "libcudf"      && _build_cpp "$CUDF_HOME/cpp" \
+    && _print_heading "libnvstrings" && _build_cpp "$CUDF_HOME/cpp" "install_nvstrings" \
+    && _print_heading "libcudf"      && _build_cpp "$CUDF_HOME/cpp" "install_cudf" \
     && _print_heading "libcugraph"   && _build_cpp "$CUGRAPH_HOME/cpp" \
     && _print_heading "rmm"          && _build_python "$RMM_HOME/python" --inplace \
     && _print_heading "nvstrings"    && _build_python "$CUDF_HOME/python/nvstrings" \
@@ -82,7 +83,7 @@ _build_cpp() {
     cd "$1" && mkdir -p "$1/build" && cd "$1/build"                    \
  && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS ..   \
  && _fix_nvcc_clangd_compile_commands "$1/build/compile_commands.json" \
- && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) install \
+ && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) ${2:-install} \
  && _build_cpp_launch_json "$1"
 }
 
