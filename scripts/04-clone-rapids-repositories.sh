@@ -85,6 +85,18 @@ clone_or_fork_repo() {
     fi
 }
 
+install_post_checkout_hook() {
+    REPO="$1"
+    echo "Installing $REPO hooks..."
+    cp "$PWD/compose/scripts/git-utimes.pl" "$PWD/$REPO/.git/hooks/git-utimes.pl"
+    cat << EOF > "$PWD/$REPO/.git/hooks/post-checkout"
+#!/bin/sh
+# when running the hook, cwd is the top level of working tree
+.git/hooks/git-utimes.pl
+EOF
+    chmod +x "$PWD/$REPO/.git/hooks/post-checkout"
+}
+
 for REPO in $ALL_REPOS; do
     # Clone if doesn't exist
     if [ ! -d "$PWD/$REPO" ]; then
@@ -94,4 +106,5 @@ for REPO in $ALL_REPOS; do
         fi
         clone_or_fork_repo $REPO
     fi
+    install_post_checkout_hook $REPO
 done
