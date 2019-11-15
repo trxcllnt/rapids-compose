@@ -14,6 +14,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
  && apt update -y --fix-missing && apt upgrade -y \
+ && apt install -y software-properties-common \
+ && add-apt-repository -y ppa:git-core/ppa \
  && apt install -y \
     git \
     sudo \
