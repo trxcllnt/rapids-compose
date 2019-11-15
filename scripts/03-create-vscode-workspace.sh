@@ -38,15 +38,15 @@ create_vscode_workspace() {
         "clangd.arguments": [
             "--log", "info",
             "--pch-storage=memory",
-            // "--background-index=false",
+            "--background-index=false",
             "--fallback-style", "Chromium"
         ],
         "search.exclude": {
+            "$PWD/rmm/build": true,
+            "$PWD/cudf/cpp/build": true,
+            "$PWD/cugraph/cpp/build": true,
             "$PWD/compose/etc/conda": true,
             "$PWD/compose/etc/.ccache": true,
-            "$PWD/rmm/build/include": true,
-            "$PWD/cudf/cpp/build/include": true,
-            "$PWD/cugraph/cpp/build/include": true,
         },
         "files.associations": {
             "*.cu": "cuda",
@@ -58,9 +58,12 @@ create_vscode_workspace() {
             "**/.git/subtree-cache/**": true,
             "**/node_modules/**": true,
 
+            "**/build/b-*": true,
+            "**/build/debug": true,
+            "**/build/release": true,
+            "**/build/include": true,
             "**/etc/conda/**": true,
             "**/etc/.ccache/**": true,
-            "**/build/include": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,
             "**/cugraph/**/*.so": true,
@@ -80,6 +83,9 @@ create_vscode_workspace() {
             "**/__pycache__": true,
             "**/.pytest_cache": true,
 
+            # "**/build/b-*": true,
+            # "**/build/debug": true,
+            # "**/build/release": true,
             "**/build/include": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,

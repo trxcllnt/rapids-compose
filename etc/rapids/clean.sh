@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 set -ex
+set -o errexit
 
 cd $RAPIDS_HOME
 
 # If build clean, delete all build and runtime assets and caches
-rm -rf "$RMM_HOME/build" \
-       "$CUDF_HOME/cpp/build" \
-       "$CUGRAPH_HOME/cpp/build" \
+rm -rf "$RMM_HOME/`cpp-build-dir $RMM_HOME`" \
+       "$CUDF_HOME/cpp/`cpp-build-dir $CUDF_HOME`" \
+       "$CUGRAPH_HOME/cpp/`cpp-build-dir $CUGRAPH_HOME`" \
        "$RMM_HOME/python/dist" \
        "$RMM_HOME/python/build" \
        "$CUDF_HOME/python/.hypothesis" \

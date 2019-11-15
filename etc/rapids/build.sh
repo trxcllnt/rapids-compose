@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 set -e
-set -x
+set -o errexit
 
 cd "$RAPIDS_HOME"
+
+export JOBS=$(nproc)
+export PARALLEL_LEVEL=$JOBS
 
 D_CMAKE_ARGS="\
     -GNinja
@@ -13,45 +16,74 @@ D_CMAKE_ARGS="\
     -DCMAKE_CXX11_ABI=ON
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     -DBUILD_TESTS=${BUILD_TESTS:-OFF}
-    -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}
-    -DCMAKE_SYSTEM_PREFIX_PATH=${CONDA_PREFIX}
+    -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids
     -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
-    -DCONDA_LINK_DIRS=$RAPIDS_HOME/compose/etc/conda/envs/rapids/lib
-    -DCONDA_INCLUDE_DIRS=$RAPIDS_HOME/compose/etc/conda/envs/rapids/include"
+    -DRMM_LIBRARY=${RMM_LIBRARY}
+    -DCUDF_LIBRARY=${CUDF_LIBRARY}
+    -DCUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
+    -DNVSTRINGS_LIBRARY=${NVSTRINGS_LIBRARY}
+    -DNVCATEGORY_LIBRARY=${NVCATEGORY_LIBRARY}
+    -DNVTEXT_LIBRARY=${NVTEXT_LIBRARY}
+    -DRMM_INCLUDE=${RMM_INCLUDE}
+    -DCUDF_INCLUDE=${CUDF_INCLUDE}
+    -DDLPACK_INCLUDE=${COMPOSE_INCLUDE}
+    -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
+    -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}"
 
-_build_all() {
-    # This gets around the cudf CMakeList.txt's new "Conda environment detected"
-    # feature. This feature adds CONDA_PREFIX to the INCLUDE_DIRS and LINK_DIRS
-    # lists, and causes g++ to relink all the shared objects when the conda env
-    # changes. This leads to the notebooks container recompiling all the C++
-    # artifacts when nothing material has changed since they were built by the
-    # rapids container.
-    unset CONDA_BUILD
-    unset CONDA_PREFIX
-
-    echo -e "\n\n\n\n# Building rapids projects" \
-    && _print_heading "librmm"       && _build_cpp "$RMM_HOME" \
-    && _print_heading "libnvstrings" && _build_cpp "$CUDF_HOME/cpp" "install_nvstrings" \
-    && _print_heading "libcudf"      && _build_cpp "$CUDF_HOME/cpp" "install_cudf" \
-    && _print_heading "libcugraph"   && _build_cpp "$CUGRAPH_HOME/cpp" \
-    && _print_heading "rmm"          && _build_python "$RMM_HOME/python" --inplace \
-    && _print_heading "nvstrings"    && _build_python "$CUDF_HOME/python/nvstrings" \
-    && _print_heading "cudf"         && _build_python "$CUDF_HOME/python/cudf" --inplace \
-    && _print_heading "dask_cudf"    && _build_python "$CUDF_HOME/python/dask_cudf" --inplace \
-    && _print_heading "cugraph"      && _build_python "$CUGRAPH_HOME/python" --inplace \
+build_all() {
+    echo -e "\n\n\n\n# Building rapids projects"                                       \
+    && print_heading "librmm"       && build_cpp "$RMM_HOME" ""                        \
+    && print_heading "libnvstrings" && build_cpp "$CUDF_HOME/cpp" "nvstrings"          \
+    && print_heading "libcudf"      && build_cpp "$CUDF_HOME/cpp" "cudf"               \
+    && print_heading "libcugraph"   && build_cpp "$CUGRAPH_HOME/cpp" ""                \
+    && print_heading "rmm"          && build_python "$RMM_HOME/python" --inplace       \
+    && print_heading "nvstrings"    && build_python "$CUDF_HOME/python/nvstrings"      \
+    && print_heading "cudf"         && build_python "$CUDF_HOME/python/cudf" --inplace \
+    && print_heading "cugraph"      && build_python "$CUGRAPH_HOME/python" --inplace   \
     ;
 }
 
-_fix_nvcc_clangd_compile_commands() {
+build_cpp() {
+    BUILD_TARGETS="$2";
+    CPP_ROOT=$(realpath "$1");
+    BUILD_DIR="$CPP_ROOT/`cpp-build-dir $CPP_ROOT`";
+    INSTALL_PATH="$CPP_ROOT/build/$(cpp-build-type)";
+    if [ -n "$BUILD_TARGETS" ] && [ "$BUILD_TESTS" = "ON" ]; then
+        BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
+    fi
+    mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"  \
+ && cmake $D_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX="$INSTALL_PATH" "$CPP_ROOT" \
+ && fix_nvcc_clangd_compile_commands "$CPP_ROOT" "$BUILD_DIR" \
+ && ninja -C "$BUILD_DIR" $BUILD_TARGETS \
+ && build_cpp_launch_json "$CPP_ROOT"
+}
+
+build_python() {
+    cd "$1"                                  \
+ && python setup.py build_ext -j $(nproc) $2 \
+ && python setup.py install                  \
+ && rm -rf ./*.egg-info
+}
+
+fix_nvcc_clangd_compile_commands() {
     ###
-    # Make a few small modifications to the compile_commands.json file
+    # Make a few modifications to the compile_commands.json file
     # produced by CMake. This file is used by clangd to provide fast
     # and smart intellisense, but `clang-10` doesn't yet support all
     # the nvcc compilation options. This block translates or removes
     # unsupported options, so `clangd` has an easier time producing
     # usable intellisense results.
-    # 
+    ###
+    CC_JSON="$2/compile_commands.json";
+    CC_JSON_LINK="$1/compile_commands.json";
+    CC_JSON_CLANGD="$2/compile_commands.clangd.json";
+    CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
+    ALLOWED_WARNINGS=$(echo $(echo '
+        -Wno-unknown-pragmas
+        -Wno-c++17-extensions
+        -Wno-unevaluated-expression'));
+
     # 1. Remove the second compiler invocation following the `&&`
     # 2. Remove unsupported -gencode options
     # 3. Remove unsupported --expt-extended-lambda option
@@ -60,14 +92,7 @@ _fix_nvcc_clangd_compile_commands() {
     # 6. Change `-x cu` to `-x cuda` and add other clang cuda options
     # 7. Add `-I$CUDA_HOME/include` to nvcc invocations
     # 8. Add flags to disable certain warnings for intellisense
-    ###
-    TOLERATED_WARNINGS="\
-        -Wno-unknown-pragmas \
-        -Wno-c++17-extensions \
-        -Wno-unevaluated-expression";
-    ALLOWED_WARNINGS="$(echo $TOLERATED_WARNINGS)";
-    CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
-    cat "$1"                                         \
+    cat "$CC_JSON"                                   \
     | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
     | sed -r "s/\-gencode\ arch=([^\-])*//g"         \
     | sed -r "s/ --expt-extended-lambda/ /g"         \
@@ -76,42 +101,33 @@ _fix_nvcc_clangd_compile_commands() {
     | sed -r "s/ -x cu / $CLANG_CUDA_OPTIONS /g"     \
     | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g"   \
     | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
-    > "$1.tmp" && mv "$1.tmp" "$1"
+    > "$CC_JSON_CLANGD"                              ;
+
+    # symlink compile_commands.json to the project root so clangd can find it
+    make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
 }
 
-_build_cpp() {
-    cd "$1" && mkdir -p "$1/build" && cd "$1/build"                    \
- && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) cmake $D_CMAKE_ARGS ..   \
- && _fix_nvcc_clangd_compile_commands "$1/build/compile_commands.json" \
- && env JOBS=$(nproc) PARALLEL_LEVEL=$(nproc) ninja -j$(nproc) ${2:-install} \
- && _build_cpp_launch_json "$1"
-}
-
-_build_python() {
-    cd "$1" \
- && python setup.py build_ext -j $(nproc) $2 \
- && python setup.py install \
- && rm -rf *.egg-info
-}
-
-_print_heading() {
+print_heading() {
     echo -e "\n\n\n\n################\n\n\n\n# Build $1 \n\n\n\n################\n\n\n\n"
 }
 
-_join_list_contents() {
+join_list_contents() {
     local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
 }
 
-_build_cpp_launch_json() {
+build_cpp_launch_json() {
     mkdir -p "$1/.vscode";
-    DEBUG_NAME="${1#$RAPIDS_HOME/}"
-    TEST_NAMES=$(echo \"$(_join_list_contents '","' $(ls $1/build/gtests))\");
+    BUILD_DIR=`cpp-build-dir $1`;
+    TESTS_DIR="$1/build/debug/gtests";
+    PROJECT_NAME="${1#$RAPIDS_HOME/}";
+    TEST_NAMES=$(ls $TESTS_DIR 2>/dev/null || echo "");
+    TEST_NAMES=$(echo \"$(join_list_contents '","' $TEST_NAMES)\");
     cat << EOF > "$1/.vscode/launch.json"
 {
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "$DEBUG_NAME",
+            "name": "$PROJECT_NAME",
             "type": "cppdbg",
             "request": "launch",
             "stopAtEntry": false,
@@ -119,7 +135,7 @@ _build_cpp_launch_json() {
             "cwd": "$1",
             "envFile": "\${workspaceFolder:compose}/.env",
             "MIMode": "gdb", "miDebuggerPath": "/usr/local/cuda/bin/cuda-gdb",
-            "program": "$1/build/gtests/\${input:TEST_NAME}",
+            "program": "$TESTS_DIR/\${input:TEST_NAME}",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -141,4 +157,4 @@ _build_cpp_launch_json() {
 EOF
 }
 
-_build_all
+build_all

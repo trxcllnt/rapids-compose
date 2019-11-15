@@ -3,6 +3,8 @@
 set -e
 cd $(dirname "$(realpath "$0")")/../../
 
+find . -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}"
+
 # Setup C++
 for REPO in $CODE_REPOS; do
     CPP_DIR="$PWD/$REPO"
@@ -19,14 +21,7 @@ for REPO in $CODE_REPOS; do
     if [ -z `grep $COMPILE_COMMANDS_JSON $PWD/$REPO/.git/info/exclude` ]; then
         echo "$COMPILE_COMMANDS_JSON" >> "$PWD/$REPO/.git/info/exclude"
     fi
-    # symlink compile_commands.json so vscode-clangd can find it
-    mkdir -p "$CPP_DIR/build" && touch "$CPP_DIR/build/compile_commands.json"
-    ln -f -n -s "$CPP_DIR/build/compile_commands.json" "$CPP_DIR/compile_commands.json"
 done
-
-# mkdir -p "$PWD/cudf/java/.vscode"
-# Symlink .vscode dir for cudf java bindings
-# ln -f -n -s "$PWD/compose/etc/rapids/.vscode" "$PWD/cudf/java/.vscode"
 
 if [ -n `which code` ]; then
     # Install Microsoft C++ Tools if it isn't installed

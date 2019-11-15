@@ -67,3 +67,64 @@ elif [ -n "${CHANGED// }" ]; then
 fi
 
 export FRESH_CONDA_ENV
+
+mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d"
+
+cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
+#!/bin/sh
+
+set -e
+set -o errexit
+
+mkdir -p "\$RMM_HOME/build"
+mkdir -p "\$CUDF_HOME/cpp/build"
+mkdir -p "\$CUGRAPH_HOME/cpp/build"
+
+export RMM_INCLUDE="\$RMM_HOME/include"
+export CUDF_INCLUDE="\$CUDF_HOME/cpp/include"
+export NVSTRINGS_INCLUDE="\$CUDF_HOME/cpp/include"
+export CUGRAPH_INCLUDE="\$CUGRAPH_HOME/cpp/include"
+export COMPOSE_INCLUDE="\$COMPOSE_HOME/etc/rapids/include"
+
+export RMM_ROOT="\$RMM_HOME/\`cpp-build-dir \$RMM_HOME\`"
+export CUDF_ROOT="\$CUDF_HOME/cpp/\`cpp-build-dir \$CUDF_HOME\`"
+export NVSTRINGS_ROOT="\$CUDF_HOME/cpp/\`cpp-build-dir \$CUDF_HOME\`"
+export CUGRAPH_ROOT="\$CUGRAPH_HOME/cpp/\`cpp-build-dir \$CUGRAPH_HOME\`"
+
+make-symlink "\$RMM_ROOT/include" "\$RMM_HOME/build/include"
+make-symlink "\$CUDF_ROOT/include" "\$CUDF_HOME/cpp/build/include"
+make-symlink "\$CUGRAPH_ROOT/include" "\$CUGRAPH_HOME/cpp/build/include"
+
+make-symlink "\$RMM_ROOT" "\$RMM_HOME/build/\$(basename "\$RMM_ROOT")"
+make-symlink "\$CUDF_ROOT" "\$CUDF_HOME/cpp/build/\$(basename "\$CUDF_ROOT")"
+make-symlink "\$CUGRAPH_ROOT" "\$CUGRAPH_HOME/cpp/build/\$(basename "\$CUGRAPH_ROOT")"
+
+export RMM_ROOT="\$RMM_HOME/build/\$(basename "\$RMM_ROOT")"
+export CUDF_ROOT="\$CUDF_HOME/cpp/build/\$(basename "\$CUDF_ROOT")"
+export NVSTRINGS_ROOT="\$CUDF_HOME/cpp/build/\$(basename "\$CUDF_ROOT")"
+export CUGRAPH_ROOT="\$CUGRAPH_HOME/cpp/build/\$(basename "\$CUGRAPH_ROOT")"
+
+export RMM_LIBRARY="\$RMM_ROOT/librmm.so"
+export CUDF_LIBRARY="\$CUDF_ROOT/libcudf.so"
+export NVSTRINGS_LIBRARY="\$NVSTRINGS_ROOT/libNVStrings.so"
+export NVCATEGORY_LIBRARY="\$NVSTRINGS_ROOT/libNVCategory.so"
+export NVTEXT_LIBRARY="\$NVSTRINGS_ROOT/libNVText.so"
+export CUGRAPH_LIBRARY="\$CUGRAPH_ROOT/libcugraph.so"
+
+make-symlink "\$RMM_INCLUDE/rmm" "\$CONDA_PREFIX/include/rmm"
+make-symlink "\$CUDF_INCLUDE/cudf" "\$CONDA_PREFIX/include/cudf"
+make-symlink "\$NVSTRINGS_INCLUDE/nvstrings" "\$CONDA_PREFIX/include/nvstrings"
+make-symlink "\$CUGRAPH_INCLUDE" "\$CONDA_PREFIX/include/cugraph"
+
+make-symlink "\$COMPOSE_HOME/etc/conda/envs/rapids/include/dlpack" "\$COMPOSE_INCLUDE/dlpack"
+
+make-symlink "\$RMM_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$RMM_LIBRARY)"
+make-symlink "\$CUDF_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUDF_LIBRARY)"
+make-symlink "\$NVSTRINGS_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVSTRINGS_LIBRARY)"
+make-symlink "\$NVCATEGORY_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVCATEGORY_LIBRARY)"
+make-symlink "\$NVTEXT_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVTEXT_LIBRARY)"
+make-symlink "\$CUGRAPH_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUGRAPH_LIBRARY)"
+
+EOF
+
+chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
