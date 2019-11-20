@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
-set -o errexit
+set -Eeuo pipefail
 
 cd "$RAPIDS_HOME"
+
+update-environment-variables;
 
 export JOBS=$(nproc)
 export PARALLEL_LEVEL=$JOBS
@@ -60,9 +61,9 @@ build_cpp() {
 }
 
 build_python() {
-    cd "$1"                                  \
- && python setup.py build_ext -j $(nproc) $2 \
- && python setup.py install                  \
+    cd "$1"                                      \
+ && python setup.py build_ext -j $(nproc) ${2:-} \
+ && python setup.py install                      \
  && rm -rf ./*.egg-info
 }
 

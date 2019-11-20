@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-set -ex
-set -o errexit
+set -Eeuxo pipefail
 
-cd $RAPIDS_HOME
+cd "$RAPIDS_HOME"
+
+update-environment-variables;
 
 # If build clean, delete all build and runtime assets and caches
 rm -rf "$RMM_HOME/`cpp-build-dir $RMM_HOME`" \
