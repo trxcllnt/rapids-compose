@@ -4,6 +4,8 @@ export HISTSIZE=INFINITE;
 export HISTFILESIZE=10000000;
 export CCACHE_DIR="$RAPIDS_HOME/compose/etc/.ccache";
 
+source "$COMPOSE_HOME/etc/bash-utils.sh"
+
 ninja-test() {
     update-environment-variables;
     cd "$(find-cpp-build-home)";
@@ -31,7 +33,7 @@ ninja-test() {
         esac; shift;
     done
     for x in "1"; do
-        ninja -j$(nproc) $GTESTS || break;
+        ninja -j$(nproc --ignore=2) $GTESTS || break;
         ctest --force-new-ctest-process \
               --output-on-failure \
               ${CTESTS:+-R $CTESTS} $* || break;

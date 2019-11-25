@@ -6,7 +6,7 @@ cd "$RAPIDS_HOME"
 
 update-environment-variables;
 
-export JOBS=$(nproc)
+export JOBS=$(nproc --ignore=2)
 export PARALLEL_LEVEL=$JOBS
 
 D_CMAKE_ARGS="\
@@ -35,9 +35,9 @@ D_CMAKE_ARGS="\
 build_all() {
     echo -e "\n\n\n\n# Building rapids projects"                                       \
     && print_heading "librmm"       && build_cpp "$RMM_HOME" ""                        \
-    && print_heading "libnvstrings" && build_cpp "$CUDF_HOME/cpp" "nvstrings"          \
-    && print_heading "libcudf"      && build_cpp "$CUDF_HOME/cpp" "cudf"               \
-    && print_heading "libcugraph"   && build_cpp "$CUGRAPH_HOME/cpp" ""                \
+    && print_heading "libnvstrings" && build_cpp "$CUDF_HOME" "nvstrings"              \
+    && print_heading "libcudf"      && build_cpp "$CUDF_HOME" "cudf"                   \
+    && print_heading "libcugraph"   && build_cpp "$CUGRAPH_HOME" ""                    \
     && print_heading "rmm"          && build_python "$RMM_HOME/python" --inplace       \
     && print_heading "nvstrings"    && build_python "$CUDF_HOME/python/nvstrings"      \
     && print_heading "cudf"         && build_python "$CUDF_HOME/python/cudf" --inplace \
@@ -46,66 +46,21 @@ build_all() {
 }
 
 build_cpp() {
-    BUILD_TARGETS="$2";
-    CPP_ROOT=$(realpath "$1");
-    BUILD_DIR="$CPP_ROOT/`cpp-build-dir $CPP_ROOT`";
-    INSTALL_PATH="$CPP_ROOT/build/$(cpp-build-type)";
+    cd "$1"
+    BUILD_TARGETS="${2:-}";
     if [ -n "$BUILD_TARGETS" ] && [ "$BUILD_TESTS" = "ON" ]; then
         BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
     fi
-    mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR"  \
- && cmake $D_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX="$INSTALL_PATH" "$CPP_ROOT" \
- && fix_nvcc_clangd_compile_commands "$CPP_ROOT" "$BUILD_DIR" \
- && ninja -C "$BUILD_DIR" $BUILD_TARGETS \
- && build_cpp_launch_json "$CPP_ROOT"
+    cpp-exec-cmake \
+ && ninja -C "$(find-cpp-build-home)" $BUILD_TARGETS \
+ && build_cpp_launch_json "$(find-cpp-home)"
 }
 
 build_python() {
     cd "$1"                                      \
- && python setup.py build_ext -j $(nproc) ${2:-} \
+ && python setup.py build_ext -j $(nproc --ignore=2) ${2:-} \
  && python setup.py install                      \
  && rm -rf ./*.egg-info
-}
-
-fix_nvcc_clangd_compile_commands() {
-    ###
-    # Make a few modifications to the compile_commands.json file
-    # produced by CMake. This file is used by clangd to provide fast
-    # and smart intellisense, but `clang-10` doesn't yet support all
-    # the nvcc compilation options. This block translates or removes
-    # unsupported options, so `clangd` has an easier time producing
-    # usable intellisense results.
-    ###
-    CC_JSON="$2/compile_commands.json";
-    CC_JSON_LINK="$1/compile_commands.json";
-    CC_JSON_CLANGD="$2/compile_commands.clangd.json";
-    CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
-    ALLOWED_WARNINGS=$(echo $(echo '
-        -Wno-unknown-pragmas
-        -Wno-c++17-extensions
-        -Wno-unevaluated-expression'));
-
-    # 1. Remove the second compiler invocation following the `&&`
-    # 2. Remove unsupported -gencode options
-    # 3. Remove unsupported --expt-extended-lambda option
-    # 4. Remove unsupported --expt-relaxed-constexpr option
-    # 5. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-    # 6. Change `-x cu` to `-x cuda` and add other clang cuda options
-    # 7. Add `-I$CUDA_HOME/include` to nvcc invocations
-    # 8. Add flags to disable certain warnings for intellisense
-    cat "$CC_JSON"                                   \
-    | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
-    | sed -r "s/\-gencode\ arch=([^\-])*//g"         \
-    | sed -r "s/ --expt-extended-lambda/ /g"         \
-    | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
-    | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
-    | sed -r "s/ -x cu / $CLANG_CUDA_OPTIONS /g"     \
-    | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g"   \
-    | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
-    > "$CC_JSON_CLANGD"                              ;
-
-    # symlink compile_commands.json to the project root so clangd can find it
-    make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
 }
 
 print_heading() {
