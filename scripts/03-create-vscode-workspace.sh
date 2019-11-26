@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
+
 cd $(dirname "$(realpath "$0")")/../../
 
 create_vscode_workspace() {
@@ -42,11 +43,10 @@ create_vscode_workspace() {
             "--fallback-style", "Chromium"
         ],
         "search.exclude": {
-            "$PWD/rmm/build": true,
-            "$PWD/cudf/cpp/build": true,
-            "$PWD/cugraph/cpp/build": true,
-            "$PWD/compose/etc/conda": true,
-            "$PWD/compose/etc/.ccache": true,
+            "**/.ccache": true,
+            "**/build/b-*": true,
+            "**/build/debug": true,
+            "**/build/release": true,
         },
         "files.associations": {
             "*.cu": "cuda",
@@ -58,6 +58,7 @@ create_vscode_workspace() {
             "**/.git/subtree-cache/**": true,
             "**/node_modules/**": true,
 
+            "**/.ccache": true,
             "**/build/b-*": true,
             "**/build/debug": true,
             "**/build/release": true,
@@ -83,9 +84,6 @@ create_vscode_workspace() {
             "**/__pycache__": true,
             "**/.pytest_cache": true,
 
-            # "**/build/b-*": true,
-            # "**/build/debug": true,
-            # "**/build/release": true,
             "**/build/include": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,
