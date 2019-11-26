@@ -25,9 +25,10 @@ install_clangd() {
     INSTALLED_CLANGD=1
     APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-10 clang-tools-10"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-    echo 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
-deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
-' | sudo tee /etc/apt/sources.list.d/llvm.list
+    release=$(lsb_release -cs)
+    echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
+deb-src http://apt.llvm.org/$release/ llvm-toolchain-$release main
+" | sudo tee /etc/apt/sources.list.d/llvm.list
 }
 
 install_vscode() {
