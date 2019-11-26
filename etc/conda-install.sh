@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
-set -o errexit
+set -Eeuo pipefail
 
 ENV_NAME=${1:-""}
 ENV_NAME="${ENV_NAME// }"
@@ -73,8 +72,7 @@ mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d"
 cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
 #!/bin/sh
 
-set -e
-set -o errexit
+set -Ee
 
 mkdir -p "\$RMM_HOME/build"
 mkdir -p "\$CUDF_HOME/cpp/build"
@@ -124,6 +122,8 @@ make-symlink "\$NVSTRINGS_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVSTRINGS_L
 make-symlink "\$NVCATEGORY_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVCATEGORY_LIBRARY)"
 make-symlink "\$NVTEXT_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$NVTEXT_LIBRARY)"
 make-symlink "\$CUGRAPH_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUGRAPH_LIBRARY)"
+
+set +Ee;
 
 EOF
 

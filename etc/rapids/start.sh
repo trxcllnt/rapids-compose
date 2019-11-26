@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
 
 source /home/rapids/.bashrc
 source "$COMPOSE_HOME/etc/bash-utils.sh"
@@ -21,4 +21,4 @@ source activate rapids
 # activate the rapids conda environment on bash login
 echo "source activate rapids" > /home/rapids/.bash_login
 
-exec "$@"
+exec -l "$@"

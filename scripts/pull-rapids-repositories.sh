@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
+
 cd $(dirname "$(realpath "$0")")/../../
 
 BASE_DIR="$(pwd)"

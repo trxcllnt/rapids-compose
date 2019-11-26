@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
 
 source /home/rapids/.bashrc
 source "$COMPOSE_HOME/etc/bash-utils.sh"
@@ -29,4 +29,4 @@ fi
 
 cd /home/rapids/notebooks
 
-exec "$@"
+exec -l "$@"

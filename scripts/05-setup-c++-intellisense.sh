@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
+
 cd $(dirname "$(realpath "$0")")/../../
 
 find . -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}"
