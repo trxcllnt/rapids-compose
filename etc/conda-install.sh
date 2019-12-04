@@ -77,6 +77,7 @@ set -Ee
 mkdir -p "\$RMM_HOME/build"
 mkdir -p "\$CUDF_HOME/cpp/build"
 mkdir -p "\$CUGRAPH_HOME/cpp/build"
+mkdir -p "\$CONDA_PREFIX/include/libcudf"
 
 export RMM_INCLUDE="\$RMM_HOME/include"
 export CUDF_INCLUDE="\$CUDF_HOME/cpp/include"
@@ -111,6 +112,8 @@ export CUGRAPH_LIBRARY="\$CUGRAPH_ROOT/libcugraph.so"
 
 make-symlink "\$RMM_INCLUDE/rmm" "\$CONDA_PREFIX/include/rmm"
 make-symlink "\$CUDF_INCLUDE/cudf" "\$CONDA_PREFIX/include/cudf"
+make-symlink "\$CUDF_ROOT/include/libcxx" "\$CONDA_PREFIX/include/libcudf/libcxx"
+make-symlink "\$CUDF_ROOT/include/libcudacxx" "\$CONDA_PREFIX/include/libcudf/libcudacxx"
 make-symlink "\$NVSTRINGS_INCLUDE/nvstrings" "\$CONDA_PREFIX/include/nvstrings"
 make-symlink "\$CUGRAPH_INCLUDE" "\$CONDA_PREFIX/include/cugraph"
 
