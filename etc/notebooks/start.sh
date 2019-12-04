@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -Eeo pipefail
 
 source /home/rapids/.bashrc
 source "$COMPOSE_HOME/etc/bash-utils.sh"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeuo pipefail
+set -Eeo pipefail
 
 ENV_NAME=${1:-""}
 ENV_NAME="${ENV_NAME// }"
