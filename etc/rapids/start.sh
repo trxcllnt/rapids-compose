@@ -21,4 +21,4 @@ source activate rapids
 # activate the rapids conda environment on bash login
 echo "source activate rapids" > /home/rapids/.bash_login
 
-exec -l "$@"
+exec "$@"

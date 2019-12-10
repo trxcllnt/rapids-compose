@@ -29,4 +29,4 @@ fi
 
 cd /home/rapids/notebooks
 
-exec -l "$@"
+exec "$@"

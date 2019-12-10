@@ -59,7 +59,9 @@ export -f make-symlink;
 
 update-environment-variables() {
     set -a && . "$COMPOSE_HOME/.env" && set +a
-    bash $CONDA_PREFIX/etc/conda/activate.d/env-vars.sh
+    if [ ${CONDA_PREFIX-""} != "" ]; then
+        bash "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
+    fi
     unset NVIDIA_VISIBLE_DEVICES
 }
 

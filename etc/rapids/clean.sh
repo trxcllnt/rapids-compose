@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -Eeuxo pipefail
+set -Eexo pipefail
 
 cd "$RAPIDS_HOME"
 

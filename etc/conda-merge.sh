@@ -10,9 +10,9 @@ cd /home/rapids
 cat << EOF > rapids.yml
 name: rapids
 channels:
-- rapidsai/label/cuda${CUDA_SHORT_VERSION}
-- nvidia/label/cuda${CUDA_SHORT_VERSION}
-- rapidsai-nightly/label/cuda${CUDA_SHORT_VERSION}
+- rapidsai
+- nvidia
+- rapidsai-nightly
 - conda-forge
 - defaults
 dependencies:
@@ -54,11 +54,8 @@ cat merged.yml \
 cat << EOF > notebooks.yml
 name: notebooks
 channels:
-- rapidsai/label/cuda${CUDA_SHORT_VERSION}
 - rapidsai
-- nvidia/label/cuda${CUDA_SHORT_VERSION}
 - nvidia
-- rapidsai-nightly/label/cuda${CUDA_SHORT_VERSION}
 - rapidsai-nightly
 - numba
 - conda-forge
