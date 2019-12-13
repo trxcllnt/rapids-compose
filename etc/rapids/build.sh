@@ -6,32 +6,6 @@ cd "$RAPIDS_HOME"
 
 update-environment-variables;
 
-export JOBS=$(nproc --ignore=2)
-export PARALLEL_LEVEL=$JOBS
-
-D_CMAKE_ARGS="\
-    -GNinja
-    -DGPU_ARCHS=
-    -DUSE_CCACHE=1
-    -DCONDA_BUILD=0
-    -DCMAKE_CXX11_ABI=ON
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    -DBUILD_TESTS=${BUILD_TESTS:-OFF}
-    -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids
-    -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
-    -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
-    -DRMM_LIBRARY=${RMM_LIBRARY}
-    -DCUDF_LIBRARY=${CUDF_LIBRARY}
-    -DCUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
-    -DNVSTRINGS_LIBRARY=${NVSTRINGS_LIBRARY}
-    -DNVCATEGORY_LIBRARY=${NVCATEGORY_LIBRARY}
-    -DNVTEXT_LIBRARY=${NVTEXT_LIBRARY}
-    -DRMM_INCLUDE=${RMM_INCLUDE}
-    -DCUDF_INCLUDE=${CUDF_INCLUDE}
-    -DDLPACK_INCLUDE=${COMPOSE_INCLUDE}
-    -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
-    -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}"
-
 build_all() {
     echo -e "\n\n\n\n# Building rapids projects"                                       \
     && print_heading "librmm"       && build_cpp "$RMM_HOME" ""                        \
