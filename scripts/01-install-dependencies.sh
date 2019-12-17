@@ -75,12 +75,12 @@ fi
 
 # Install clangd-10 and clang-tools-10 if not installed
 if [ -z `which clangd` ]; then
-    ask_before_install "clangd not found. Install clangd (not necessary for remote-dev) (y/n)?" "install_clangd"
+    ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
 fi
 
 # Install vscode if not installed
 if [ -z `which code` ]; then
-    ask_before_install "VSCode not found. Install VSCode (not necessary for remote-dev) (y/n)?" "install_vscode"
+    ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
 fi
 
 # Install docker-ce if not installed

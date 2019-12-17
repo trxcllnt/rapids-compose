@@ -13,7 +13,7 @@ DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 DEFAULT_RAPIDS_VERSION := $(shell RES="" \
  && [ -z "$$RES" ] && RES=$$(cd ../cudf 2>/dev/null && git describe --abbrev=0 --tags) || true \
- && [ -z "$$RES" ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
+ && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
  && echo $${RES:-"latest"})
 
 .PHONY: all init build rapids notebooks
@@ -31,8 +31,6 @@ DEFAULT_RAPIDS_VERSION := $(shell RES="" \
 all: build rapids notebooks
 
 init:
-	export vGCC=5 && \
-	export vGXX=5 && \
 	export CODE_REPOS="rmm cudf cugraph" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
