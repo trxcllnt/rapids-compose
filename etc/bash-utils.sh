@@ -51,8 +51,7 @@ export -f cpp-build-dir;
 make-symlink() {
     SRC="$1"; DST="$2";
     CUR=$(readlink "$2" || echo "");
-    [ -z "$SRC" ] || [ -z "$DST" ]   || \
-    [ -z "$(stat $SRC || echo '')" ] || \
+    [ -z "$SRC" ] || [ -z "$DST" ] || \
     [ "$CUR" = "$SRC" ] || ln -f -n -s "$SRC" "$DST"
 }
 
@@ -97,13 +96,13 @@ cpp-exec-cmake() {
         -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
         -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)"
 
-    CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
+    export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
     env JOBS=$(nproc --ignore=2)                                          \
         PARALLEL_LEVEL=$(nproc --ignore=2)                                \
         cmake $D_CMAKE_ARGS "$PROJECT_CPP_HOME"                           \
      && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
     ;
-    CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
+    export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
     cd -;
 }
 
