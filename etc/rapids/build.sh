@@ -72,7 +72,11 @@ build_cpp_launch_json() {
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "environment": [{
+                "name": "LIBCUDF_INCLUDE_DIR",
+                "value": "$1/build/include"
+            }]
         },
     ],
     "inputs": [
