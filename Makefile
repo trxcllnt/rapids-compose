@@ -102,7 +102,7 @@ notebooks.up:
 notebooks.exec: args ?=
 notebooks.exec: cmd_args ?=
 notebooks.exec:
-	@$(MAKE) -s dc.exec svc="notebooks" svc_args="$(args)" cmd_args="$(cmd_args)"
+	@$(MAKE) -s dc.exec svc="notebooks" svc_args="$(args)" cmd_args="-u $(UID):$(GID) $(cmd_args)"
 
 notebooks.logs: args ?=
 notebooks.logs: cmd_args ?= -f

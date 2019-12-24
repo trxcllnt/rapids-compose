@@ -29,4 +29,12 @@ fi
 
 cd /home/rapids/notebooks
 
-exec -l "$@"
+RUN_CMD="$@"
+
+# Run with gosu because `docker-compose up` doesn't support the --user flag.
+# see: https://github.com/docker/compose/issues/1532
+if [ "$_UID:$_GID" != "$(id -u):$(id -g)" ]; then
+    RUN_CMD="/usr/local/sbin/gosu $_UID:$_GID $RUN_CMD"
+fi;
+
+exec -l $RUN_CMD
