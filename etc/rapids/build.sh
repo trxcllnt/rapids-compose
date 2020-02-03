@@ -31,9 +31,9 @@ build_cpp() {
 }
 
 build_python() {
-    cd "$1"                                      \
+    cd "$1"                                                 \
  && python setup.py build_ext -j $(nproc --ignore=2) ${2:-} \
- && python setup.py install                      \
+ && python setup.py install                                 \
  && rm -rf ./*.egg-info
 }
 

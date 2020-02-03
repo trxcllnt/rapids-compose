@@ -39,6 +39,7 @@ create_vscode_workspace() {
         "clangd.arguments": [
             "--log", "info",
             "--pch-storage=memory",
+            "--compile-commands-dir=",
             "--background-index=false",
             "--fallback-style", "Chromium"
         ],
