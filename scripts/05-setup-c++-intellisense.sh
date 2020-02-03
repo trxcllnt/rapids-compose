@@ -24,19 +24,23 @@ for REPO in $CODE_REPOS; do
     fi
 done
 
-if [ -n `which code` ]; then
-    # Install Microsoft C++ Tools if it isn't installed
-    if [ -z `code --list-extensions | grep ms-vscode.cpptools` ]; then
-        code --install-extension ms-vscode.cpptools
-    fi
+install_vscode_extensions() {
+    CODE="$1"
+    for EXT in ${@:2}; do
+        if [ -z "$($CODE --list-extensions | grep $EXT)" ]; then
+            ask_before_install \
+                "Missing $CODE extension $EXT. Install $EXT now? (y/n)" \
+                "$CODE --install-extension $EXT"
+        fi
+    done
+}
 
-    # Install vscode-cudacpp if it isn't installed
-    if [ -z `code --list-extensions | grep kriegalex.vscode-cudacpp` ]; then
-        code --install-extension kriegalex.vscode-cudacpp
-    fi
-
-    # Install vscode-clangd if it isn't installed
-    if [ -z `code --list-extensions | grep llvm-vs-code-extensions.vscode-clangd` ]; then
-        code --install-extension llvm-vs-code-extensions.vscode-clangd
-    fi
-fi
+for CODE in "code" "code-insiders"; do
+    # 1. Install Microsoft C++ Tools if it isn't installed
+    # 2. Install vscode-cudacpp if it isn't installed
+    # 3. Install vscode-clangd if it isn't installed
+    [ -n "$(which $CODE)" ] && install_vscode_extensions "$CODE" \
+        "ms-vscode.cpptools" \
+        "kriegalex.vscode-cudacpp" \
+        "llvm-vs-code-extensions.vscode-clangd";
+done
