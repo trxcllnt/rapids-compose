@@ -37,6 +37,10 @@ read_git_remote_url_ssh_preference() {
 
 install_github_cli() {
     GITHUB_VERSION=$(curl -s https://api.github.com/repos/github/hub/releases/latest | jq -r ".tag_name" | tr -d 'v')
+    # If Github's API is rate-limiting our IP, use a known good Github CLI version
+    if [ "$GITHUB_VERSION" = "null" ]; then
+        GITHUB_VERSION="2.14.1"
+    fi
     echo "Installing github-cli v$GITHUB_VERSION (https://github.com/github/hub)"
     curl -o ./hub-linux-amd64-${GITHUB_VERSION}.tgz \
         -L https://github.com/github/hub/releases/download/v${GITHUB_VERSION}/hub-linux-amd64-${GITHUB_VERSION}.tgz
