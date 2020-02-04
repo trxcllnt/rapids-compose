@@ -55,6 +55,8 @@ if [ ! -f "$PWD/compose/.env" ]; then
     compose_env_file > "$PWD/compose/.env"
 fi
 
+touch "$PWD/compose/.env"
+
 CHANGED="$(diff -qwB "$PWD/compose/.env" <(compose_env_file) || true)"
 
 if [ -n "${CHANGED// }" ]; then
