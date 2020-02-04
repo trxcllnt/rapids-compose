@@ -24,6 +24,17 @@ for REPO in $CODE_REPOS; do
     fi
 done
 
+ask_before_install() {
+    while true; do
+        read -p "$1 " CHOICE </dev/tty
+        case $CHOICE in
+            [Nn]* ) break;;
+            [Yy]* ) eval $2; break;;
+            * ) echo "Please answer 'y' or 'n'";;
+        esac
+    done
+}
+
 install_vscode_extensions() {
     CODE="$1"
     for EXT in ${@:2}; do
