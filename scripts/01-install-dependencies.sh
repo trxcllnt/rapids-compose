@@ -23,7 +23,7 @@ ask_before_install() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-10 clang-tools-10"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-11"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
     release=$(lsb_release -cs)
     echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
@@ -73,7 +73,7 @@ fi
 # Install bear if not installed
 [ -z `which bear` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }bear"
 
-# Install clangd-10 and clang-tools-10 if not installed
+# Install clangd-11 if not installed
 if [ -z `which clangd` ]; then
     ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
 fi
@@ -105,7 +105,7 @@ if [ -n "$APT_DEPS" ]; then
     sudo apt install -y $APT_DEPS
 
     if [ -n "$INSTALLED_CLANGD" ]; then
-        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-10 100
+        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-11 100
     fi
 
     if [ -n "$INSTALLED_DOCKER" ]; then
