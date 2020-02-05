@@ -43,7 +43,8 @@ export -f cpp-build-type;
 cpp-build-dir() {
     cd "$1"
     _BUILD_DIR="$(git branch --show-current)"
-    echo "build/b-${_BUILD_DIR//\//__}/$(cpp-build-type)"
+    _BUILD_DIR="cuda-$CUDA_SHORT_VERSION/${_BUILD_DIR//\//__}"
+    echo "build/$_BUILD_DIR/$(cpp-build-type)"
 }
 
 export -f cpp-build-dir;
