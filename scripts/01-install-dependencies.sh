@@ -70,9 +70,6 @@ fi
 # Install jq if not installed
 [ -z `which jq` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }jq"
 
-# Install bear if not installed
-[ -z `which bear` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }bear"
-
 # Install clangd-11 if not installed
 if [ -z `which clangd` ]; then
     ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
