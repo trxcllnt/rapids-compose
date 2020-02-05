@@ -64,7 +64,7 @@ install_nvidia_docker_2() {
 
 # Install curl if not installed
 if [ -z `which curl` ]; then
-    sudo apt update && sudo apt install -y curl libssl-dev libcurl4-openssl-dev
+    sudo apt update || true && sudo apt install -y curl libssl-dev libcurl4-openssl-dev
 fi
 
 # Install jq if not installed
@@ -101,7 +101,7 @@ fi
 if [ -n "$APT_DEPS" ]; then
 
     echo "installing $APT_DEPS"
-    sudo apt update
+    sudo apt update || true
     sudo apt install -y $APT_DEPS
 
     if [ -n "$INSTALLED_CLANGD" ]; then
