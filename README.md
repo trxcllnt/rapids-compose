@@ -75,8 +75,8 @@ mkdir -p ~/dev/rapids && cd ~/dev/rapids
 sudo apt install curl jq make
 
 # 3. Check out the rapids-compose repo into ./compose
-git clone ssh://git@gitlab-master.nvidia.com:12051/pataylor/rapids-compose.git compose \
-  && cd compose
+git clone https://github.com/trxcllnt/rapids-compose.git compose
+cd compose
 
 # 4. Initialize the local compose environment:
 make init
