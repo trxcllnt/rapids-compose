@@ -25,16 +25,21 @@ build_cpp() {
     if [ -n "$BUILD_TARGETS" ] && [ "$BUILD_TESTS" = "ON" ]; then
         BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
     fi
-    cpp-exec-cmake \
+    cpp-exec-cmake                                   \
  && ninja -C "$(find-cpp-build-home)" $BUILD_TARGETS \
- && build_cpp_launch_json "$(find-cpp-home)"
+ && build_cpp_launch_json "$(find-cpp-home)"         \
+ ;
 }
 
 build_python() {
-    cd "$1"                                                 \
- && python setup.py build_ext -j $(nproc --ignore=2) ${2:-} \
- && python setup.py install                                 \
- && rm -rf ./*.egg-info
+    CC_="$CC"
+    JOBS=$(nproc --ignore=2)
+    [ "$USE_CCACHE" == "YES" ] && CC_="$(which ccache) $CC";
+    cd "$1"                                                \
+ && env CC="$CC_" python setup.py build_ext -j$JOBS ${2:-} \
+ && env CC="$CC_" python setup.py install                  \
+ && rm -rf ./*.egg-info                                    \
+ ;
 }
 
 print_heading() {

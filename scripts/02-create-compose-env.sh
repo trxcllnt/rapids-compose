@@ -15,6 +15,23 @@ select_version() {
     echo "$SELECTION"
 }
 
+choose_bool_option() {
+    MSG="$1"
+    DEFAULT="$2"
+    SELECTION=""
+    while true; do
+        read -p "$MSG (default: $DEFAULT) " SELECTION </dev/tty
+        if [ "$SELECTION" = "" ]; then
+            SELECTION="$DEFAULT";
+        fi
+        case $SELECTION in
+            [Nn]* ) echo "NO"; break;;
+            [Yy]* ) echo "YES"; break;;
+            * ) >&2 echo "Please answer 'y' or 'n'";;
+        esac
+    done
+}
+
 echo "###
 Configure RAPIDS environment \`.env\` file
 ###
@@ -29,6 +46,8 @@ BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS b
 CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
 NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use" "0")
 
+USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
+
 compose_env_file() {
     echo "\
 # Build arguments
@@ -39,6 +58,8 @@ CUDA_VERSION=$CUDA_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
 LINUX_VERSION=$LINUX_VERSION
 
+# Whether to use ccache (https://ccache.dev/) to speed up gcc/nvcc build times
+USE_CCACHE=$USE_CCACHE
 # Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS

@@ -75,9 +75,9 @@ cpp-exec-cmake() {
     D_CMAKE_ARGS="\
         -GNinja
         -DGPU_ARCHS=
-        -DUSE_CCACHE=1
         -DCONDA_BUILD=0
         -DCMAKE_CXX11_ABI=ON
+        -DARROW_USE_CCACHE=ON
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         -DBUILD_TESTS=${BUILD_TESTS:-OFF}
         -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids
@@ -95,6 +95,12 @@ cpp-exec-cmake() {
         -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
         -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
         -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)"
+
+    if [ "$USE_CCACHE" == "YES" ]; then
+        D_CMAKE_ARGS="$D_CMAKE_ARGS
+        -DCMAKE_CXX_COMPILER_LAUNCHER=$(which ccache)
+        -DCMAKE_CUDA_COMPILER_LAUNCHER=$(which ccache)";
+    fi
 
     export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
     env JOBS=$(nproc --ignore=2)                                          \
