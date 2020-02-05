@@ -94,8 +94,10 @@ if [ -z `which docker-compose` ]; then
 fi
 
 # Install nvidia-docker2 if not installed
-if [ -n "$(apt policy nvidia-docker2 2> /dev/null | grep -i 'Installed: (none)')" ]; then
-    ask_before_install "nvidia-docker2 not found. Install nvidia-docker (y/n)?" "install_nvidia_docker_2"
+if [ ! -f "/etc/apt/sources.list.d/nvidia-docker.list" ]; then
+    ask_before_install "nvidia-docker2 not found. Install nvidia-docker2 (y/n)?" "install_nvidia_docker_2"
+elif [ -n "$(apt policy nvidia-docker2 2> /dev/null | grep -i 'Installed: (none)')" ]; then
+    ask_before_install "nvidia-docker2 not found. Install nvidia-docker2 (y/n)?" "install_nvidia_docker_2"
 fi
 
 if [ -n "$APT_DEPS" ]; then
