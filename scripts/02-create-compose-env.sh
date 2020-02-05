@@ -37,16 +37,27 @@ Configure RAPIDS environment \`.env\` file
 ###
 ";
 
-vGCC=$(select_version "Please enter your desired GCC version" "5")
-CUDA_VERSION=$(select_version "Please enter your desired CUDA version" "10.0")
-PYTHON_VERSION=$(select_version "Please enter your desired Python version" "3.7")
-LINUX_VERSION=$(select_version "Please enter your desired Linux container base" "ubuntu18.04")
+vGCC=$(select_version "Please enter your desired GCC version (5/7)" "5")
+CUDA_VERSION=$(select_version "Please enter your desired CUDA version (9.2/10.0/10.1)" "10.0")
+PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.6/3.7)" "3.7")
+CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
+NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use (0,..num_gpus)" "0")
 BUILD_TESTS=$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")
 BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")
-CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
-NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use" "0")
 
 USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
+
+BUILD_RMM="YES"
+BUILD_CUDF="YES"
+BUILD_CUGRAPH=$(choose_bool_option "Build cuGraph C++ and Cython? (Y/N)" "YES")
+
+if [ "$BUILD_CUGRAPH" = "NO" ]; then
+    BUILD_CUDF=$(choose_bool_option "Build cuDF C++ and Cython? (Y/N)" "YES")
+fi
+
+if [ "$BUILD_CUDF" = "NO" ]; then
+    BUILD_RMM=$(choose_bool_option "Build rmm C++ and Cython? (Y/N)" "YES")
+fi
 
 compose_env_file() {
     echo "\
@@ -63,11 +74,20 @@ USE_CCACHE=$USE_CCACHE
 # Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS
-
 # Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
 CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 
-# Set which GPU the containers should see when running tests/notebooks
+###
+# Select which RAPIDS projects to build
+###
+# Whether to build rmm C++ and Cython
+BUILD_RMM=$BUILD_RMM
+# Whether to build cuDF C++ and Cython (implies BUILD_RMM=YES)
+BUILD_CUDF=$BUILD_CUDF
+# Whether to build cuGraph C++ and Cython (implies BUILD_CUDF=YES)
+BUILD_CUGRAPH=$BUILD_CUGRAPH
+
+# Select which GPU(s) the container will use when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES
 "
 }

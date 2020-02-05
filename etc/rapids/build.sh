@@ -7,16 +7,20 @@ cd "$RAPIDS_HOME"
 update-environment-variables;
 
 build_all() {
-    echo -e "\n\n\n\n# Building rapids projects"                                       \
-    && print_heading "librmm"       && build_cpp "$RMM_HOME" ""                        \
-    && print_heading "libnvstrings" && build_cpp "$CUDF_HOME" "nvstrings"              \
-    && print_heading "libcudf"      && build_cpp "$CUDF_HOME" "cudf"                   \
-    && print_heading "libcugraph"   && build_cpp "$CUGRAPH_HOME" ""                    \
-    && print_heading "rmm"          && build_python "$RMM_HOME/python" --inplace       \
-    && print_heading "nvstrings"    && build_python "$CUDF_HOME/python/nvstrings"      \
-    && print_heading "cudf"         && build_python "$CUDF_HOME/python/cudf" --inplace \
-    && print_heading "cugraph"      && build_python "$CUGRAPH_HOME/python" --inplace   \
-    ;
+    [ "$BUILD_CUGRAPH" == "YES" ] && should_build_cugraph="YES" || should_build_cugraph="NO";
+    [ "$BUILD_CUGRAPH" == "YES" ] || [ "$BUILD_CUDF" == "YES" ] && should_build_cudf="YES" || should_build_cudf="NO";
+    [ "$BUILD_CUGRAPH" == "YES" ] || [ "$BUILD_CUDF" == "YES" ] || [ "$BUILD_RMM" == "YES" ] && should_build_rmm="YES" || should_build_rmm="NO";
+
+    print_heading "RAPIDS projects: RMM: $should_build_rmm, cuDF: $should_build_cudf, cuGraph: $should_build_cugraph"
+
+    [ "$should_build_rmm"     == "YES" ] && print_heading "librmm"       && build_cpp "$RMM_HOME" ""                        ;
+    [ "$should_build_cudf"    == "YES" ] && print_heading "libnvstrings" && build_cpp "$CUDF_HOME" "nvstrings"              ;
+    [ "$should_build_cudf"    == "YES" ] && print_heading "libcudf"      && build_cpp "$CUDF_HOME" "cudf"                   ;
+    [ "$should_build_cugraph" == "YES" ] && print_heading "libcugraph"   && build_cpp "$CUGRAPH_HOME" ""                    ;
+    [ "$should_build_rmm"     == "YES" ] && print_heading "rmm"          && build_python "$RMM_HOME/python" --inplace       ;
+    [ "$should_build_cudf"    == "YES" ] && print_heading "nvstrings"    && build_python "$CUDF_HOME/python/nvstrings"      ;
+    [ "$should_build_cudf"    == "YES" ] && print_heading "cudf"         && build_python "$CUDF_HOME/python/cudf" --inplace ;
+    [ "$should_build_cugraph" == "YES" ] && print_heading "cugraph"      && build_python "$CUGRAPH_HOME/python" --inplace   ;
 }
 
 build_cpp() {
