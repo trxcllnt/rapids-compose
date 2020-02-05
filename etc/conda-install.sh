@@ -37,6 +37,8 @@ INSIDE__ENV_YML="/home/rapids/$ENV_NAME.yml"
 # TODO: this assumes the conda env name is the same as the folder under `compose/etc/`
 OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME.yml"
 
+touch $INSIDE__ENV_YML
+
 # If no environment.yml outside the container, use the one from inside the container
 [[ ! -f $OUTSIDE_ENV_YML ]] && cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
 
