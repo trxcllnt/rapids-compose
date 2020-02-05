@@ -39,10 +39,11 @@ RUN set -x && \
     docker-compose version
 
 ARG RAPIDS_HOME
+ARG COMPOSE_HOME
 ENV RAPIDS_HOME="$RAPIDS_HOME"
+ENV COMPOSE_HOME="$COMPOSE_HOME"
 ENV RMM_HOME="$RAPIDS_HOME/rmm"
 ENV CUDF_HOME="$RAPIDS_HOME/cudf"
-ENV COMPOSE_HOME="$RAPIDS_HOME/compose"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
@@ -59,11 +60,11 @@ ENV RAPIDS_NAMESPACE=anon
 
 WORKDIR "$RAPIDS_HOME"
 
-COPY etc/dind/ "$RAPIDS_HOME/compose/etc/dind"
+COPY etc/dind/ "$COMPOSE_HOME/etc/dind"
 COPY etc/dind/.dockerignore "$RAPIDS_HOME/.dockerignore"
 
 RUN cat "$RAPIDS_HOME/.dockerignore"
 
-ENTRYPOINT ["$RAPIDS_HOME/compose/etc/dind/build.sh"]
+ENTRYPOINT ["$COMPOSE_HOME/etc/dind/build.sh"]
 
-CMD ["$RAPIDS_HOME/compose/etc/dind/print_build_context.sh"]
+CMD ["$COMPOSE_HOME/etc/dind/print_build_context.sh"]

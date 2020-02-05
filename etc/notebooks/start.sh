@@ -29,7 +29,7 @@ fi
 
 cd /home/rapids/notebooks
 
-RUN_CMD="$@"
+RUN_CMD="$(echo $(eval "echo $@"))"
 
 # Run with gosu because `docker-compose up` doesn't support the --user flag.
 # see: https://github.com/docker/compose/issues/1532

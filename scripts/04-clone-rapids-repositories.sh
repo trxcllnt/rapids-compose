@@ -2,7 +2,11 @@
 
 set -Eeo pipefail
 
-cd $(dirname "$(realpath "$0")")/../../
+COMPOSE_HOME=$(dirname $(realpath "$0"))
+COMPOSE_HOME=$(realpath "$COMPOSE_HOME/../")
+RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
+
+cd "$RAPIDS_HOME"
 
 USE_SSH_URLS=1
 
@@ -93,18 +97,18 @@ clone_or_fork_repo() {
 install_post_checkout_hook() {
     REPO="$1"
     echo "Installing $REPO hooks..."
-    cp "$PWD/compose/scripts/git-utimes.pl" "$PWD/$REPO/.git/hooks/git-utimes.pl"
-    cat << EOF > "$PWD/$REPO/.git/hooks/post-checkout"
+    cp "$COMPOSE_HOME/scripts/git-utimes.pl" "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl"
+    cat << EOF > "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout"
 #!/bin/sh
 # when running the hook, cwd is the top level of working tree
 .git/hooks/git-utimes.pl
 EOF
-    chmod +x "$PWD/$REPO/.git/hooks/post-checkout"
+    chmod +x "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout"
 }
 
 for REPO in $ALL_REPOS; do
     # Clone if doesn't exist
-    if [ ! -d "$PWD/$REPO" ]; then
+    if [ ! -d "$RAPIDS_HOME/$REPO" ]; then
         if [ "$GITHUB_USER" = "" ]; then
             read_github_username;
             read_git_remote_url_ssh_preference;

@@ -52,8 +52,9 @@ ARG PTVSD_LOG_DIR=/var/log/ptvsd
 ENV PTVSD_LOG_DIR="$PTVSD_LOG_DIR"
 
 ARG RAPIDS_HOME
+ARG COMPOSE_HOME
 ENV RAPIDS_HOME="$RAPIDS_HOME"
-ENV COMPOSE_HOME="$RAPIDS_HOME/compose"
+ENV COMPOSE_HOME="$COMPOSE_HOME"
 ENV CONDA_HOME="$COMPOSE_HOME/etc/conda"
 ENV RMM_HOME="$RAPIDS_HOME/rmm"
 ENV CUDF_HOME="$RAPIDS_HOME/cudf"
@@ -92,13 +93,9 @@ COPY --chown=rapids cugraph/conda "$CUGRAPH_HOME/conda"
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 
-COPY --chown=rapids compose/etc/conda-merge.sh "$RAPIDS_HOME/compose/etc/conda-merge.sh"
+RUN pip3 install --no-cache-dir conda-merge==0.1.5
 
-RUN pip3 install --no-cache-dir conda-merge==0.1.5 \
- # Merge the conda environment dependencies lists
- && gosu rapids bash "$RAPIDS_HOME/compose/etc/conda-merge.sh"
-
-ENV PATH="$CONDA_HOME/bin:$CUDA_HOME/bin:$PATH:/usr/bin"
+ENV PATH="$CONDA_HOME/bin:$CUDA_HOME/bin:$PATH:/usr/local/bin:/usr/bin"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 ENV LD_LIBRARY_PATH="$CONDA_HOME/lib:$LD_LIBRARY_PATH"
@@ -119,13 +116,10 @@ ENV CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE"
 ARG FRESH_CONDA_ENV=0
 ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
-# Copy in a bashrc that preserves history
-COPY --chown=rapids compose/etc/rapids/.bashrc /home/rapids/.bashrc
-
 RUN bash -c "echo -e '#!/bin/bash -e\n\
-exec \"$RAPIDS_HOME/compose/etc/rapids/start.sh\" \"\$@\"\n\
+exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
- && touch /home/rapids/.bash_history \
+ && touch /home/rapids/.bashrc && touch /home/rapids/.bash_history \
  && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
  && chmod +x /entrypoint.sh
 
@@ -133,4 +127,4 @@ WORKDIR $RAPIDS_HOME
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
-CMD ["compose/etc/rapids/build.sh"]
+CMD ["${COMPOSE_HOME}/etc/rapids/build.sh"]

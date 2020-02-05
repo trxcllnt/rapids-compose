@@ -116,6 +116,7 @@ dind:
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker build -q \
 		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
+		--build-arg COMPOSE_HOME="$$COMPOSE_HOME" \
 		-t "$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" \
 		-f dockerfiles/dind.Dockerfile .
 
@@ -130,10 +131,10 @@ dc: dind
 	set -a && . .env && set +a && \
 	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
-	docker run -it --rm --net=host --entrypoint "$$RAPIDS_HOME/compose/etc/dind/$(cmd).sh" \
+	docker run -it --rm --net=host --entrypoint "$$COMPOSE_HOME/etc/dind/$(cmd).sh" \
+		-v "$$COMPOSE_HOME:$$COMPOSE_HOME" \
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
-		-v "$$RAPIDS_HOME/compose:$$RAPIDS_HOME/compose" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \

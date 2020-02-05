@@ -21,7 +21,7 @@ source activate rapids
 # activate the rapids conda environment on bash login
 echo "source activate rapids" > /home/rapids/.bash_login
 
-RUN_CMD="$@"
+RUN_CMD="$(echo $(eval "echo $@"))"
 
 # Run with gosu because `docker-compose up` doesn't support the --user flag.
 # see: https://github.com/docker/compose/issues/1532
@@ -30,5 +30,3 @@ if [ "$_UID:$_GID" != "$(id -u):$(id -g)" ]; then
 fi;
 
 exec -l $RUN_CMD
-
-# exec -l "$@"

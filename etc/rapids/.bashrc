@@ -2,7 +2,7 @@ shopt -s histappend;
 export HISTCONTROL=ignoreboth;
 export HISTSIZE=INFINITE;
 export HISTFILESIZE=10000000;
-export CCACHE_DIR="$RAPIDS_HOME/compose/etc/.ccache";
+export CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";
 
 source "$COMPOSE_HOME/etc/bash-utils.sh"
 

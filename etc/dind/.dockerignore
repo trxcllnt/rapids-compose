@@ -22,8 +22,8 @@
 **/Makefile
 **/*Dockerfile*
 **/*compose*.yml
-**/compose/etc/conda
-**/compose/etc/.ccache
+**/etc/conda
+**/etc/.ccache
 
 **/cudf/_lib/**/*.so
 **/cudf/_lib/**/*.cpp

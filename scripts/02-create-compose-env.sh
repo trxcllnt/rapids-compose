@@ -2,7 +2,11 @@
 
 set -Eeo pipefail
 
-cd $(dirname "$(realpath "$0")")/../../
+COMPOSE_HOME=$(dirname $(realpath "$0"))
+COMPOSE_HOME=$(realpath "$COMPOSE_HOME/../")
+RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
+
+cd "$RAPIDS_HOME"
 
 select_version() {
     MSG="$1"
@@ -62,12 +66,13 @@ fi
 compose_env_file() {
     echo "\
 # Build arguments
-RAPIDS_HOME=$PWD
+RAPIDS_HOME=$RAPIDS_HOME
+COMPOSE_HOME=$COMPOSE_HOME
 GCC_VERSION=$vGCC
 CXX_VERSION=$vGCC
 CUDA_VERSION=$CUDA_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
-LINUX_VERSION=$LINUX_VERSION
+LINUX_VERSION=ubuntu18.04
 
 # Whether to use ccache (https://ccache.dev/) to speed up gcc/nvcc build times
 USE_CCACHE=$USE_CCACHE
@@ -92,22 +97,20 @@ NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES
 "
 }
 
-if [ ! -f "$PWD/compose/.env" ]; then
-    compose_env_file > "$PWD/compose/.env"
+if [ ! -f "$COMPOSE_HOME/.env" ]; then
+    compose_env_file > "$COMPOSE_HOME/.env"
 fi
 
-touch "$PWD/compose/.env"
-
-CHANGED="$(diff -qwB "$PWD/compose/.env" <(compose_env_file) || true)"
+CHANGED="$(diff -qwB "$COMPOSE_HOME/.env" <(compose_env_file) || true)"
 
 if [ -n "${CHANGED// }" ]; then
     echo "Difference between current .env and proposed .env:";
-    diff -wBy --suppress-common-lines "$PWD/compose/.env" <(compose_env_file) || true;
+    diff -wBy --suppress-common-lines "$COMPOSE_HOME/.env" <(compose_env_file) || true;
     while true; do
-        read -p "Do you wish to overwrite your current compose/.env file? (y/n) " yn </dev/tty
+        read -p "Do you wish to overwrite your current .env file? (y/n) " yn </dev/tty
         case $yn in
             [Nn]* ) break;;
-            [Yy]* ) compose_env_file > "$PWD/compose/.env"; break;;
+            [Yy]* ) compose_env_file > "$COMPOSE_HOME/.env"; break;;
             * ) echo "Please answer 'y' or 'n'";;
         esac
     done
