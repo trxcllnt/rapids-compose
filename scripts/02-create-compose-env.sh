@@ -65,9 +65,11 @@ fi
 
 compose_env_file() {
     echo "\
-# Build arguments
+# Outside paths for docker volume mounts
 RAPIDS_HOME=$RAPIDS_HOME
 COMPOSE_HOME=$COMPOSE_HOME
+
+# Build arguments
 GCC_VERSION=$vGCC
 CXX_VERSION=$vGCC
 CUDA_VERSION=$CUDA_VERSION
