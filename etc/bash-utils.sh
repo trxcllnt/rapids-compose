@@ -6,6 +6,7 @@ find-project-home() {
     PROJECT_HOMES="\
     $RMM_HOME
     $CUDF_HOME
+    $CUML_HOME
     $CUGRAPH_HOME
     $NOTEBOOKS_HOME
     $NOTEBOOKS_EXTENDED_HOME";
@@ -71,31 +72,53 @@ export -f update-environment-variables;
 cpp-exec-cmake() {
     update-environment-variables;
     PROJECT_CPP_HOME="$(find-cpp-home)";
+    PROJECT_CPP_HOME="${1:-$PROJECT_CPP_HOME}"
     BUILD_DIR="$PROJECT_CPP_HOME/`cpp-build-dir $PROJECT_CPP_HOME`";
     mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";
     D_CMAKE_ARGS="\
-        -GNinja
         -DGPU_ARCHS=
         -DCONDA_BUILD=0
         -DCMAKE_CXX11_ABI=ON
         -DARROW_USE_CCACHE=ON
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         -DBUILD_TESTS=${BUILD_TESTS:-OFF}
-        -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids
         -DBUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
         -DRMM_LIBRARY=${RMM_LIBRARY}
         -DCUDF_LIBRARY=${CUDF_LIBRARY}
+        -DCUML_LIBRARY=${CUML_LIBRARY}
         -DCUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
         -DNVSTRINGS_LIBRARY=${NVSTRINGS_LIBRARY}
         -DNVCATEGORY_LIBRARY=${NVCATEGORY_LIBRARY}
         -DNVTEXT_LIBRARY=${NVTEXT_LIBRARY}
         -DRMM_INCLUDE=${RMM_INCLUDE}
         -DCUDF_INCLUDE=${CUDF_INCLUDE}
+        -DCUML_INCLUDE_DIR=${CUML_INCLUDE}
         -DDLPACK_INCLUDE=${COMPOSE_INCLUDE}
         -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
         -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
-        -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)"
+        -DPARALLEL_LEVEL=$(nproc --ignore=2)
+        -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)
+        -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids";
+
+    if [ "$(find-project-home)" == "$CUGRAPH_HOME" ]; then
+        D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja
+        -DLIBCYPHERPARSER_INCLUDE=${COMPOSE_HOME}/etc/conda/envs/rapids/include
+        -LIBCYPHERPARSER_LIBRARY=${COMPOSE_HOME}/etc/conda/envs/rapids/lib/libcypher-parser.a";
+
+    elif [ "$(find-project-home)" == "$CUML_HOME" ]; then
+        D_CMAKE_ARGS="$D_CMAKE_ARGS
+        -DWITH_UCX=ON
+        -DBUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
+        -DBUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
+        -DBUILD_CUML_MG_TESTS=${BUILD_TESTS:-OFF}
+        -DBUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
+        -DBUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
+        -DBLAS_LIBRARIES=${COMPOSE_HOME}/etc/conda/envs/rapids/lib/libblas.so";
+
+    else
+        D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja"
+    fi;
 
     if [ "$USE_CCACHE" == "YES" ]; then
         D_CMAKE_ARGS="$D_CMAKE_ARGS
@@ -127,6 +150,8 @@ fix-nvcc-clangd-compile-commands() {
     CC_JSON="$2/compile_commands.json";
     CC_JSON_LINK="$1/compile_commands.json";
     CC_JSON_CLANGD="$2/compile_commands.clangd.json";
+    # todo: should define `-D__CUDACC__` here?
+    CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
     CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
     ALLOWED_WARNINGS=$(echo $(echo '
         -Wno-unknown-pragmas
@@ -148,7 +173,7 @@ fix-nvcc-clangd-compile-commands() {
     | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
     | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
     | sed -r "s/ -x cu / $CLANG_CUDA_OPTIONS /g"     \
-    | sed -r "s!nvcc !nvcc -I$CUDA_HOME/include!g"   \
+    | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS!g"    \
     | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
     > "$CC_JSON_CLANGD"                              ;
 

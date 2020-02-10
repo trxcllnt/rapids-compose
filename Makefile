@@ -16,24 +16,27 @@ DEFAULT_RAPIDS_VERSION := $(shell RES="" \
  && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
  && echo $${RES:-"latest"})
 
-.PHONY: all init build rapids notebooks
+.PHONY: all init rapids notebooks
 		dind dc dc.up dc.run dc.exec dc.logs
+		dc.build.rapids  dc.build.notebooks
 		rapids.run rapids.exec rapids.logs
 		rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
 		notebooks.up notebooks.exec notebooks.logs
 
-.SILENT: all init build rapids notebooks
+.SILENT: all init rapids notebooks
 		 dind dc dc.up dc.run dc.exec dc.logs
+		 dc.build.rapids  dc.build.notebooks
 		 rapids.run rapids.exec rapids.logs
 		 rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
 		 notebooks.up notebooks.exec notebooks.logs
 
-all: build rapids notebooks
+all: rapids notebooks
 
 init:
-	export CODE_REPOS="rmm cudf cugraph" && \
+	export CODE_REPOS="rmm cudf cuml cugraph" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
+						cuml/python \
 						cugraph/python \
 						cudf/python/cudf \
 						cudf/python/nvstrings \
@@ -48,15 +51,11 @@ init:
 	[ -n "$$NEEDS_REBOOT" ] && echo "Installed new dependencies, please reboot to continue." \
 	                || true && echo "RAPIDS workspace init success!"
 
-build:
-	@$(MAKE) -s dc.build svc="rapids"
-	@$(MAKE) -s dc.build svc="notebooks"
+rapids: dc.build.rapids
+	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'rapids-build'"
 
-rapids: build
-	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)"
-
-notebooks: build
-	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="echo 'notebooks build complete'"
+notebooks: dc.build.notebooks
+	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'rapids-build'"
 
 rapids.run: args ?=
 rapids.run: cmd_args ?=
@@ -87,7 +86,7 @@ rapids.cudf.pytest.debug:
 	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args)"
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run args="/rapids/compose/etc/rapids/lint.sh"
+	@$(MAKE) -s rapids.cudf.run args="bash -c 'rapids-lint'"
 
 notebooks.run: args ?=
 notebooks.run: cmd_args ?=
@@ -158,6 +157,12 @@ dc.build: cmd_args ?= -f
 dc.build: file ?= docker-compose.yml
 dc.build:
 	@$(MAKE) -s dc cmd="build"
+
+dc.build.rapids:
+	@$(MAKE) -s dc.build svc="rapids"
+
+dc.build.notebooks:
+	@$(MAKE) -s dc.build svc="notebooks"
 
 dc.up: svc ?=
 dc.up: svc_args ?=

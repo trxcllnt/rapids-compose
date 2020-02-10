@@ -53,13 +53,14 @@ USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
 
 BUILD_RMM="YES"
 BUILD_CUDF="YES"
-BUILD_CUGRAPH=$(choose_bool_option "Build cuGraph C++ and Cython? (Y/N)" "YES")
+BUILD_CUML=$(choose_bool_option "Build cuML C++ and Cython? (Y/N)" "NO")
+BUILD_CUGRAPH=$(choose_bool_option "Build cuGraph C++ and Cython? (Y/N)" "NO")
 
-if [ "$BUILD_CUGRAPH" = "NO" ]; then
+if [[ "$BUILD_CUML" == "NO" && "$BUILD_CUGRAPH" == "NO" ]]; then
     BUILD_CUDF=$(choose_bool_option "Build cuDF C++ and Cython? (Y/N)" "YES")
 fi
 
-if [ "$BUILD_CUDF" = "NO" ]; then
+if [[ "$BUILD_CUDF" == "NO" ]]; then
     BUILD_RMM=$(choose_bool_option "Build rmm C++ and Cython? (Y/N)" "YES")
 fi
 
@@ -91,6 +92,8 @@ CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 BUILD_RMM=$BUILD_RMM
 # Whether to build cuDF C++ and Cython (implies BUILD_RMM=YES)
 BUILD_CUDF=$BUILD_CUDF
+# Whether to build cuML C++ and Cython (implies BUILD_CUDF=YES)
+BUILD_CUML=$BUILD_CUML
 # Whether to build cuGraph C++ and Cython (implies BUILD_CUDF=YES)
 BUILD_CUGRAPH=$BUILD_CUGRAPH
 

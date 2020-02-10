@@ -3,7 +3,6 @@
 set -Eeo pipefail
 
 source /home/rapids/.bashrc
-source "$COMPOSE_HOME/etc/bash-utils.sh"
 
 # - ensure conda's installed
 # - ensure the notebooks conda env is created/updated
@@ -37,4 +36,4 @@ if [ "$_UID:$_GID" != "$(id -u):$(id -g)" ]; then
     RUN_CMD="/usr/local/sbin/gosu $_UID:$_GID $RUN_CMD"
 fi;
 
-exec -l $RUN_CMD
+exec -l ${RUN_CMD}

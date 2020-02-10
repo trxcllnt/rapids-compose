@@ -17,9 +17,15 @@ BLACK_RETVAL=$?
 FLAKE=`flake8 python`
 FLAKE_RETVAL=$?
 
-# Run flake8-cython and get results/return code
-FLAKE_CYTHON=`flake8 --config=python/cudf/.flake8.cython`
-FLAKE_CYTHON_RETVAL=$?
+FLAKE_CYTHON=""
+FLAKE_CYTHON_RETVAL="0"
+FLAKE_CYTHON_CONFIG="$(find -type f -name '.flake8.cython' | head -n1)"
+
+if [[ "$FLAKE_CYTHON_CONFIG" != "" && -f "$FLAKE_CYTHON_CONFIG" ]]; then
+    # Run flake8-cython and get results/return code
+    FLAKE_CYTHON=`flake8 --config=$(realpath $FLAKE_CYTHON_CONFIG)`
+    FLAKE_CYTHON_RETVAL=$?
+fi
 
 # Output results if failure otherwise show pass
 if [ "$ISORT_RETVAL" != "0" ]; then

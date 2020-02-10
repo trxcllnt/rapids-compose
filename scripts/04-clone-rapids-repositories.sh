@@ -10,6 +10,9 @@ cd "$RAPIDS_HOME"
 
 USE_SSH_URLS=1
 
+CODE_REPOS="${CODE_REPOS:-rmm cudf cuml cugraph}"
+ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks notebooks-contrib}"
+
 ask_before_install() {
     while true; do
         read -p "$1 " CHOICE </dev/tty

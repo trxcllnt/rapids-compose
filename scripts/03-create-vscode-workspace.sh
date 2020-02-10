@@ -49,6 +49,18 @@ rapids_vscode_workspace() {
             \"path\": \"cugraph/python\"
         },
         {
+            \"name\": \"cuML\",
+            \"path\": \"cuml\"
+        },
+        {
+            \"name\": \"cuML-cpp\",
+            \"path\": \"cuml/cpp\"
+        },
+        {
+            \"name\": \"cuML-python\",
+            \"path\": \"cuml/python\"
+        },
+        {
             \"name\": \"nvstrings-python\",
             \"path\": \"cudf/python/nvstrings\"
         },
@@ -77,11 +89,16 @@ rapids_vscode_workspace() {
         \"clangd.trace\": \"$HOME/.vscode/clangd.log\",
         \"clangd.arguments\": [
             \"-j=4\",
-            \"--log\", \"info\",
-            \"--pch-storage=memory\",
+            \"--log=info\",
+            \"--pch-storage=disk\",
+            \"--fallback-style=Chromium\",
             \"--compile-commands-dir=\",
-            \"--background-index=false\",
-            \"--fallback-style\", \"Chromium\"
+            \"--background-index=true\",
+            \"--all-scopes-completion\",
+            \"--header-insertion=never\",
+            \"--suggest-missing-includes\",
+            \"--completion-style=detailed\",
+            \"--header-insertion-decorators\",
         ],
         \"search.exclude\": {
             \"**/.ccache\": true,
@@ -107,6 +124,8 @@ rapids_vscode_workspace() {
             \"**/etc/.ccache/**\": true,
             \"**/cudf/**/*.so\": true,
             \"**/cudf/**/*.cpp\": true,
+            \"**/cuml/**/*.so\": true,
+            \"**/cuml/**/*.cpp\": true,
             \"**/cugraph/**/*.so\": true,
             \"**/cugraph/**/*.cpp\": true,
             \"**/build/lib.linux-x86_64*\": true,
@@ -126,6 +145,8 @@ rapids_vscode_workspace() {
             \"**/build/include\": true,
             \"**/cudf/**/*.so\": true,
             \"**/cudf/**/*.cpp\": true,
+            \"**/cuml/**/*.so\": true,
+            \"**/cuml/**/*.cpp\": true,
             \"**/cugraph/**/*.so\": true,
             \"**/cugraph/**/*.cpp\": true,
             \"**/build/lib.linux-x86_64*\": true,

@@ -24,9 +24,14 @@
 **/*compose*.yml
 **/etc/conda
 **/etc/.ccache
+**/etc/notebooks/sandbox
 
+**/.clangd
 **/cudf/_lib/**/*.so
 **/cudf/_lib/**/*.cpp
+
+**/cuml/_lib/**/*.so
+**/cuml/_lib/**/*.cpp
 
 **/cugraph/datasets
 **/cugraph/**/*.so

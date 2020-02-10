@@ -31,10 +31,11 @@ services:
       - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
+      - &cuml "${RAPIDS_HOME:-$PWD}/cuml:${RAPIDS_HOME:-$PWD}/cuml"
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
-      - "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
+      - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
       - "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
 
   notebooks:
@@ -50,8 +51,10 @@ services:
       - *ptvsd_logs
       - *rmm
       - *cudf
+      - *cuml
       - *compose
       - *cugraph
+      - *bashrc
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"

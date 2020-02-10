@@ -9,6 +9,7 @@ RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
 cd "$RAPIDS_HOME"
 
 PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
+                            cuml/python
                             cugraph/python
                             cudf/python/cudf
                             cudf/python/nvstrings

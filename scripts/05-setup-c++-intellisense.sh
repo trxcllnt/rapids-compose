@@ -4,7 +4,7 @@ set -Eeo pipefail
 
 cd $(dirname "$(realpath "$0")")/../../
 
-find . -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}"
+CODE_REPOS="${CODE_REPOS:-rmm cudf cuml cugraph}"
 
 # Setup C++
 for REPO in $CODE_REPOS; do

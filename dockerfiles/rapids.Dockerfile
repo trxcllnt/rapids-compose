@@ -18,10 +18,9 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && add-apt-repository -y ppa:git-core/ppa \
  && apt update -y \
  && apt install -y \
-    git \
-    sudo \
+    git sudo \
     curl wget \
-    ed vim nano \
+    jq ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
@@ -58,6 +57,7 @@ ENV COMPOSE_HOME="$COMPOSE_HOME"
 ENV CONDA_HOME="$COMPOSE_HOME/etc/conda"
 ENV RMM_HOME="$RAPIDS_HOME/rmm"
 ENV CUDF_HOME="$RAPIDS_HOME/cudf"
+ENV CUML_HOME="$RAPIDS_HOME/cuml"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
@@ -83,12 +83,13 @@ RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERS
  && echo rapids:rapids | chpasswd \
  && chmod 0777 /tmp \
  && chown -R ${_UID}:${_GID} /home/rapids "$CONDA_HOME" \
- && chmod -R 0755 /var/log /home/rapids "$CONDA_HOME" "$PTVSD_LOG_DIR"
-
-# Add conda environments and recipes
-COPY --chown=rapids rmm/conda "$RMM_HOME/conda"
-COPY --chown=rapids cudf/conda "$CUDF_HOME/conda"
-COPY --chown=rapids cugraph/conda "$CUGRAPH_HOME/conda"
+ && chmod -R 0755 /var/log /home/rapids "$CONDA_HOME" "$PTVSD_LOG_DIR" \
+ && bash -c "echo -e '#!/bin/bash -e\n\
+exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
+'" > /entrypoint.sh \
+ && touch /home/rapids/.bashrc && touch /home/rapids/.bash_history \
+ && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
+ && chmod +x /entrypoint.sh
 
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
@@ -116,15 +117,8 @@ ENV CMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE"
 ARG FRESH_CONDA_ENV=0
 ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
-RUN bash -c "echo -e '#!/bin/bash -e\n\
-exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
-'" > /entrypoint.sh \
- && touch /home/rapids/.bashrc && touch /home/rapids/.bash_history \
- && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
- && chmod +x /entrypoint.sh
-
 WORKDIR $RAPIDS_HOME
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
-CMD ["${COMPOSE_HOME}/etc/rapids/build.sh"]
+CMD ["rapids-build"]
