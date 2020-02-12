@@ -56,10 +56,9 @@ services:
       - *cugraph
       - *bashrc
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:/home/rapids/.jupyter"
-      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks/cugraph:/home/rapids/notebooks/core"
+      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
-      - &notebooks_data "${RAPIDS_HOME:-$PWD}/notebooks-contrib/data:/home/rapids/notebooks/data"
-      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:/home/rapids/notebooks/extended"
+      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:/home/rapids/notebooks/contrib"
 
   apt-cacher-ng:
     restart: always
