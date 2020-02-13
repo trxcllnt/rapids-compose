@@ -35,6 +35,7 @@ cuGraph: $should_build_cugraph"
     [ "$should_build_rmm"     == "YES" ] && print_heading "rmm"          && build_python "$RMM_HOME/python" --inplace       ;
     [ "$should_build_cudf"    == "YES" ] && print_heading "nvstrings"    && build_python "$CUDF_HOME/python/nvstrings"      ;
     [ "$should_build_cudf"    == "YES" ] && print_heading "cudf"         && build_python "$CUDF_HOME/python/cudf" --inplace ;
+    [ "$should_build_cudf"    == "YES" ] && print_heading "dask_cudf"    && build_python "$CUDF_HOME/python/dask_cudf"      ;
     [ "$should_build_cuml"    == "YES" ] && print_heading "cuml"         && build_python "$CUML_HOME/python" --inplace      ;
     [ "$should_build_cugraph" == "YES" ] && print_heading "cugraph"      && build_python "$CUGRAPH_HOME/python" --inplace   ;
 }
