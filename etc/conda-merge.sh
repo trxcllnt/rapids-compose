@@ -39,7 +39,7 @@ cat "$CUML_HOME/conda/environments/cuml_dev_cuda10.0.yml" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
   > cuml.yml
 
-cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.yml" \
+cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.0.yml" \
   | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_SHORT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
   > cugraph.yml
