@@ -12,7 +12,7 @@ source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 source activate notebooks
 
 # activate the notebooks conda environment on bash login
-echo "source activate notebooks" > /home/rapids/.bash_login
+echo "source /home/rapids/.bashrc && source activate notebooks" > /home/rapids/.bash_login
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the rapids projects' source-builds into the conda notebooks env

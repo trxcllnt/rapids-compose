@@ -52,10 +52,10 @@ init:
 	                || true && echo "RAPIDS workspace init success!"
 
 rapids: dc.build.rapids
-	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'rapids-build'"
+	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'build-rapids'"
 
 notebooks: dc.build.notebooks
-	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'rapids-build'"
+	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'build-rapids'"
 
 rapids.run: args ?=
 rapids.run: cmd_args ?=
@@ -86,7 +86,7 @@ rapids.cudf.pytest.debug:
 	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args)"
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run args="bash -c 'rapids-lint'"
+	@$(MAKE) -s rapids.cudf.run args="bash -c 'lint-rapids'"
 
 notebooks.run: args ?=
 notebooks.run: cmd_args ?=

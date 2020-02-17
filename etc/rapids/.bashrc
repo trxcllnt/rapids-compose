@@ -6,24 +6,6 @@ export CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";
 
 source "$COMPOSE_HOME/etc/bash-utils.sh"
 
-rapids-build() {
-    bash "$COMPOSE_HOME/etc/rapids/build.sh" || true;
-}
-
-export -f rapids-build;
-
-rapids-clean() {
-    bash "$COMPOSE_HOME/etc/rapids/clean.sh" || true;
-}
-
-export -f rapids-clean;
-
-rapids-lint() {
-    bash "$COMPOSE_HOME/etc/rapids/lint.sh" || true;
-}
-
-export -f rapids-lint;
-
 ninja-test() {
     update-environment-variables;
     cd "$(find-cpp-build-home)";

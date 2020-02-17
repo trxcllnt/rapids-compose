@@ -11,14 +11,14 @@ source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 # If fresh conda env and cmd is build.sh, run clean.sh
 # first to delete build assets, artifacts, and caches
 [ "$FRESH_CONDA_ENV" == "1" ] \
- && [ "$(echo $@)" == "bash -c 'rapids-build'" ] \
+ && [ "$(echo $@)" == "bash -c build-rapids" ] \
  && "$COMPOSE_HOME/etc/rapids/clean.sh";
 
 # activate the rapids conda environment
 source activate rapids
 
 # activate the rapids conda environment on bash login
-echo "source activate rapids" > /home/rapids/.bash_login
+echo "source /home/rapids/.bashrc && source activate rapids" > /home/rapids/.bash_login
 
 RUN_CMD="$(echo $(eval "echo $@"))"
 

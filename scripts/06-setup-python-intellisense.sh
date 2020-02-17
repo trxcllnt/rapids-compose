@@ -17,6 +17,16 @@ PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
 
 cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
 {
+    "python.analysis.memory.keepLibraryAst": true,
+    "python.analysis.memory.keepLibraryLocalVariables": true,
+    "python.autoComplete.extraPaths": [
+        "$RAPIDS_HOME/rmm/python",
+        "$RAPIDS_HOME/cudf/python/nvstrings",
+        "$RAPIDS_HOME/cudf/python/cudf",
+        "$RAPIDS_HOME/cudf/python/dask_cudf",
+        "$RAPIDS_HOME/cuml/python",
+        "$RAPIDS_HOME/cugraph/python",
+    ],
     "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python"
 }
 EOF

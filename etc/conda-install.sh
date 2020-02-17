@@ -78,6 +78,14 @@ cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
 
 set -Ee
 
+export PYTHONPATH="\
+\$RMM_HOME/python:\
+\$CUDF_HOME/python/nvstrings:\
+\$CUDF_HOME/python/cudf:\
+\$CUDF_HOME/python/dask_cudf:\
+\$CUML_HOME/python:\
+\$CUGRAPH_HOME/python"
+
 mkdir -p "\$RMM_HOME/build"
 mkdir -p "\$CUDF_HOME/cpp/build"
 mkdir -p "\$CUML_HOME/cpp/build"
