@@ -248,7 +248,7 @@ create-cpp-launch-json() {
             ],
             "environment": [{
                 "name": "LIBCUDF_INCLUDE_DIR",
-                "value": "$1/build/include"
+                "value": "$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)/include"
             }]
         },
     ],
