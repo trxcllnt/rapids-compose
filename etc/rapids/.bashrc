@@ -33,7 +33,7 @@ ninja-test() {
         esac; shift;
     done
     for x in "1"; do
-        ninja -j$(nproc --ignore=2) $GTESTS || break;
+        ninja -j$PARALLEL_LEVEL $GTESTS || break;
         ctest --force-new-ctest-process \
               --output-on-failure \
               ${CTESTS:+-R $CTESTS} $* || break;

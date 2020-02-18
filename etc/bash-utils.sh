@@ -97,7 +97,7 @@ configure-cpp() {
         -DDLPACK_INCLUDE=${COMPOSE_INCLUDE}
         -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
         -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
-        -DPARALLEL_LEVEL=$(nproc --ignore=2)
+        -DPARALLEL_LEVEL=$PARALLEL_LEVEL
         -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)
         -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids";
 
@@ -127,8 +127,8 @@ configure-cpp() {
     fi
 
     export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-    env JOBS=$(nproc --ignore=2)                                          \
-        PARALLEL_LEVEL=$(nproc --ignore=2)                                \
+    env JOBS=$PARALLEL_LEVEL                                              \
+        PARALLEL_LEVEL=$PARALLEL_LEVEL                                    \
         cmake $D_CMAKE_ARGS "$PROJECT_CPP_HOME"                           \
      && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
     ;
@@ -150,7 +150,7 @@ build-cpp() {
     if [ -f "$BUILD_DIR_PATH/build.ninja" ]; then
         ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS;
     else
-        make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$(nproc --ignore=2);
+        make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
     fi
     create-cpp-launch-json "$(find-cpp-home)";
 }
@@ -163,7 +163,7 @@ build-python() {
     ARGS=${@:2};
     [ "$ARGS" != "--inplace" ] && rm -rf ./build;
     [ "$USE_CCACHE" == "YES" ] && CC_="$(which ccache) $CC";
-    env CC="$CC_" python setup.py build_ext -j$(nproc --ignore=2) ${ARGS};
+    env CC="$CC_" python setup.py build_ext -j$PARALLEL_LEVEL ${ARGS};
     rm -rf ./*.egg-info;
 }
 

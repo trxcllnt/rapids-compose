@@ -45,6 +45,7 @@ vGCC=$(select_version "Please enter your desired GCC version (5/7)" "5")
 CUDA_VERSION=$(select_version "Please enter your desired CUDA version (9.2/10.0/10.1)" "10.0")
 PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.6/3.7)" "3.7")
 CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
+PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")
 NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use (0,..num_gpus)" "0")
 BUILD_TESTS=$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")
 BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")
@@ -99,6 +100,9 @@ BUILD_CUGRAPH=$BUILD_CUGRAPH
 
 # Select which GPU(s) the container will use when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES
+
+# Select how many threads to use for parallel compilation (e.g. \`make -j\${PARALLEL_LEVEL}\`)
+PARALLEL_LEVEL=$PARALLEL_LEVEL
 "
 }
 
