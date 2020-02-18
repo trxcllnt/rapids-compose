@@ -148,7 +148,7 @@ build-cpp() {
     fi
     configure-cpp $1;
     if [ -f "$BUILD_DIR_PATH/build.ninja" ]; then
-        ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS;
+        ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
     else
         make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
     fi
