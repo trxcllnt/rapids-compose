@@ -28,7 +28,7 @@ services:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
     volumes:
-      - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
+      # - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
       - &cuml "${RAPIDS_HOME:-$PWD}/cuml:${RAPIDS_HOME:-$PWD}/cuml"
