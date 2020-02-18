@@ -16,19 +16,9 @@ DEFAULT_RAPIDS_VERSION := $(shell RES="" \
  && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
  && echo $${RES:-"latest"})
 
-.PHONY: all init rapids notebooks
-		dind dc dc.up dc.run dc.exec dc.logs
-		dc.build.rapids  dc.build.notebooks
-		rapids.run rapids.exec rapids.logs
-		rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
-		notebooks.up notebooks.exec notebooks.logs
+.PHONY: all init rapids notebooks help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
 
-.SILENT: all init rapids notebooks
-		 dind dc dc.up dc.run dc.exec dc.logs
-		 dc.build.rapids  dc.build.notebooks
-		 rapids.run rapids.exec rapids.logs
-		 rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug
-		 notebooks.up notebooks.exec notebooks.logs
+.SILENT: all init rapids notebooks help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
 
 all: rapids notebooks
 
