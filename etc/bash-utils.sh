@@ -139,6 +139,7 @@ configure-cpp() {
 export -f configure-cpp;
 
 build-cpp() {
+    update-environment-variables;
     cd "$1" && cd "$(find-cpp-home)"
     BUILD_TARGETS="${2:-}";
     BUILD_DIR_PATH="$(find-cpp-build-home)"
