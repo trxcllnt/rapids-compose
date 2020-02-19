@@ -16,11 +16,11 @@ DEFAULT_RAPIDS_VERSION := $(shell RES="" \
  && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
  && echo $${RES:-"latest"})
 
-.PHONY: all init rapids notebooks help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
+.PHONY: all init rapids help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
 
-.SILENT: all init rapids notebooks help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
+.SILENT: all init rapids help dind dc dc.up dc.run dc.exec dc.logs dc.build.rapids dc.build.notebooks rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.up notebooks.exec notebooks.logs
 
-all: rapids notebooks
+all: rapids
 
 init:
 	export CODE_REPOS="rmm cudf cuml cugraph" && \
@@ -41,11 +41,8 @@ init:
 	[ -n "$$NEEDS_REBOOT" ] && echo "Installed new dependencies, please reboot to continue." \
 	                || true && echo "RAPIDS workspace init success!"
 
-rapids: dc.build.rapids
+rapids: dc.build.rapids dc.build.notebooks
 	@$(MAKE) -s dc.run svc="rapids" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'build-rapids'"
-
-notebooks: dc.build.notebooks
-	@$(MAKE) -s dc.run svc="notebooks" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'build-rapids'"
 
 rapids.run: args ?=
 rapids.run: cmd_args ?=
@@ -76,7 +73,7 @@ rapids.cudf.pytest.debug:
 	@$(MAKE) -s rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args)"
 
 rapids.cudf.lint:
-	@$(MAKE) -s rapids.cudf.run args="bash -c 'lint-rapids'"
+	@$(MAKE) -s rapids.cudf.run args="bash -c 'lint-cudf-python'"
 
 notebooks.run: args ?=
 notebooks.run: cmd_args ?=

@@ -8,11 +8,11 @@ source /home/rapids/.bashrc
 # - ensure the rapids conda env is created/updated
 source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 
-# If fresh conda env and cmd is build.sh, run clean.sh
-# first to delete build assets, artifacts, and caches
+# If fresh conda env and cmd is build-rapids,
+# do `clean-rapids` to delete build artifacts
 [ "$FRESH_CONDA_ENV" == "1" ] \
  && [ "$(echo $@)" == "bash -c build-rapids" ] \
- && "$COMPOSE_HOME/etc/rapids/clean.sh";
+ && clean-rapids;
 
 # activate the rapids conda environment
 source activate rapids
