@@ -2,78 +2,377 @@
 
 set -Eeo pipefail
 
-find-project-home() {
-    PROJECT_HOMES="\
-    $RMM_HOME
-    $CUDF_HOME
-    $CUML_HOME
-    $CUGRAPH_HOME
-    $NOTEBOOKS_HOME
-    $NOTEBOOKS_EXTENDED_HOME";
-    for PROJECT_HOME in $PROJECT_HOMES; do
-        if [ -n "$(echo "$PWD" | grep "$PROJECT_HOME" - || echo "")" ]; then
-            echo "$PROJECT_HOME"; break;
-        fi;
-    done
+############
+# 
+# This file defines and exports a set of helpful bash functions.
+# 
+# Before executing, each of these functions will read the .env file in your
+# rapids-compose repo. It is safe to edit the .env file while the container
+# is running and re-execute any of these commands. The edited value will be
+# reflected in the command execution.
+# 
+# Note: The (✝) character at the beginning of a command's description denotes
+# the command can be run from any directory.
+# 
+###
+# Project-wide commands:
+#
+# build-rapids - (✝) Build each enabled RAPIDS project from source in the order
+#                    determined by their dependence on each other. For example,
+#                    RMM will be built before cuDF because cuDF depends on RMM.
+# clean-rapids - (✝) Remove build artifacts for each enabled RAPIDS project
+# lint-rapids  - (✝) Lint/fix Cython/Python for each enabled RAPIDS project
+#
+###
+# Commands to build each project separately:
+# 
+# build-rmm-cpp          - (✝) Build the librmm C++ library
+# build-cudf-cpp         - (✝) Build the libcudf C++ library
+# build-cuml-cpp         - (✝) Build the libcuml C++ library
+# build-cugraph-cpp      - (✝) Build the libcugraph C++ library
+# 
+# build-rmm-python       - (✝) Build the rmm Cython bindings
+# build-cudf-python      - (✝) Build the cudf Cython bindings
+# build-cuml-python      - (✝) Build the cuml Cython bindings
+# build-cugraph-python   - (✝) Build the cugraph Cython bindings
+# 
+###
+# Commands to clean each project separately:
+# 
+# clean-rmm-cpp          - (✝) Clean the librmm C++ build folder for the current git branch
+# clean-cudf-cpp         - (✝) Clean the libcudf C++ build folder for the current git branch
+# clean-cuml-cpp         - (✝) Clean the libcuml C++ build folder for the current git branch
+# clean-cugraph-cpp      - (✝) Clean the libcugraph C++ build folder for the current git branch
+# 
+# clean-rmm-python       - (✝) Clean the rmm Cython build assets
+# clean-cudf-python      - (✝) Clean the cudf Cython build assets
+# clean-cuml-python      - (✝) Clean the cuml Cython build assets
+# clean-cugraph-python   - (✝) Clean the cugraph Cython build assets
+# 
+###
+# Commands to lint each Python project separately:
+# 
+# lint-rmm-python        - (✝) Lint/fix the rmm Cython and Python source files
+# lint-cudf-python       - (✝) Lint/fix the cudf Cython and Python source files
+# lint-cuml-python       - (✝) Lint/fix the cuml Cython and Python source files
+# lint-cugraph-python    - (✝) Lint/fix the cugraph Cython and Python source files
+# 
+###
+# Misc
+# 
+# cpp-build-type               - (✝) Function to print the C++ CMAKE_BUILD_TYPE
+# cpp-build-dir                - (✝) Function to print the C++ build path relative to a project's C++ source directory
+# make-symlink                 - (✝) Function to safely make non-dereferenced symlinks
+# update-environment-variables - (✝) Reads the rapids-compose .env file and updates the current shell with the latest values
+###
+
+should-build-rmm() {
+    update-environment-variables;
+    $(should-build-cudf) || [ "$BUILD_RMM" == "YES" ] && echo true || echo false;
 }
 
-export -f find-project-home;
+export -f should-build-rmm;
 
-find-cpp-home() {
-    PROJECT_HOME="$(find-project-home)";
-    if [ "$PROJECT_HOME" != "$RMM_HOME" ]; then
-        PROJECT_HOME="$PROJECT_HOME/cpp"
-    fi;
-    echo "$PROJECT_HOME";
+should-build-cudf() {
+    update-environment-variables;
+    $(should-build-cuml) || $(should-build-cugraph) || [ "$BUILD_CUDF" == "YES" ] && echo true || echo false;
 }
 
-export -f find-cpp-home;
+export -f should-build-cudf;
 
-find-cpp-build-home() {
-    echo "$(find-cpp-home)/build/$(cpp-build-type)";
+should-build-cuml() {
+    update-environment-variables;
+    [ "$BUILD_CUML" == "YES" ] && echo true || echo false;
 }
 
-export -f find-cpp-build-home;
+export -f should-build-cuml;
 
-cpp-build-type() {
-    echo "${CMAKE_BUILD_TYPE:-Release}" | tr '[:upper:]' '[:lower:]'
+should-build-cugraph() {
+    update-environment-variables;
+    [ "$BUILD_CUGRAPH" == "YES" ] && echo true || echo false;
 }
 
-export -f cpp-build-type;
+export -f should-build-cugraph;
 
-cpp-build-dir() {
-    cd "$1"
-    _BUILD_DIR="$(git branch --show-current)"
-    _BUILD_DIR="cuda-$CUDA_SHORT_VERSION/${_BUILD_DIR//\//__}"
-    echo "build/$_BUILD_DIR/$(cpp-build-type)"
+build-rapids() {
+    print-heading "\
+Building RAPIDS projects: \
+RMM: $(should-build-rmm), \
+cuDF: $(should-build-cudf), \
+cuML: $(should-build-cuml), \
+cuGraph: $(should-build-cugraph)" \
+    && build-rmm-cpp \
+    && build-cudf-cpp \
+    && build-cuml-cpp \
+    && build-cugraph-cpp \
+    && build-rmm-python \
+    && build-cudf-python \
+    && build-cuml-python \
+    && build-cugraph-python \
+    ;
 }
 
-export -f cpp-build-dir;
+export -f build-rapids;
 
-make-symlink() {
-    SRC="$1"; DST="$2";
-    CUR=$(readlink "$2" || echo "");
-    [ -z "$SRC" ] || [ -z "$DST" ] || \
-    [ "$CUR" = "$SRC" ] || ln -f -n -s "$SRC" "$DST"
+clean-rapids() {
+    print-heading "\
+Cleaning RAPIDS projects: \
+RMM: $(should-build-rmm), \
+cuDF: $(should-build-cudf), \
+cuML: $(should-build-cuml), \
+cuGraph: $(should-build-cugraph)" \
+    && clean-rmm-cpp \
+    && clean-cudf-cpp \
+    && clean-cuml-cpp \
+    && clean-cugraph-cpp \
+    && clean-rmm-python \
+    && clean-cudf-python \
+    && clean-cuml-python \
+    && clean-cugraph-python \
+    ;
 }
 
-export -f make-symlink;
+export -f clean-rapids;
 
-update-environment-variables() {
-    set -a && . "$COMPOSE_HOME/.env" && set +a
-    if [ ${CONDA_PREFIX:-""} != "" ]; then
-        bash "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
-    fi
-    unset NVIDIA_VISIBLE_DEVICES
+lint-rapids() {
+    print-heading "\
+Linting RAPIDS projects: \
+RMM: $(should-build-rmm), \
+cuDF: $(should-build-cudf)" \
+    && lint-rmm-python \
+    && lint-cudf-python \
+    ;
+    # && lint-cuml-python \
+    # && lint-cugraph-python \
+    # ;
 }
 
-export -f update-environment-variables;
+export -f lint-rapids;
+
+build-rmm-cpp() {
+    if [ $(should-build-rmm) == true ];
+    then print-heading "Building librmm" && build-cpp "$RMM_HOME";
+    else echo "Skipping build-rmm-cpp because BUILD_RMM != YES in your .env file"; fi;
+}
+
+export -f build-rmm-cpp;
+
+build-cudf-cpp() {
+    if [ $(should-build-cudf) == true ];
+    then print-heading "Building libnvstrings" && build-cpp "$CUDF_HOME/cpp" "nvstrings" \
+      && print-heading "Building libcudf" && build-cpp "$CUDF_HOME/cpp" "cudf";
+    else echo "Skipping build-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f build-cudf-cpp;
+
+build-cuml-cpp() {
+    if [ $(should-build-cuml) == true ];
+    then print-heading "Building libcuml" && build-cpp "$CUML_HOME/cpp";
+    else echo "Skipping build-cuml-cpp because BUILD_CUML != YES in your .env file"; fi;
+}
+
+export -f build-cuml-cpp;
+
+build-cugraph-cpp() {
+    if [ $(should-build-cugraph) == true ];
+    then print-heading "Building libcugraph" && build-cpp "$CUGRAPH_HOME/cpp";
+    else echo "Skipping build-cugraph-cpp because BUILD_CUGRAPH != YES in your .env file"; fi;
+}
+
+export -f build-cugraph-cpp;
+
+build-rmm-python() {
+    if [ $(should-build-rmm) == true ];
+    then print-heading "Building rmm" && build-python "$RMM_HOME/python" --inplace;
+    else echo "Skipping build-rmm-python because BUILD_RMM != YES in your .env file"; fi;
+}
+
+export -f build-rmm-python;
+
+build-nvstrings-python() {
+    if [ $(should-build-cudf) == true ]; then
+
+        print-heading "Building nvstrings";
+        nvstrings_py_dir="$CUDF_HOME/python/nvstrings";
+        cfile=$(find "$nvstrings_py_dir/build" -type f -name 'CMakeCache.txt' 2> /dev/null | head -n1);
+        [ -z "$(grep $CUDA_VERSION "$cfile" 2> /dev/null)" ] && rm -rf "$nvstrings_py_dir/build";
+
+        build-python "$nvstrings_py_dir" \
+            --build-lib="$nvstrings_py_dir" \
+            --library-dir="$NVSTRINGS_ROOT" ;
+
+    else echo "Skipping build-nvstrings-python because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f build-nvstrings-python;
+
+build-cudf-python() {
+    if [ $(should-build-cudf) == true ];
+    then build-nvstrings-python \
+      && print-heading "Building cudf" && build-python "$CUDF_HOME/python/cudf" --inplace;
+    else echo "Skipping build-cudf-python because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f build-cudf-python;
+
+build-cuml-python() {
+    if [ $(should-build-cuml) == true ];
+    then print-heading "Building cuml" && build-python "$CUML_HOME/python" --inplace;
+    else echo "Skipping build-cuml-python because BUILD_CUML != YES in your .env file"; fi;
+}
+
+export -f build-cuml-python;
+
+build-cugraph-python() {
+    if [ $(should-build-cugraph) == true ];
+    then print-heading "Building cugraph" && build-python "$CUGRAPH_HOME/python" --inplace;
+    else echo "Skipping build-cugraph-python because BUILD_CUGRAPH != YES in your .env file"; fi;
+}
+
+export -f build-cugraph-python;
+
+clean-rmm-cpp() {
+    if [ $(should-build-rmm) == true ]; then
+        print-heading "Cleaning librmm";
+        rm -rf "$RMM_ROOT_ABS";
+        find "$RMM_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
+    else echo "Skipping clean-rmm-cpp because BUILD_RMM != YES in your .env file"; fi;
+}
+
+export -f clean-rmm-cpp;
+
+clean-cudf-cpp() {
+    if [ $(should-build-cudf) == true ]; then
+        print-heading "Cleaning libcudf";
+        rm -rf "$CUDF_ROOT_ABS";
+        find "$CUDF_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
+    else echo "Skipping clean-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f clean-cudf-cpp;
+
+clean-cuml-cpp() {
+    if [ $(should-build-cuml) == true ]; then
+        print-heading "Cleaning libcuml";
+        rm -rf "$CUML_ROOT_ABS";
+        find "$CUML_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
+    else echo "Skipping clean-cuml-cpp because BUILD_CUML != YES in your .env file"; fi;
+}
+
+export -f clean-cuml-cpp;
+
+clean-cugraph-cpp() {
+    if [ $(should-build-cugraph) == true ]; then
+        print-heading "Cleaning libcugraph";
+        rm -rf "$CUGRAPH_ROOT_ABS";
+        find "$CUGRAPH_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
+    else echo "Skipping clean-cugraph-cpp because BUILD_CUGRAPH != YES in your .env file"; fi;
+}
+
+export -f clean-cugraph-cpp;
+
+clean-rmm-python() {
+    if [ $(should-build-rmm) == true ]; then
+        print-heading "Cleaning rmm";
+        rm -rf "$RMM_HOME/python/dist" \
+               "$RMM_HOME/python/build";
+        find "$RMM_HOME" -type f -name '*.pyc' -delete;
+        find "$RMM_HOME" -type d -name '__pycache__' -delete;
+    else echo "Skipping clean-rmm-python because BUILD_RMM != YES in your .env file"; fi;
+}
+
+export -f clean-rmm-python;
+
+clean-cudf-python() {
+    if [ $(should-build-cudf) == true ]; then
+        print-heading "Cleaning cudf";
+        rm -rf "$CUDF_HOME/python/cudf/dist" \
+               "$CUDF_HOME/python/cudf/build" \
+               "$CUDF_HOME/python/.hypothesis" \
+               "$CUDF_HOME/python/cudf/.pytest_cache" \
+               "$CUDF_HOME/python/nvstrings/dist" \
+               "$CUDF_HOME/python/nvstrings/build" \
+               "$CUDF_HOME/python/nvstrings/.pytest_cache";
+        find "$CUDF_HOME" -type f -name '*.pyc' -delete;
+        find "$CUDF_HOME" -type d -name '__pycache__' -delete;
+        find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete;
+        find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.cpp' -delete;
+    else echo "Skipping clean-cudf-python because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f clean-cudf-python;
+
+clean-cuml-python() {
+    if [ $(should-build-cuml) == true ]; then
+        print-heading "Cleaning cuml";
+        rm -rf "$CUML_HOME/python/dist" \
+               "$CUML_HOME/python/build" \
+               "$CUML_HOME/python/.hypothesis" \
+               "$CUML_HOME/python/.pytest_cache" \
+               "$CUML_HOME/python/external_repositories";
+        find "$CUML_HOME" -type f -name '*.pyc' -delete;
+        find "$CUML_HOME" -type d -name '__pycache__' -delete;
+        find "$CUML_HOME/python/cuml" -type f -name '*.so' -delete;
+        find "$CUML_HOME/python/cuml" -type f -name '*.cpp' -delete;
+    else echo "Skipping clean-cuml-python because BUILD_CUML != YES in your .env file"; fi;
+}
+
+export -f clean-cuml-python;
+
+clean-cugraph-python() {
+    if [ $(should-build-cugraph) == true ]; then
+        print-heading "Cleaning cugraph";
+        rm -rf "$CUGRAPH_HOME/python/dist" \
+               "$CUGRAPH_HOME/python/build" \
+               "$CUGRAPH_HOME/python/.hypothesis" \
+               "$CUGRAPH_HOME/python/.pytest_cache";
+        find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
+        find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
+        find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
+        find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete;
+    else echo "Skipping clean-cugraph-python because BUILD_CUGRAPH != YES in your .env file"; fi;
+}
+
+export -f clean-cugraph-python;
+
+lint-rmm-python() {
+    if [ $(should-build-rmm) == true ];
+    then print-heading "Linting rmm" && lint-python "$RMM_HOME";
+    else echo "Skipping lint-rmm-python because BUILD_RMM != YES in your .env file"; fi;
+}
+
+export -f lint-rmm-python;
+
+lint-cudf-python() {
+    if [ $(should-build-cudf) == true ];
+    then print-heading "Linting cudf" && lint-python "$CUDF_HOME";
+    else echo "Skipping lint-cudf-python because BUILD_CUDF != YES in your .env file"; fi;
+}
+
+export -f lint-cudf-python;
+
+lint-cuml-python() {
+    if [ $(should-build-cuml) == true ];
+    then print-heading "Linting cuml" && lint-python "$CUML_HOME";
+    else echo "Skipping lint-cuml-python because BUILD_CUML != YES in your .env file"; fi;
+}
+
+export -f lint-cuml-python;
+
+lint-cugraph-python() {
+    if [ $(should-build-cugraph) == true ];
+    then print-heading "Linting cugraph" && lint-python "$CUGRAPH_HOME";
+    else echo "Skipping lint-cugraph-python because BUILD_CUGRAPH != YES in your .env file"; fi;
+}
+
+export -f lint-cugraph-python;
 
 configure-cpp() {
     update-environment-variables;
     PROJECT_CPP_HOME="$(find-cpp-home)";
     PROJECT_CPP_HOME="${1:-$PROJECT_CPP_HOME}"
-    BUILD_DIR="$PROJECT_CPP_HOME/`cpp-build-dir $PROJECT_CPP_HOME`";
+    BUILD_DIR="$PROJECT_CPP_HOME/$(cpp-build-dir $PROJECT_CPP_HOME)";
     mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";
     D_CMAKE_ARGS="\
         -DGPU_ARCHS=
@@ -97,7 +396,7 @@ configure-cpp() {
         -DDLPACK_INCLUDE=${COMPOSE_INCLUDE}
         -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
         -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
-        -DPARALLEL_LEVEL=$PARALLEL_LEVEL
+        -DPARALLEL_LEVEL=${PARALLEL_LEVEL}
         -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home)
         -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids";
 
@@ -139,9 +438,10 @@ configure-cpp() {
 export -f configure-cpp;
 
 build-cpp() {
+    BUILD_TARGETS="${2:-}";
+    ENTRY_DIR="$(realpath .)";
     update-environment-variables;
     cd "$1" && cd "$(find-cpp-home)"
-    BUILD_TARGETS="${2:-}";
     BUILD_DIR_PATH="$(find-cpp-build-home)"
     if [ -n "$BUILD_TARGETS" ] && [ "$BUILD_TESTS" = "ON" ]; then
         BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
@@ -153,6 +453,7 @@ build-cpp() {
         make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
     fi
     create-cpp-launch-json "$(find-cpp-home)";
+    cd "$ENTRY_DIR" >/dev/null 2>&1;
 }
 
 export -f build-cpp;
@@ -160,14 +461,23 @@ export -f build-cpp;
 build-python() {
     cd "$1";
     CC_="$CC"
-    ARGS=${@:2};
-    [ "$ARGS" != "--inplace" ] && rm -rf ./build;
     [ "$USE_CCACHE" == "YES" ] && CC_="$(which ccache) $CC";
-    env CC="$CC_" python setup.py build_ext -j$PARALLEL_LEVEL ${ARGS};
+    export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
+    env CC="$CC_" python setup.py build_ext -j$PARALLEL_LEVEL ${@:2};
+    export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
     rm -rf ./*.egg-info;
+    cd - >/dev/null 2>&1;
 }
 
 export -f build-python;
+
+lint-python() {
+    cd "$1";
+    bash "$COMPOSE_HOME/etc/rapids/lint.sh" || true;
+    cd - >/dev/null 2>&1;
+}
+
+export -f lint-python;
 
 fix-nvcc-clangd-compile-commands() {
     ###
@@ -214,17 +524,19 @@ fix-nvcc-clangd-compile-commands() {
 
 export -f fix-nvcc-clangd-compile-commands;
 
-join_list_contents() {
+join-list-contents() {
     local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
 }
 
+export -f join-list-contents;
+
 create-cpp-launch-json() {
     mkdir -p "$1/.vscode";
-    BUILD_DIR=`cpp-build-dir $1`;
+    BUILD_DIR=$(cpp-build-dir $1);
     TESTS_DIR="$1/build/debug/gtests";
     PROJECT_NAME="${1#$RAPIDS_HOME/}";
     TEST_NAMES=$(ls $TESTS_DIR 2>/dev/null || echo "");
-    TEST_NAMES=$(echo \"$(join_list_contents '","' $TEST_NAMES)\");
+    TEST_NAMES=$(echo \"$(join-list-contents '","' $TEST_NAMES)\");
     cat << EOF > "$1/.vscode/launch.json"
 {
     "version": "0.2.0",
@@ -246,10 +558,7 @@ create-cpp-launch-json() {
                     "ignoreFailures": true
                 }
             ],
-            "environment": [{
-                "name": "LIBCUDF_INCLUDE_DIR",
-                "value": "$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)/include"
-            }]
+            "environment": []
         },
     ],
     "inputs": [
@@ -266,172 +575,78 @@ EOF
 
 export -f create-cpp-launch-json;
 
-build-rapids() {
-
-    cd "$RAPIDS_HOME";
-
-    update-environment-variables;
-
-    [ "$BUILD_CUML" == "YES" ] && should_build_cuml="YES" || should_build_cuml="NO";
-    [ "$BUILD_CUGRAPH" == "YES" ] && should_build_cugraph="YES" || should_build_cugraph="NO";
-
-    [ "$BUILD_CUGRAPH" == "YES" ] \
-    || [ "$BUILD_CUML" == "YES" ] \
-    || [ "$BUILD_CUDF" == "YES" ] && should_build_cudf="YES" || should_build_cudf="NO";
-
-    [ "$BUILD_CUGRAPH" == "YES" ] \
-    || [ "$BUILD_CUML" == "YES" ] \
-    || [ "$BUILD_CUDF" == "YES" ] \
-    || [ "$BUILD_RMM"  == "YES" ] && should_build_rmm="YES" || should_build_rmm="NO";
-
-    print_heading "\
-RAPIDS projects: \
-RMM: $should_build_rmm, \
-cuDF: $should_build_cudf, \
-cuML: $should_build_cuml, \
-cuGraph: $should_build_cugraph"
-
-    [ "$should_build_rmm"     == "YES" ] && print_heading "librmm"       && build-rmm-cpp           ;
-    [ "$should_build_cudf"    == "YES" ] && print_heading "libnvstrings" && build-nvstrings-cpp     ;
-    [ "$should_build_cudf"    == "YES" ] && print_heading "libcudf"      && build-cudf-cpp          ;
-    [ "$should_build_cuml"    == "YES" ] && print_heading "libcuml"      && build-cuml-cpp          ;
-    [ "$should_build_cugraph" == "YES" ] && print_heading "libcugraph"   && build-cugraph-cpp       ;
-    [ "$should_build_rmm"     == "YES" ] && print_heading "rmm"          && build-rmm-python        ;
-    [ "$should_build_cudf"    == "YES" ] && print_heading "nvstrings"    && build-nvstrings-python  ;
-    [ "$should_build_cudf"    == "YES" ] && print_heading "cudf"         && build-cudf-python       ;
-    [ "$should_build_cuml"    == "YES" ] && print_heading "cuml"         && build-cuml-python       ;
-    [ "$should_build_cugraph" == "YES" ] && print_heading "cugraph"      && build-cugraph-python    ;
+print-heading() {
+    echo -e "\n\n################\n#\n# $1 \n#\n################\n\n"
 }
 
-export -f build-rapids;
+export -f print-heading;
 
-clean-rapids() {
-
-    cd "$RAPIDS_HOME"
-
-    update-environment-variables;
-
-    # If build clean, delete all build and runtime assets and caches
-    rm -rf "$RMM_HOME/`cpp-build-dir $RMM_HOME`" \
-        "$CUDF_HOME/cpp/`cpp-build-dir $CUDF_HOME`" \
-        "$CUML_HOME/cpp/`cpp-build-dir $CUML_HOME`" \
-        "$CUGRAPH_HOME/cpp/`cpp-build-dir $CUGRAPH_HOME`" \
-        "$RMM_HOME/python/dist" \
-        "$RMM_HOME/python/build" \
-        "$CUDF_HOME/python/.hypothesis" \
-        "$CUDF_HOME/python/cudf/dist" \
-        "$CUDF_HOME/python/cudf/build" \
-        "$CUDF_HOME/python/cudf/.pytest_cache" \
-        "$CUDF_HOME/python/nvstrings/dist" \
-        "$CUDF_HOME/python/nvstrings/build" \
-        "$CUDF_HOME/python/nvstrings/.pytest_cache" \
-        "$CUDF_HOME/python/dask_cudf/dist" \
-        "$CUDF_HOME/python/dask_cudf/build" \
-        "$CUDF_HOME/python/dask_cudf/.pytest_cache" \
-        "$CUML_HOME/python/dist" \
-        "$CUML_HOME/python/build" \
-        "$CUML_HOME/python/.hypothesis" \
-        "$CUML_HOME/python/.pytest_cache" \
-        "$CUML_HOME/python/external_repositories" \
-        "$CUGRAPH_HOME/python/dist" \
-        "$CUGRAPH_HOME/python/build" \
-        "$CUGRAPH_HOME/python/.hypothesis" \
-        "$CUGRAPH_HOME/python/.pytest_cache" \
-    \
-    && find "$RMM_HOME" -type f -name '*.pyc' -delete \
-    && find "$CUDF_HOME" -type f -name '*.pyc' -delete \
-    && find "$CUML_HOME" -type f -name '*.pyc' -delete \
-    && find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete \
-    && find "$RMM_HOME" -type d -name '__pycache__' -delete \
-    && find "$CUDF_HOME" -type d -name '__pycache__' -delete \
-    && find "$CUML_HOME" -type d -name '__pycache__' -delete \
-    && find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete \
-    \
-    && find "$CUML_HOME/python/cuml" -type f -name '*.so' -delete \
-    && find "$CUML_HOME/python/cuml" -type f -name '*.cpp' -delete \
-    && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete \
-    && find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete \
-    && find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete \
-    && find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.cpp' -delete \
-    \
-    && find "$RMM_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}" \
-    && find "$CUDF_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}" \
-    && find "$CUML_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}" \
-    && find "$CUGRAPH_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}" \
-    ;
+find-project-home() {
+    PROJECT_HOMES="\
+    $RMM_HOME
+    $CUDF_HOME
+    $CUML_HOME
+    $CUGRAPH_HOME
+    $NOTEBOOKS_HOME
+    $NOTEBOOKS_EXTENDED_HOME";
+    for PROJECT_HOME in $PROJECT_HOMES; do
+        if [ -n "$(echo "$PWD" | grep "$PROJECT_HOME" - || echo "")" ]; then
+            echo "$PROJECT_HOME"; break;
+        fi;
+    done
 }
 
-export -f clean-rapids;
+export -f find-project-home;
 
-lint-rapids() {
-    bash "$COMPOSE_HOME/etc/rapids/lint.sh" || true;
+find-cpp-home() {
+    PROJECT_HOME="$(find-project-home)";
+    if [ "$PROJECT_HOME" != "$RMM_HOME" ]; then
+        PROJECT_HOME="$PROJECT_HOME/cpp"
+    fi;
+    echo "$PROJECT_HOME";
 }
 
-export -f lint-rapids;
+export -f find-cpp-home;
 
-build-rmm-cpp() {
-    build-cpp "$RMM_HOME";
+find-cpp-build-home() {
+    echo "$(find-cpp-home)/build/$(cpp-build-type)";
 }
 
-export -f build-rmm-cpp;
+export -f find-cpp-build-home;
 
-build-nvstrings-cpp() {
-    build-cpp "$CUDF_HOME/cpp" "nvstrings";
+cpp-build-type() {
+    echo "${CMAKE_BUILD_TYPE:-Release}" | tr '[:upper:]' '[:lower:]'
 }
 
-export -f build-nvstrings-cpp;
+export -f cpp-build-type;
 
-build-cudf-cpp() {
-    build-cpp "$CUDF_HOME/cpp" "cudf";
+cpp-build-dir() {
+    cd "$1"
+    _BUILD_DIR="$(git branch --show-current)"
+    _BUILD_DIR="cuda-$CUDA_VERSION/${_BUILD_DIR//\//__}"
+    echo "build/$_BUILD_DIR/$(cpp-build-type)"
+    cd - >/dev/null 2>&1;
 }
 
-export -f build-cudf-cpp;
+export -f cpp-build-dir;
 
-build-cuml-cpp() {
-    build-cpp "$CUML_HOME/cpp";
+make-symlink() {
+    SRC="$1"; DST="$2";
+    CUR=$(readlink "$2" || echo "");
+    [ -z "$SRC" ] || [ -z "$DST" ] || \
+    [ "$CUR" = "$SRC" ] || ln -f -n -s "$SRC" "$DST"
 }
 
-export -f build-cuml-cpp;
+export -f make-symlink;
 
-build-cugraph-cpp() {
-    build-cpp "$CUGRAPH_HOME/cpp";
+update-environment-variables() {
+    set -a && . "$COMPOSE_HOME/.env" && set +a;
+    if [ ${CONDA_PREFIX:-""} != "" ]; then
+        bash "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
+    fi
+    unset NVIDIA_VISIBLE_DEVICES
 }
 
-export -f build-cugraph-cpp;
+export -f update-environment-variables;
 
-build-rmm-python() {
-    build-python "$RMM_HOME/python" --inplace;
-}
-
-export -f build-rmm-python;
-
-build-nvstrings-python() {
-    build-python "$CUDF_HOME/python/nvstrings" \
-    --library-dir="$NVSTRINGS_ROOT"            \
-    --build-lib="$CUDF_HOME/python/nvstrings"  ;
-}
-
-export -f build-nvstrings-python;
-
-build-cudf-python() {
-    build-python "$CUDF_HOME/python/cudf" --inplace;
-}
-
-export -f build-cudf-python;
-
-build-cuml-python() {
-    build-python "$CUML_HOME/python" --inplace;
-}
-
-export -f build-cuml-python;
-
-build-cugraph-python() {
-    build-python "$CUGRAPH_HOME/python" --inplace;
-}
-
-export -f build-cugraph-python;
-
-
-print_heading() {
-    echo -e "\n\n\n\n################\n\n\n\n# Build $1 \n\n\n\n################\n\n\n\n"
-}
+# set +Eeo pipefail
