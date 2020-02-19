@@ -33,4 +33,6 @@ file="$file";
 args="$args";
 services=$*;
 
+docker-compose up -d apt-cacher-ng;
+
 exec docker-compose -f $file run $args $services
