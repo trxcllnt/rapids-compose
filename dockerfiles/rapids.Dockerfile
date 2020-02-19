@@ -121,4 +121,4 @@ WORKDIR $RAPIDS_HOME
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
-CMD ["build-rapids"]
+CMD ["bash", "-c", "build-rapids"]

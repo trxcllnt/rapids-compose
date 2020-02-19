@@ -15,8 +15,6 @@ source activate notebooks
 echo "source /home/rapids/.bashrc && source activate notebooks" > /home/rapids/.bash_login
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
-    # Install the rapids projects' source-builds into the conda notebooks env
-    # "$COMPOSE_HOME/etc/rapids/build.sh"
     # Install the dask and nvdashboard jupyterlab extensions
     jupyter labextension install dask-labextension jupyterlab-nvdashboard
     # Set Jupyter Dark as the default theme in the extension settings. Doing it

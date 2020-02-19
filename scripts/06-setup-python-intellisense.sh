@@ -20,12 +20,12 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
     "python.analysis.memory.keepLibraryAst": true,
     "python.analysis.memory.keepLibraryLocalVariables": true,
     "python.autoComplete.extraPaths": [
-        "$RAPIDS_HOME/rmm/python",
+        "$RAPIDS_HOME/rmm/python/rmm",
         "$RAPIDS_HOME/cudf/python/nvstrings",
-        "$RAPIDS_HOME/cudf/python/cudf",
-        "$RAPIDS_HOME/cudf/python/dask_cudf",
-        "$RAPIDS_HOME/cuml/python",
-        "$RAPIDS_HOME/cugraph/python",
+        "$RAPIDS_HOME/cudf/python/cudf/cudf",
+        "$RAPIDS_HOME/cudf/python/dask_cudf/dask_cudf",
+        "$RAPIDS_HOME/cuml/python/cuml",
+        "$RAPIDS_HOME/cugraph/python/cugraph",
     ],
     "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python"
 }
