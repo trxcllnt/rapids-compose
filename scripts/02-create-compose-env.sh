@@ -41,8 +41,8 @@ Configure RAPIDS environment \`.env\` file
 ###
 ";
 
-vGCC=$(select_version "Please enter your desired GCC version (5/7)" "5")
-CUDA_VERSION=$(select_version "Please enter your desired CUDA version (9.2/10.0/10.1)" "10.0")
+vGCC=$(select_version "Please enter your desired GCC version (5/7/8)" "5")
+CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.0/10.1/10.2)" "10.0")
 PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.6/3.7)" "3.7")
 CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
 PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")

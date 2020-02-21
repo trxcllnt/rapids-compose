@@ -1,4 +1,4 @@
-ARG CUDA_VERSION=9.2
+ARG CUDA_VERSION=10.0
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
@@ -121,4 +121,4 @@ WORKDIR $RAPIDS_HOME
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
-CMD ["bash", "-c", "build-rapids"]
+CMD ["bash"]
