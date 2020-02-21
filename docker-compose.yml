@@ -28,7 +28,6 @@ services:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
     volumes:
-      # - &rapids_home "${RAPIDS_HOME:-$PWD}:${RAPIDS_HOME:-$PWD}"
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
       - &cuml "${RAPIDS_HOME:-$PWD}/cuml:${RAPIDS_HOME:-$PWD}/cuml"
@@ -37,6 +36,8 @@ services:
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
       - "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
+    depends_on:
+      - apt-cacher-ng
 
   notebooks:
     <<: *service_settings
@@ -59,6 +60,8 @@ services:
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
       - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:/home/rapids/notebooks/contrib"
+    depends_on:
+      - apt-cacher-ng
 
   apt-cacher-ng:
     restart: always

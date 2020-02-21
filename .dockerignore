@@ -1,7 +1,11 @@
 **/.env
 **/.git
+**/.cache
+**/.clangd
+**/.github
 **/.vscode
 **/etc/conda
+**/etc/.ccache
 **/etc/rapids/log
 **/etc/rapids/include
 **/etc/rapids/.vscode
@@ -11,3 +15,4 @@
 **/cugraph/datasets
 **/notebooks-contrib/data
 **/cpp/build
+**/rmm/build

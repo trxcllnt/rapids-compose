@@ -5,6 +5,7 @@
 **/build
 **/.cache
 **/.github
+**/.clangd
 **/*.vscode
 **/__pycache__
 **/.pytest_cache
@@ -26,9 +27,10 @@
 **/etc/.ccache
 **/etc/notebooks/sandbox
 
-**/.clangd
 **/cudf/_lib/**/*.so
 **/cudf/_lib/**/*.cpp
+**/cudf/_libxx/**/*.so
+**/cudf/_libxx/**/*.cpp
 
 **/cuml/_lib/**/*.so
 **/cuml/_lib/**/*.cpp
