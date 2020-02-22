@@ -517,46 +517,68 @@ lint-python() {
 export -f lint-python;
 
 fix-nvcc-clangd-compile-commands() {
-    ###
-    # Make a few modifications to the compile_commands.json file
-    # produced by CMake. This file is used by clangd to provide fast
-    # and smart intellisense, but `clang-10` doesn't yet support all
-    # the nvcc compilation options. This block translates or removes
-    # unsupported options, so `clangd` has an easier time producing
-    # usable intellisense results.
-    ###
-    CC_JSON="$2/compile_commands.json";
-    CC_JSON_LINK="$1/compile_commands.json";
-    CC_JSON_CLANGD="$2/compile_commands.clangd.json";
-    # todo: should define `-D__CUDACC__` here?
-    CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
-    CLANG_CUDA_OPTIONS="-x cuda --no-cuda-version-check -nocudalib";
-    ALLOWED_WARNINGS=$(echo $(echo '
-        -Wno-unknown-pragmas
-        -Wno-c++17-extensions
-        -Wno-unevaluated-expression'));
+    (
+        set -Eeo pipefail;
+        ###
+        # Make a few modifications to the compile_commands.json file
+        # produced by CMake. This file is used by clangd to provide fast
+        # and smart intellisense, but `clang-10` doesn't yet support all
+        # the nvcc compilation options. This block translates or removes
+        # unsupported options, so `clangd` has an easier time producing
+        # usable intellisense results.
+        ###
+        CC_JSON="$2/compile_commands.json";
+        CC_JSON_LINK="$1/compile_commands.json";
+        CC_JSON_CLANGD="$2/compile_commands.clangd.json";
 
-    # 1. Remove the second compiler invocation following the `&&`
-    # 2. Remove unsupported -gencode options
-    # 3. Remove unsupported --expt-extended-lambda option
-    # 4. Remove unsupported --expt-relaxed-constexpr option
-    # 5. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-    # 6. Change `-x cu` to `-x cuda` and add other clang cuda options
-    # 7. Add `-I$CUDA_HOME/include` to nvcc invocations
-    # 8. Add flags to disable certain warnings for intellisense
-    cat "$CC_JSON"                                   \
-    | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
-    | sed -r "s/\-gencode\ arch=([^\-])*//g"         \
-    | sed -r "s/ --expt-extended-lambda/ /g"         \
-    | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
-    | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
-    | sed -r "s/ -x cu / $CLANG_CUDA_OPTIONS /g"     \
-    | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS!g"    \
-    | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
-    > "$CC_JSON_CLANGD"                              ;
+        # todo: should define `-D__CUDACC__` here?
 
-    # symlink compile_commands.json to the project root so clangd can find it
-    make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
+        CUDA_VERSION_MAJOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2);
+        CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
+
+        CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
+        # CLANG_CUDA_OPTIONS=$(echo $(echo "
+        #     -x cuda --no-cuda-version-check
+        CLANG_CUDA_OPTIONS=$(echo $(echo "
+            -x cuda
+            -fcuda-rdc
+            -nocudalib
+            -nodefaultlibs
+            --no-cuda-version-check
+            -D__CUDACC_VER_MAJOR__=$CUDA_VERSION_MAJOR
+            -D__CUDACC_VER_MINOR__=$CUDA_VERSION_MINOR"));
+        ALLOWED_WARNINGS=$(echo $(echo '
+            -Wno-unknown-pragmas
+            -Wno-c++17-extensions
+            -Wno-unevaluated-expression'));
+
+        GPU_GENCODE_COMPUTE="-gencode arch=([^\-])* ";
+        GPU_ARCH_SM="-gencode arch=compute_.*,code=sm_";
+
+        # 1. Remove the second compiler invocation following the `&&`
+        # 2. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
+        # 3. Remove unsupported -gencode options
+        # 4. Remove unsupported --expt-extended-lambda option
+        # 5. Remove unsupported --expt-relaxed-constexpr option
+        # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 7. Change `-x cu` to `-x cuda` and other clang cuda options
+        # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 9. Add flags to disable certain warnings for intellisense
+        cat "$CC_JSON"                                   \
+        | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
+        | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"  \
+        | sed -r "s/$GPU_GENCODE_COMPUTE//g"             \
+        | sed -r "s/ --expt-extended-lambda/ /g"         \
+        | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
+        | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
+        | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"     \
+        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS!g"    \
+        | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
+        > "$CC_JSON_CLANGD"                              ;
+
+        # symlink compile_commands.json to the project root so clangd can find it
+        make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
+    )
 }
 
 export -f fix-nvcc-clangd-compile-commands;
