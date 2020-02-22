@@ -78,6 +78,12 @@ cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
 
 set -Ee
 
+mkdir -p "\$RMM_HOME/build"
+mkdir -p "\$CUDF_HOME/cpp/build"
+mkdir -p "\$CUML_HOME/cpp/build"
+mkdir -p "\$CUGRAPH_HOME/cpp/build"
+mkdir -p "\$CONDA_PREFIX/include/libcudf"
+
 export RMM_INCLUDE="\$RMM_HOME/include"
 export CUDF_INCLUDE="\$CUDF_HOME/cpp/include"
 export NVSTRINGS_INCLUDE="\$CUDF_HOME/cpp/include"
