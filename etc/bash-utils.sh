@@ -404,6 +404,7 @@ configure-cpp() {
 
         PROJECT_CPP_HOME="$(find-cpp-home $1)";
         PROJECT_HOME="$(find-project-home $PROJECT_CPP_HOME)";
+        PROJECT_CPP_BUILD_DIR="$(find-cpp-build-home $PROJECT_CPP_HOME)";
         BUILD_DIR="$PROJECT_CPP_HOME/$(cpp-build-dir $PROJECT_CPP_HOME)";
         mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";
 
@@ -431,7 +432,7 @@ configure-cpp() {
             -DNVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
             -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
             -DPARALLEL_LEVEL=${PARALLEL_LEVEL}
-            -DCMAKE_INSTALL_PREFIX=$(find-cpp-build-home $PROJECT_CPP_HOME)
+            -DCMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
             -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids";
 
         if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then

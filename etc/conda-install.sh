@@ -126,6 +126,8 @@ export CUMLXX_LIBRARY="\$CUML_ROOT/libcuml++.so"
 export CUMLCOMMS_LIBRARY="\$CUML_ROOT/comms/std/libcumlcomms.so"
 export CUGRAPH_LIBRARY="\$CUGRAPH_ROOT/libcugraph.so"
 
+export LIBCUDF_KERNEL_CACHE_PATH="\$(find-cpp-build-home \$CUDF_HOME)/.jitify-cache"
+
 export PYTHONPATH="\
 \$RMM_HOME/python:\
 \$CUDF_HOME/python/nvstrings:\
