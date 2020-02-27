@@ -11,7 +11,7 @@ ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
     cd "$BASE_DIR/$REPO" && \
-    git pull upstream $(git branch --show-current) && \
+    git pull upstream $(git rev-parse --abbrev-ref HEAD) && \
     git submodule update --init --recursive && \
     cd -
 done

@@ -11,6 +11,6 @@ ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
     cd "$BASE_DIR/$REPO" && \
-    git push origin $(git branch --show-current) && \
+    git push origin $(git rev-parse --abbrev-ref HEAD) && \
     cd -
 done
