@@ -78,6 +78,26 @@
 # lint-cugraph-python    - (✝) Lint/fix the cugraph Cython and Python source files
 # 
 ###
+# Commands to run each project's pytests:
+# 
+# Note: These commands automatically change into the correct directory before executing `pytest`.
+# Note: Pass --debug to use with the VSCode debugger `ptvsd`. All other arguments are forwarded to pytest.
+# Note: Arguments that end in '.py' are assumed to be pytest files used to reduce the number of tests
+#       collected on startup by pytest. These arguments will be expanded out to their full paths relative
+#       to the directory where pytests is run.
+# 
+# test-rmm-python        - (✝) Run rmm pytests.
+# test-cudf-python       - (✝) Run cudf pytests.
+# test-cuml-python       - (✝) Run cuml pytests.
+# test-cugraph-python    - (✝) Run cugraph pytests.
+# 
+# Usage:
+# test-cudf-python -n <num_cores>                               - Run all pytests in parallel with `pytest-xdist`
+# test-cudf-python -v -x -k 'a_test_function_name'              - Run all tests named 'a_test_function_name', be verbose, and exit on first fail
+# test-cudf-python -v -x -k 'a_test_function_name' --debug      - Run all tests named 'a_test_function_name', and start ptvsd for VSCode debugging
+# test-cudf-python -v -x -k 'test_a or test_b' foo/test_file.py - Run all tests named 'test_a' or 'test_b' in file paths matching foo/test_file.py
+# 
+###
 # Misc
 # 
 # cpp-build-type               - (✝) Function to print the C++ CMAKE_BUILD_TYPE
@@ -397,6 +417,30 @@ lint-cugraph-python() {
 
 export -f lint-cugraph-python;
 
+test-rmm-python() {
+    test-python "$RMM_HOME/python" $@;
+}
+
+export -f test-rmm-python;
+
+test-cudf-python() {
+    test-python "$CUDF_HOME/python/cudf" $@;
+}
+
+export -f test-cudf-python;
+
+test-cuml-python() {
+    test-python "$CUML_HOME/python" $@;
+}
+
+export -f test-cuml-python;
+
+test-cugraph-python() {
+    test-python "$CUGRAPH_HOME/python" $@;
+}
+
+export -f test-cugraph-python;
+
 configure-cpp() {
     (
         set -Eeo pipefail
@@ -518,6 +562,60 @@ lint-python() {
 
 export -f lint-python;
 
+test-python() {
+    (
+        args="";
+        paths="";
+        debug="false";
+        py_regex='.*\.py$';
+        arg_regex='^[\-]+';
+        number_regex='^[0-9]+$';
+        nprocs_regex='^\-n[0-9]*$';
+        set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
+        while [[ "$#" -gt 0 ]]; do
+            # match patterns: [-n, -n auto, -n<nprocs>, -n <nprocs>]
+            if [[ $1 =~ $nprocs_regex ]]; then
+                args="${args:+$args }$1";
+                if [[ "${1#-n}" == "" ]]; then
+                    if ! [[ $2 =~ $number_regex ]]; then
+                        args="${args:+$args }auto";
+                    else
+                        args="${args:+$args }$2"; shift;
+                    fi;
+                fi;
+            else
+                # match all other pytest arguments/test file names
+                case "$1" in
+                    --debug) debug="true";;
+                    # fuzzy-match test file names and expand to full paths
+                    *.py) paths="${paths:+$paths }$(fuzzy-find $1)";;
+                    # Match pytest args
+                    -*) arr="";
+                        args="${args:+$args }$1";
+                        # greedy-match args until the next `-<arg>` or .py file
+                        while ! [[ "$#" -lt 1 || $2 =~ $arg_regex || $2 =~ $py_regex ]]; do
+                            arr="${arr:+$arr }$2"; shift;
+                        done;
+                        # if only found one sub-argument, append to pytest args list
+                        # if multiple, wrap in single-quotes (e.g. -k 'this or that')
+                        arr=(${arr});
+                        [[ ${#arr[@]} -eq 1 ]] && args="$args ${arr[*]}";
+                        [[ ${#arr[@]} -gt 1 ]] && args="$args '${arr[*]}'";
+                        ;;
+                    *) args="${args:+$args }$1";;
+                esac;
+            fi; shift;
+        done;
+        if [[ $debug != true ]]; then
+            eval "set -x; pytest $args $paths";
+        else
+            eval "set -x; python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $args $paths";
+        fi
+    )
+}
+
+export -f test-python;
+
 fix-nvcc-clangd-compile-commands() {
     (
         set -Eeo pipefail;
@@ -584,6 +682,21 @@ fix-nvcc-clangd-compile-commands() {
 }
 
 export -f fix-nvcc-clangd-compile-commands;
+
+fuzzy-find() {
+    (
+        for p in ${@}; do
+            path="${p#./}"; # remove leading ./ (if exists)
+            ext="${p##*.}"; # extract extension (if exists)
+            if [[ $ext == $p ]];
+                then echo $(find .                -print0 | grep -FzZ $path | tr '\0' '\n');
+                else echo $(find . -name "*.$ext" -print0 | grep -FzZ $path | tr '\0' '\n');
+            fi;
+        done
+    )
+}
+
+export -f fuzzy-find;
 
 join-list-contents() {
     local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
