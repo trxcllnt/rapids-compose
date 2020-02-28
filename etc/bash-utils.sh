@@ -433,12 +433,12 @@ configure-cpp() {
             -DCUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
             -DPARALLEL_LEVEL=${PARALLEL_LEVEL}
             -DCMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
-            -DCMAKE_SYSTEM_PREFIX_PATH=${COMPOSE_HOME}/etc/conda/envs/rapids";
+            -DCMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids";
 
         if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja
-            -DLIBCYPHERPARSER_INCLUDE=${COMPOSE_HOME}/etc/conda/envs/rapids/include
-            -LIBCYPHERPARSER_LIBRARY=${COMPOSE_HOME}/etc/conda/envs/rapids/lib/libcypher-parser.a";
+            -DLIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
+            -LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
 
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
@@ -448,7 +448,7 @@ configure-cpp() {
             -DBUILD_CUML_MG_TESTS=${BUILD_TESTS:-OFF}
             -DBUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
             -DBUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
-            -DBLAS_LIBRARIES=${COMPOSE_HOME}/etc/conda/envs/rapids/lib/libblas.so";
+            -DBLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
         else
             D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja";
         fi;
@@ -500,7 +500,8 @@ build-python() {
         CC_="$CC"
         [ "$USE_CCACHE" == "YES" ] && CC_="$(which ccache) $CC";
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        env CC="$CC_" python setup.py build_ext -j$PARALLEL_LEVEL ${@:2};
+        env CC="$CC_" JOBS=${PARALLEL_LEVEL} \
+            python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         rm -rf ./*.egg-info;
     )

@@ -10,6 +10,11 @@ if [ "$ENV_NAME" = "" ]; then
     exit 1
 fi
 
+# If old conda dir (not prefixed with cuda version), remove it and make a new prefixed one
+if [ -d "$COMPOSE_HOME/etc/conda/bin" ]; then
+    rm -rf "$COMPOSE_HOME/etc/conda";
+fi
+
 # If necessary install conda, then create or update the conda env
 
 mkdir -p "$CONDA_HOME"
@@ -83,6 +88,8 @@ mkdir -p "\$CUDF_HOME/cpp/build"
 mkdir -p "\$CUML_HOME/cpp/build"
 mkdir -p "\$CUGRAPH_HOME/cpp/build"
 mkdir -p "\$CONDA_PREFIX/include/libcudf"
+
+make-symlink "\$CONDA_HOME/envs" "\$COMPOSE_HOME/etc/conda/envs"
 
 export RMM_INCLUDE="\$RMM_HOME/include"
 export CUDF_INCLUDE="\$CUDF_HOME/cpp/include"

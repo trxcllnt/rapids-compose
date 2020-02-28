@@ -85,7 +85,7 @@ USE_CCACHE=$USE_CCACHE
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS
 BUILD_LEGACY_TESTS=$BUILD_LEGACY_TESTS
-# Set to \`Debug\` to compile in debug symbols during \`make rapids\` target
+# Set to one of \"Debug\" \"Release\" \"MinSizeRel\" \"RelWithDebInfo\"
 CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 
 ###
