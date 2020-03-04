@@ -479,12 +479,16 @@ configure-cpp() {
             -DCMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
             -DCMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids";
 
+        CMAKE_GENERATOR="Ninja";
+
         if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja
+            CMAKE_GENERATOR="Unix Makefiles";
+            D_CMAKE_ARGS="$D_CMAKE_ARGS
             -DLIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
-            -LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
+            -DLIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
 
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
+            CMAKE_GENERATOR="Unix Makefiles";
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -DWITH_UCX=ON
             -DBUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
@@ -493,8 +497,6 @@ configure-cpp() {
             -DBUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
             -DBUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
             -DBLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
-        else
-            D_CMAKE_ARGS="$D_CMAKE_ARGS -GNinja";
         fi;
 
         if [ "$USE_CCACHE" == "YES" ]; then
@@ -504,9 +506,10 @@ configure-cpp() {
         fi
 
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        env JOBS=$PARALLEL_LEVEL                                             \
-            PARALLEL_LEVEL=$PARALLEL_LEVEL                                   \
-            cmake $D_CMAKE_ARGS "$PROJECT_CPP_HOME"                          \
+        JOBS=$PARALLEL_LEVEL                                                 \
+        PARALLEL_LEVEL=$PARALLEL_LEVEL                                       \
+        CMAKE_GENERATOR="$CMAKE_GENERATOR"                                   \
+            cmake -G"$CMAKE_GENERATOR" $D_CMAKE_ARGS "$PROJECT_CPP_HOME"     \
         && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
         ;
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
