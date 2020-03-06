@@ -16,7 +16,6 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- cython=0.29.13
 - cmake_setuptools
 - python=${PYTHON_VERSION}
 - pip:
