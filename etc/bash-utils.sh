@@ -341,7 +341,7 @@ clean-cudf-python() {
         rm -rf "$CUDF_HOME/python/cudf/dist" \
                "$CUDF_HOME/python/cudf/build" \
                "$CUDF_HOME/python/.hypothesis" \
-               "$CUDF_HOME/python/cudf/.pytest_cache" \
+               "$CUDF_HOME/python/cudf/.pytest_cache";
         find "$CUDF_HOME" -type f -name '*.pyc' -delete;
         find "$CUDF_HOME" -type d -name '__pycache__' -delete;
         find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete;
