@@ -208,7 +208,7 @@ export -f build-rmm-cpp;
 
 build-cudf-cpp() {
     if [ $(should-build-cudf $@) == true ];
-    then print-heading "Building libnvstrings" && build-cpp "$CUDF_HOME/cpp" "nvstrings" $@ \
+    then print-heading "Building libnvstrings" && build-cpp "$CUDF_HOME/cpp" "nvstrings" $@ && build-nvstrings-python $@ \
       && print-heading "Building libcudf" && build-cpp "$CUDF_HOME/cpp" "cudf" $@;
     else echo "Skipping build-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
 }
@@ -258,8 +258,7 @@ export -f build-nvstrings-python;
 
 build-cudf-python() {
     if [ $(should-build-cudf $@) == true ];
-    then build-nvstrings-python \
-      && print-heading "Building cudf" && build-python "$CUDF_HOME/python/cudf" --inplace;
+    then print-heading "Building cudf" && build-python "$CUDF_HOME/python/cudf" --inplace;
     else echo "Skipping build-cudf-python because BUILD_CUDF != YES in your .env file"; fi;
 }
 
@@ -294,7 +293,10 @@ export -f clean-rmm-cpp;
 clean-cudf-cpp() {
     if [ $(should-build-cudf $@) == true ]; then
         print-heading "Cleaning libcudf";
-        rm -rf "$CUDF_ROOT_ABS";
+        rm -rf "$CUDF_ROOT_ABS" \
+               "$CUDF_HOME/python/nvstrings/dist" \
+               "$CUDF_HOME/python/nvstrings/build" \
+               "$CUDF_HOME/python/nvstrings/.pytest_cache";
         find "$CUDF_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
     else echo "Skipping clean-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
 }
@@ -340,9 +342,6 @@ clean-cudf-python() {
                "$CUDF_HOME/python/cudf/build" \
                "$CUDF_HOME/python/.hypothesis" \
                "$CUDF_HOME/python/cudf/.pytest_cache" \
-               "$CUDF_HOME/python/nvstrings/dist" \
-               "$CUDF_HOME/python/nvstrings/build" \
-               "$CUDF_HOME/python/nvstrings/.pytest_cache";
         find "$CUDF_HOME" -type f -name '*.pyc' -delete;
         find "$CUDF_HOME" -type d -name '__pycache__' -delete;
         find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete;
