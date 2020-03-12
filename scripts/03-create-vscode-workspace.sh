@@ -91,7 +91,7 @@ rapids_vscode_workspace() {
             \"-j=4\",
             \"--log=info\",
             \"--pch-storage=disk\",
-            \"--fallback-style=Chromium\",
+            \"--fallback-style=Google\",
             \"--compile-commands-dir=\",
             \"--background-index=true\",
             \"--all-scopes-completion\",
