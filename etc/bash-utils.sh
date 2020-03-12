@@ -428,6 +428,12 @@ test-cudf-python() {
 
 export -f test-cudf-python;
 
+test-dask-cudf-python() {
+    test-python "$CUDF_HOME/python/dask_cudf" $@;
+}
+
+export -f test-dask-cudf-python;
+
 test-cuml-python() {
     test-python "$CUML_HOME/python" $@;
 }
