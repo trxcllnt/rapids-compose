@@ -157,6 +157,74 @@ rapids_vscode_workspace() {
             \"**/build/temp.linux-x86_64*\": true,
             \"**/build/bdist.linux-x86_64*\": true,
         }
+    },
+    \"tasks\": {
+        \"version\": \"2.0.0\",
+        \"tasks\": [
+            {
+                \"label\": \"Build all RAPIDS projects\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rapids\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build rmm C++\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-cpp --rmm\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuDF C++\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-cpp --cudf\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuML C++\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-cpp --cuml\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuGraph C++\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-cpp --cugraph\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build rmm Cython/Python\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-python --rmm\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuDF Cython/Python\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-python --cudf\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuML Cython/Python\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-python --cuml\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuGraph Cython/Python\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep compose_rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-python --cugraph\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            }
+        ]
     }
 }
 "
