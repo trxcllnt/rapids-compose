@@ -208,7 +208,8 @@ export -f build-rmm-cpp;
 
 build-cudf-cpp() {
     if [ $(should-build-cudf $@) == true ];
-    then print-heading "Building libnvstrings" && build-cpp "$CUDF_HOME/cpp" "nvstrings" $@ && build-nvstrings-python $@ \
+    then print-heading "Building libnvstrings" \
+      && build-cpp "$CUDF_HOME/cpp" "nvstrings install_nvstrings" $@ && build-nvstrings-python $@ \
       && print-heading "Building libcudf" && build-cpp "$CUDF_HOME/cpp" "cudf" $@;
     else echo "Skipping build-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
 }
@@ -296,6 +297,7 @@ clean-cudf-cpp() {
         rm -rf "$CUDF_ROOT_ABS" \
                "$CUDF_HOME/python/nvstrings/dist" \
                "$CUDF_HOME/python/nvstrings/build" \
+               "$CUDF_HOME/python/nvstrings/.hypothesis" \
                "$CUDF_HOME/python/nvstrings/.pytest_cache";
         find "$CUDF_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
     else echo "Skipping clean-cudf-cpp because BUILD_CUDF != YES in your .env file"; fi;
@@ -338,10 +340,15 @@ export -f clean-rmm-python;
 clean-cudf-python() {
     if [ $(should-build-cudf $@) == true ]; then
         print-heading "Cleaning cudf";
-        rm -rf "$CUDF_HOME/python/cudf/dist" \
+        rm -rf "$CUDF_HOME/.pytest_cache" \
+               "$CUDF_HOME/python/cudf/dist" \
                "$CUDF_HOME/python/cudf/build" \
                "$CUDF_HOME/python/.hypothesis" \
-               "$CUDF_HOME/python/cudf/.pytest_cache";
+               "$CUDF_HOME/python/.pytest_cache" \
+               "$CUDF_HOME/python/cudf/.hypothesis" \
+               "$CUDF_HOME/python/cudf/.pytest_cache" \
+               "$CUDF_HOME/python/dask_cudf/.hypothesis" \
+               "$CUDF_HOME/python/dask_cudf/.pytest_cache" ;
         find "$CUDF_HOME" -type f -name '*.pyc' -delete;
         find "$CUDF_HOME" -type d -name '__pycache__' -delete;
         find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete;
