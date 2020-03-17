@@ -556,10 +556,14 @@ export -f build-cpp;
 build-python() {
     (
         cd "$1";
-        CC_="$CC"
-        [ "$USE_CCACHE" == "YES" ] && CC_="$(which ccache) $CC";
+        CMAKE_VARS="";
+        if [ "$USE_CCACHE" == "YES" ]; then
+            CMAKE_VARS="$CMAKE_VARS -DCMAKE_CXX_COMPILER_LAUNCHER=$(which ccache)";
+            CMAKE_VARS="$CMAKE_VARS -DCMAKE_CUDA_COMPILER_LAUNCHER=$(which ccache)";
+        fi
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        env CC="$CC_" JOBS=${PARALLEL_LEVEL} \
+        env JOBS=${PARALLEL_LEVEL} \
+            CMAKE_COMMON_VARIABLES="$CMAKE_VARS" \
             python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         rm -rf ./*.egg-info;
