@@ -171,56 +171,56 @@ rapids_vscode_workspace() {
             {
                 \"label\": \"Build rmm C++\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-cpp --rmm\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-cpp\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuDF C++\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-cpp --cudf\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-cpp\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuML C++\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-cpp --cuml\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-cpp\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuGraph C++\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-cpp --cugraph\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-cpp\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build rmm Cython/Python\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-python --rmm\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-python\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuDF Cython/Python\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-python --cudf\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-python\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuML Cython/Python\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-python --cuml\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-python\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             },
             {
                 \"label\": \"Build cuGraph Cython/Python\",
                 \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-python --cugraph\\\"\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-python\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             }
