@@ -18,6 +18,7 @@ x-service-settings: &service_settings
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
+      PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
 
 services:
 

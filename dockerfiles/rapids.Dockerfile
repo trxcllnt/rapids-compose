@@ -47,6 +47,9 @@ ENV CUDA_SHORT_VERSION="$CUDA_SHORT_VERSION"
 ENV CC="/usr/bin/gcc-$GCC_VERSION"
 ENV CXX="/usr/bin/g++-$CXX_VERSION"
 
+ARG PARALLEL_LEVEL=4
+ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
+
 ARG PTVSD_LOG_DIR=/var/log/ptvsd
 ENV PTVSD_LOG_DIR="$PTVSD_LOG_DIR"
 
@@ -64,7 +67,7 @@ ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
 
 RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
  && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
- && ./configure && make install -j && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
+ && ./configure && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
