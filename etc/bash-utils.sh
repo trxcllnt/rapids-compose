@@ -661,6 +661,8 @@ fix-nvcc-clangd-compile-commands() {
             -Wno-c++17-extensions
             -Wno-unevaluated-expression'));
 
+        REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations"
+
         GPU_GENCODE_COMPUTE="-gencode arch=([^\-])* ";
         GPU_ARCH_SM="-gencode arch=compute_.*,code=sm_";
 
@@ -673,6 +675,7 @@ fix-nvcc-clangd-compile-commands() {
         # 7. Change `-x cu` to `-x cuda` and other clang cuda options
         # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
         # 9. Add flags to disable certain warnings for intellisense
+        # 9. Replace -Wno-error=deprecated-declarations
         cat "$CC_JSON"                                   \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"  \
@@ -683,6 +686,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"     \
         | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS!g"    \
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
+        | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g" \
         > "$CC_JSON_CLANGD"                              ;
 
         # symlink compile_commands.json to the project root so clangd can find it
