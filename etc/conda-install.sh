@@ -77,6 +77,18 @@ fi
 export FRESH_CONDA_ENV
 
 mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d"
+mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d"
+
+cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d/env-vars.sh"
+#!/bin/sh
+
+export PATH="\$OLD_PATH"
+export LD_LIBRARY_PATH="\$OLD_LD_LIBRARY_PATH"
+
+unset OLD_PATH
+unset OLD_LD_LIBRARY_PATH
+
+EOF
 
 cat << EOF > "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
 #!/bin/sh
@@ -143,8 +155,8 @@ export PYTHONPATH="\
 \$CUML_HOME/python:\
 \$CUGRAPH_HOME/python"
 
-export LD_LIBRARY_PATH="/usr/local/lib:\$CUDA_HOME/lib64:\
-\$CONDA_HOME/lib:\$CONDA_HOME/envs/rapids/lib:\$CONDA_PREFIX/lib:\
+export OLD_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\
 \$RMM_ROOT:\$NVSTRINGS_ROOT:\$CUDF_ROOT:\$CUML_ROOT:\$CUGRAPH_ROOT"
 
 make-symlink "\$RMM_ROOT_ABS" "\$RMM_ROOT"
@@ -178,6 +190,7 @@ make-symlink "\$CUMLXX_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUMLXX_LIBRARY
 make-symlink "\$CUMLCOMMS_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUMLCOMMS_LIBRARY)"
 make-symlink "\$CUGRAPH_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUGRAPH_LIBRARY)"
 
+export OLD_PATH="\$PATH"
 set +Ee;
 
 EOF
