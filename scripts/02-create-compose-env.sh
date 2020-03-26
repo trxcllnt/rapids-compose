@@ -53,6 +53,15 @@ BUILD_LEGACY_TESTS=$(select_version "Select whether to build RAPIDS legacy C++ t
 
 USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
 
+if [[ "$USE_CCACHE" == "YES" ]]; then
+    CCACHE_MAXSIZE=$(select_version "
+Select the ccache max cache size.
+The default value is 5G. The default suffix is G. Use 0 for no limit.
+Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
+" "5G")
+
+fi
+
 BUILD_RMM="YES"
 BUILD_CUDF="YES"
 BUILD_CUML=$(choose_bool_option "Build cuML C++ and Cython? (Y/N)" "NO")
@@ -99,12 +108,19 @@ BUILD_CUDF=$BUILD_CUDF
 BUILD_CUML=$BUILD_CUML
 # Whether to build cuGraph C++ and Cython (implies BUILD_CUDF=YES)
 BUILD_CUGRAPH=$BUILD_CUGRAPH
+# Whether to disable rmm C++ deprecation warnings
+DISABLE_DEPRECATION_WARNINGS=ON
 
 # Select which GPU(s) the container will use when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES
 
 # Select how many threads to use for parallel compilation (e.g. \`make -j\${PARALLEL_LEVEL}\`)
 PARALLEL_LEVEL=$PARALLEL_LEVEL
+
+# Select the ccache max cache size.
+# The default value is 5G. The default suffix is G. Use 0 for no limit.
+# Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
+CCACHE_MAXSIZE=$CCACHE_MAXSIZE
 "
 }
 
