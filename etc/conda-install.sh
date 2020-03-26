@@ -156,7 +156,11 @@ export PYTHONPATH="\
 \$CUGRAPH_HOME/python"
 
 export OLD_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
-export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\
+
+export LD_LIBRARY_PATH="\
+\$CONDA_HOME/envs/rapids/lib:\
+\$CONDA_HOME/envs/$ENV_NAME/lib:\
+\$CONDA_HOME/lib:\$LD_LIBRARY_PATH:\
 \$RMM_ROOT:\$NVSTRINGS_ROOT:\$CUDF_ROOT:\$CUML_ROOT:\$CUGRAPH_ROOT"
 
 make-symlink "\$RMM_ROOT_ABS" "\$RMM_ROOT"
@@ -196,6 +200,7 @@ set +Ee;
 EOF
 
 chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
+chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d/env-vars.sh"
 
 cmake_ver="$($CONDA_HOME/envs/$ENV_NAME/bin/cmake --version|head -n 1)"
 cmake_ver="${cmake_ver##cmake version }"

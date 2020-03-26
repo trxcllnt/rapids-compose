@@ -8,7 +8,9 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
 ARG CUDA_SHORT_VERSION
 
 ARG GCC_VERSION=5
+ENV GCC_VERSION=${GCC_VERSION}
 ARG CXX_VERSION=5
+ENV CXX_VERSION=${CXX_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
@@ -28,13 +30,22 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
+    gcc-5 g++-5 \
+    gcc-7 g++-7 \
+    gcc-8 g++-8 \
     ninja-build \
     libboost-all-dev \
-    gcc-${GCC_VERSION} \
-    g++-${CXX_VERSION} \
     python3 python3-pip \
     apt-transport-https \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+ && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
+ && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 0 \
+ && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
+ && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 0 \
+ && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 0 \
+ && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 0 \
+ && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
+ && update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION}
 
 ARG UID=1000
 ARG GID=1000
@@ -102,16 +113,17 @@ exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
  && chmod +x /entrypoint.sh
 
+ENV NVCC="/usr/local/bin/nvcc"
+ENV CC="/usr/local/bin/gcc-$GCC_VERSION"
+ENV CXX="/usr/local/bin/g++-$CXX_VERSION"
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 
 RUN pip3 install --no-cache-dir conda-merge==0.1.5
 
-ENV PATH="$CONDA_HOME/bin:$CUDA_HOME/bin:$PATH:/usr/local/bin:/usr/bin"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64"
-ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
-ENV LD_LIBRARY_PATH="$CONDA_HOME/lib:$LD_LIBRARY_PATH"
-ENV LD_LIBRARY_PATH="$CONDA_HOME/envs/rapids/lib:$LD_LIBRARY_PATH"
+ENV PATH="$CONDA_HOME/bin:$CUDA_HOME/bin:\
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64:/usr/local/lib"
 
 # Expose VSCode debugger port
 EXPOSE 5678

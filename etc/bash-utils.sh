@@ -292,10 +292,13 @@ clean-cudf-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning libcudf";
     rm -rf "$CUDF_ROOT_ABS" \
-            "$CUDF_HOME/python/nvstrings/dist" \
-            "$CUDF_HOME/python/nvstrings/build" \
-            "$CUDF_HOME/python/nvstrings/.hypothesis" \
-            "$CUDF_HOME/python/nvstrings/.pytest_cache";
+           "$CUDF_HOME/python/nvstrings/dist" \
+           "$CUDF_HOME/python/nvstrings/build" \
+           "$CUDF_HOME/python/nvstrings/.hypothesis" \
+           "$CUDF_HOME/python/nvstrings/.pytest_cache";
+    find "$CUDF_HOME/python/nvstrings" -type f -name '*.so' -delete;
+    find "$CUDF_HOME/python/nvstrings" -type f -name '*.pyc' -delete;
+    find "$CUDF_HOME/python/nvstrings" -type d -name '__pycache__' -delete;
     find "$CUDF_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
 }
 
@@ -501,17 +504,29 @@ configure-cpp() {
             -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
         fi;
 
+        # Create or remove ccache compiler symlinks
         if [ "$USE_CCACHE" == "YES" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CXX_COMPILER_LAUNCHER=$(which ccache)
-            -D CMAKE_CUDA_COMPILER_LAUNCHER=$(which ccache)";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION";
+        else
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc";
+            echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc";
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION";
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION";
         fi
+
+        # CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE and CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE are
+        # missing in CMake 3.17.0, but still used when -G"Unix Makefiles" is specified...?
 
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         JOBS=$PARALLEL_LEVEL                                                 \
         PARALLEL_LEVEL=$PARALLEL_LEVEL                                       \
         CMAKE_GENERATOR="$CMAKE_GENERATOR"                                   \
             cmake -G"$CMAKE_GENERATOR" $D_CMAKE_ARGS "$PROJECT_CPP_HOME"     \
+                  -D CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -ptx <SOURCE> -o <ASSEMBLY_SOURCE>'      \
+                  -D CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>' \
         && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
         ;
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
@@ -533,9 +548,9 @@ build-cpp() {
         fi
         configure-cpp ${CONFIGURE_ARGS};
         if [ -f "$BUILD_DIR_PATH/build.ninja" ]; then
-            ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
+            time ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
         else
-            make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
+            time make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
         fi
         [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json)" || true ]];
     )
@@ -546,15 +561,20 @@ export -f build-cpp;
 build-python() {
     (
         cd "$1";
-        CMAKE_VARS="";
+        # Create or remove ccache compiler symlinks
         if [ "$USE_CCACHE" == "YES" ]; then
-            CMAKE_VARS="$CMAKE_VARS -DCMAKE_CXX_COMPILER_LAUNCHER=$(which ccache)";
-            CMAKE_VARS="$CMAKE_VARS -DCMAKE_CUDA_COMPILER_LAUNCHER=$(which ccache)";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION";
+            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION";
+        else
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc";
+            echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc";
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION";
+            echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION";
         fi
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        env JOBS=${PARALLEL_LEVEL} \
-            CMAKE_COMMON_VARIABLES="$CMAKE_VARS" \
-            python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
+        time python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         rm -rf ./*.egg-info;
     )

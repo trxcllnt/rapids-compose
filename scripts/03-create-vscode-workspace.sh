@@ -102,10 +102,13 @@ rapids_vscode_workspace() {
         ],
         \"search.exclude\": {
             \"**/.ccache\": true,
+            \"**/.ccache/**\": true,
             \"**/etc/conda\": true,
+            \"**/etc/conda/**\": true,
             \"**/build/cuda-*\": true,
             \"**/build/debug\": true,
             \"**/build/release\": true,
+            \"**/build/relwithdebinfo\": true,
         },
         \"files.associations\": {
             \"*.cu\": \"cuda\",
@@ -122,6 +125,7 @@ rapids_vscode_workspace() {
             \"**/build/cuda-*\": true,
             \"**/build/debug\": true,
             \"**/build/release\": true,
+            \"**/build/relwithdebinfo\": true,
             \"**/build/include\": true,
             \"**/etc/conda/**\": true,
             \"**/etc/.ccache/**\": true,
