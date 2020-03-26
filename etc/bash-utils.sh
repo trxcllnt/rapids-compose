@@ -156,7 +156,8 @@ Building RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@), \
 cuML: $(should-build-cuml $@), \
-cuGraph: $(should-build-cugraph $@)";
+cuGraph: $(should-build-cugraph $@), \
+cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then build-rmm-cpp $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-cpp $@ || exit 1; fi;
@@ -180,7 +181,8 @@ Cleaning RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@), \
 cuML: $(should-build-cuml $@), \
-cuGraph: $(should-build-cugraph $@)";
+cuGraph: $(should-build-cugraph $@), \
+cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then clean-rmm-cpp $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then clean-cudf-cpp $@ || exit 1; fi
         if [ $(should-build-cuml) == true ]; then clean-cuml-cpp $@ || exit 1; fi
