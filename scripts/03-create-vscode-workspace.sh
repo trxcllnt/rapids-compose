@@ -61,6 +61,18 @@ rapids_vscode_workspace() {
             \"path\": \"cuml/python\"
         },
         {
+            \"name\": \"cuspatial\",
+            \"path\": \"cuspatial\"
+        },
+        {
+            \"name\": \"cuspatial-cpp\",
+            \"path\": \"cuspatial/cpp\"
+        },
+        {
+            \"name\": \"cuspatial-python\",
+            \"path\": \"cuspatial/python/cuspatial\"
+        },
+        {
             \"name\": \"nvstrings-python\",
             \"path\": \"cudf/python/nvstrings\"
         },
@@ -135,6 +147,8 @@ rapids_vscode_workspace() {
             \"**/cuml/**/*.cpp\": true,
             \"**/cugraph/**/*.so\": true,
             \"**/cugraph/**/*.cpp\": true,
+            \"**/cuspatial/**/*.so\": true,
+            \"**/cuspatial/**/*.cpp\": true,
             \"**/build/lib.linux-x86_64*\": true,
             \"**/build/temp.linux-x86_64*\": true,
             \"**/build/bdist.linux-x86_64*\": true,
@@ -157,6 +171,8 @@ rapids_vscode_workspace() {
             \"**/cuml/**/*.cpp\": true,
             \"**/cugraph/**/*.so\": true,
             \"**/cugraph/**/*.cpp\": true,
+            \"**/cuspatial/**/*.so\": true,
+            \"**/cuspatial/**/*.cpp\": true,
             \"**/build/lib.linux-x86_64*\": true,
             \"**/build/temp.linux-x86_64*\": true,
             \"**/build/bdist.linux-x86_64*\": true,
@@ -201,6 +217,13 @@ rapids_vscode_workspace() {
                 \"problemMatcher\": []
             },
             {
+                \"label\": \"Build cuSpatial C++\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuspatial-cpp\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
                 \"label\": \"Build rmm Cython/Python\",
                 \"type\": \"shell\",
                 \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-python\\\"\",
@@ -225,6 +248,13 @@ rapids_vscode_workspace() {
                 \"label\": \"Build cuGraph Cython/Python\",
                 \"type\": \"shell\",
                 \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-python\\\"\",
+                \"group\": \"build\",
+                \"problemMatcher\": []
+            },
+            {
+                \"label\": \"Build cuSpatial Cython/Python\",
+                \"type\": \"shell\",
+                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuspatial-python\\\"\",
                 \"group\": \"build\",
                 \"problemMatcher\": []
             }

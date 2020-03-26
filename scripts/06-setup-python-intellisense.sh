@@ -13,7 +13,8 @@ PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
                             cugraph/python
                             cudf/python/cudf
                             cudf/python/nvstrings
-                            cudf/python/dask_cudf}"
+                            cudf/python/dask_cudf
+                            cuspatial/python/cuspatial}"
 
 cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
 {
@@ -26,6 +27,7 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
         "$RAPIDS_HOME/cudf/python/dask_cudf/dask_cudf",
         "$RAPIDS_HOME/cuml/python/cuml",
         "$RAPIDS_HOME/cugraph/python/cugraph",
+        "$RAPIDS_HOME/cuspatial/python/cuspatial",
     ],
     "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python"
 }

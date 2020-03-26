@@ -150,14 +150,15 @@ dc:
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
-	export CODE_REPOS="rmm cudf cuml cugraph" && \
+	export CODE_REPOS="rmm cudf cuml cugraph cuspatial" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
 						cuml/python \
 						cugraph/python \
 						cudf/python/cudf \
 						cudf/python/nvstrings \
-						cudf/python/dask_cudf" && \
+						cudf/python/dask_cudf \
+						cuspatial/python/cuspatial" && \
 	touch ./etc/rapids/.bash_history && \
 	bash -i ./scripts/01-install-dependencies.sh && \
 	bash -i ./scripts/02-create-compose-env.sh && \
@@ -199,6 +200,7 @@ dc.dind: dind
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
+		-v "$$RAPIDS_HOME/cuspatial:$$RAPIDS_HOME/cuspatial" \
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
