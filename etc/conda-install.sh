@@ -196,3 +196,24 @@ set +Ee;
 EOF
 
 chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
+
+cmake_ver="$($CONDA_HOME/envs/$ENV_NAME/bin/cmake --version|head -n 1)"
+cmake_ver="${cmake_ver##cmake version }"
+cmake_ver_major=$(echo $cmake_ver | cut -d. -f1)
+cmake_ver_minor=$(echo $cmake_ver | cut -d. -f2)
+
+if [[ "$cmake_ver_major" != "3" || "$cmake_ver_minor" != "17" ]]; then
+    return_to_dir="$PWD";
+    CMAKE_VERSION="3.17.0";
+    curl \
+        -o /tmp/cmake-${CMAKE_VERSION}.tar.gz \
+        -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz \
+     && cd /tmp && tar -xvzf cmake-${CMAKE_VERSION}.tar.gz && cd /tmp/cmake-${CMAKE_VERSION} \
+     && ./bootstrap --system-curl --parallel=${PARALLEL_LEVEL} --prefix="$CONDA_HOME/envs/$ENV_NAME" \
+     && echo "rapids" | sudo -S make install -j${PARALLEL_LEVEL} \
+     && cd /tmp && rm -rf /tmp/cmake-${CMAKE_VERSION}* && cd $return_to_dir;
+    rm -rf "$CONDA_HOME/envs/$ENV_NAME/lib/libcurl.so"
+    rm -rf "$CONDA_HOME/envs/$ENV_NAME/lib/libcurl.so.4"
+    make-symlink $(readlink -e /usr/lib/x86_64-linux-gnu/libcurl.so) "$CONDA_HOME/envs/$ENV_NAME/lib/libcurl.so"
+    make-symlink $(readlink -e /usr/lib/x86_64-linux-gnu/libcurl.so.4) "$CONDA_HOME/envs/$ENV_NAME/lib/libcurl.so.4"
+fi

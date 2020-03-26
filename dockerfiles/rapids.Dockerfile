@@ -20,6 +20,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt install -y \
     git sudo \
     curl wget \
+    # Needed to build CMake 3.17.0
+    zlib1g-dev libssl-dev libcurl4-openssl-dev \
     jq ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
