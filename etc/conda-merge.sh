@@ -68,7 +68,6 @@ channels:
 - rapidsai-nightly
 - numba
 - conda-forge
-- anaconda
 - defaults
 dependencies:
 - bokeh
