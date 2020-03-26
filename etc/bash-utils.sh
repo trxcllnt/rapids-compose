@@ -785,7 +785,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
         | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"     \
-        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS!g"    \
+        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"   \
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g" \
         > "$CC_JSON_CLANGD"                              ;
