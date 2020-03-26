@@ -22,6 +22,7 @@
 # --cudf        Build libcudf and cudf (implies --rmm)
 # --cuml        Build libcuml and cuml (implies --cudf)
 # --cugraph     Build libcugraph and cugraph (implies --cudf)
+# --cuspatial   Build libcuspatial and cuspatial (implies --cudf)
 # -b, --bench   Build C++ benchmarks
 # -t, --tests   Build C++ unit tests
 #     --legacy  Build cuDF legacy C++ tests
@@ -50,11 +51,13 @@
 # build-cudf-cpp         - (✝) Build the libcudf C++ library
 # build-cuml-cpp         - (✝) Build the libcuml C++ library
 # build-cugraph-cpp      - (✝) Build the libcugraph C++ library
+# build-cuspatial-cpp    - (✝) Build the libcuspatial C++ library
 # 
 # build-rmm-python       - (✝) Build the rmm Cython bindings
 # build-cudf-python      - (✝) Build the cudf Cython bindings
 # build-cuml-python      - (✝) Build the cuml Cython bindings
 # build-cugraph-python   - (✝) Build the cugraph Cython bindings
+# build-cuspatial-python - (✝) Build the cuspatial Cython bindings
 # 
 ###
 # Commands to clean each project separately:
@@ -63,11 +66,13 @@
 # clean-cudf-cpp         - (✝) Clean the libcudf C++ build artifacts for the current git branch
 # clean-cuml-cpp         - (✝) Clean the libcuml C++ build artifacts for the current git branch
 # clean-cugraph-cpp      - (✝) Clean the libcugraph C++ build artifacts for the current git branch
+# clean-cuspatial-cpp    - (✝) Clean the libcuspatial C++ build artifacts for the current git branch
 # 
 # clean-rmm-python       - (✝) Clean the rmm Cython build assets
 # clean-cudf-python      - (✝) Clean the cudf Cython build assets
 # clean-cuml-python      - (✝) Clean the cuml Cython build assets
 # clean-cugraph-python   - (✝) Clean the cugraph Cython build assets
+# clean-cuspatial-python - (✝) Clean the cuspatial Cython build assets
 # 
 ###
 # Commands to lint each Python project separately:
@@ -76,6 +81,7 @@
 # lint-cudf-python       - (✝) Lint/fix the cudf Cython and Python source files
 # lint-cuml-python       - (✝) Lint/fix the cuml Cython and Python source files
 # lint-cugraph-python    - (✝) Lint/fix the cugraph Cython and Python source files
+# lint-cuspatial-python  - (✝) Lint/fix the cuspatial Cython and Python source files
 # 
 ###
 # Commands to run each project's pytests:
@@ -86,10 +92,11 @@
 #       collected on startup by pytest. These arguments will be expanded out to their full paths relative
 #       to the directory where pytests is run.
 # 
-# test-rmm-python        - (✝) Run rmm pytests.
-# test-cudf-python       - (✝) Run cudf pytests.
-# test-cuml-python       - (✝) Run cuml pytests.
-# test-cugraph-python    - (✝) Run cugraph pytests.
+# test-rmm-python        - (✝) Run rmm pytests
+# test-cudf-python       - (✝) Run cudf pytests
+# test-cuml-python       - (✝) Run cuml pytests
+# test-cugraph-python    - (✝) Run cugraph pytests
+# test-cuspatial-python  - (✝) Run cuspatial pytests
 # 
 # Usage:
 # test-cudf-python -n <num_cores>                               - Run all pytests in parallel with `pytest-xdist`
@@ -115,7 +122,7 @@ export -f should-build-rmm;
 
 should-build-cudf() {
     update-environment-variables $@ >/dev/null;
-    $(should-build-cuml) || $(should-build-cugraph) || [ "$BUILD_CUDF" == "YES" ] && echo true || echo false;
+    $(should-build-cuml) || $(should-build-cugraph) || $(should-build-cuspatial) || [ "$BUILD_CUDF" == "YES" ] && echo true || echo false;
 }
 
 export -f should-build-cudf;
@@ -134,6 +141,13 @@ should-build-cugraph() {
 
 export -f should-build-cugraph;
 
+should-build-cuspatial() {
+    update-environment-variables $@ >/dev/null;
+    [ "$BUILD_CUSPATIAL" == "YES" ] && echo true || echo false;
+}
+
+export -f should-build-cuspatial;
+
 build-rapids() {
     (
         set -Eeo pipefail
@@ -147,10 +161,12 @@ cuGraph: $(should-build-cugraph $@)";
         if [ $(should-build-cudf) == true ]; then build-cudf-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-cpp $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-cpp $@ || exit 1; fi;
+        if [ $(should-build-cuspatial) == true ]; then build-cuspatial-cpp $@ || exit 1; fi;
         if [ $(should-build-rmm) == true ]; then build-rmm-python $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-python $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
+        if [ $(should-build-cuspatial) == true ]; then build-cuspatial-python $@ || exit 1; fi;
     )
 }
 
@@ -169,10 +185,12 @@ cuGraph: $(should-build-cugraph $@)";
         if [ $(should-build-cudf) == true ]; then clean-cudf-cpp $@ || exit 1; fi
         if [ $(should-build-cuml) == true ]; then clean-cuml-cpp $@ || exit 1; fi
         if [ $(should-build-cugraph) == true ]; then clean-cugraph-cpp $@ || exit 1; fi
+        if [ $(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@ || exit 1; fi
         if [ $(should-build-rmm) == true ]; then clean-rmm-python $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then clean-cudf-python $@ || exit 1; fi
         if [ $(should-build-cuml) == true ]; then clean-cuml-python $@ || exit 1; fi
         if [ $(should-build-cugraph) == true ]; then clean-cugraph-python $@ || exit 1; fi
+        if [ $(should-build-cuspatial) == true ]; then clean-cuspatial-python $@ || exit 1; fi
     )
 }
 
@@ -189,6 +207,7 @@ cuDF: $(should-build-cudf $@)";
         if [ $(should-build-cudf) == true ]; then lint-cudf-python $@ || exit 1; fi
         # if [ $(should-cuml-rmm) ]; then lint-cuml-python $@ || exit 1; fi
         # if [ $(should-cugraph-cudf) ]; then lint-cugraph-python $@ || exit 1; fi
+        # if [ $(should-cuspatial-cudf) ]; then lint-cuspatial-python $@ || exit 1; fi
     )
 }
 
@@ -233,6 +252,14 @@ build-cugraph-cpp() {
 
 export -f build-cugraph-cpp;
 
+build-cuspatial-cpp() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building libcuspatial";
+    build-cpp "$CUSPATIAL_HOME/cpp" "" $@;
+}
+
+export -f build-cuspatial-cpp;
+
 build-rmm-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building rmm";
@@ -248,6 +275,7 @@ build-nvstrings-python() {
     cfile=$(find "$nvstrings_py_dir/build" -type f -name 'CMakeCache.txt' 2> /dev/null | head -n1);
     [ -z "$(grep $CUDA_VERSION "$cfile" 2> /dev/null)" ] && rm -rf "$nvstrings_py_dir/build";
 
+    PARALLEL_LEVEL=1 \
     build-python "$nvstrings_py_dir" \
         --build-lib="$nvstrings_py_dir" \
         --library-dir="$NVSTRINGS_ROOT" ;
@@ -278,6 +306,14 @@ build-cugraph-python() {
 }
 
 export -f build-cugraph-python;
+
+build-cuspatial-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building cuspatial";
+    build-python "$CUSPATIAL_HOME/python/cuspatial" --inplace;
+}
+
+export -f build-cuspatial-python;
 
 clean-rmm-cpp() {
     update-environment-variables $@ >/dev/null;
@@ -322,11 +358,20 @@ clean-cugraph-cpp() {
 
 export -f clean-cugraph-cpp;
 
+clean-cuspatial-cpp() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning libcuspatial";
+    rm -rf "$CUSPATIAL_ROOT_ABS";
+    find "$CUSPATIAL_HOME" -type d -name '.clangd' -print0 | xargs -0 -I {} /bin/rm -rf "{}";
+}
+
+export -f clean-cuspatial-cpp;
+
 clean-rmm-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning rmm";
     rm -rf "$RMM_HOME/python/dist" \
-            "$RMM_HOME/python/build";
+           "$RMM_HOME/python/build";
     find "$RMM_HOME" -type f -name '*.pyc' -delete;
     find "$RMM_HOME" -type d -name '__pycache__' -delete;
 }
@@ -337,14 +382,14 @@ clean-cudf-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning cudf";
     rm -rf "$CUDF_HOME/.pytest_cache" \
-            "$CUDF_HOME/python/cudf/dist" \
-            "$CUDF_HOME/python/cudf/build" \
-            "$CUDF_HOME/python/.hypothesis" \
-            "$CUDF_HOME/python/.pytest_cache" \
-            "$CUDF_HOME/python/cudf/.hypothesis" \
-            "$CUDF_HOME/python/cudf/.pytest_cache" \
-            "$CUDF_HOME/python/dask_cudf/.hypothesis" \
-            "$CUDF_HOME/python/dask_cudf/.pytest_cache" ;
+           "$CUDF_HOME/python/cudf/dist" \
+           "$CUDF_HOME/python/cudf/build" \
+           "$CUDF_HOME/python/.hypothesis" \
+           "$CUDF_HOME/python/.pytest_cache" \
+           "$CUDF_HOME/python/cudf/.hypothesis" \
+           "$CUDF_HOME/python/cudf/.pytest_cache" \
+           "$CUDF_HOME/python/dask_cudf/.hypothesis" \
+           "$CUDF_HOME/python/dask_cudf/.pytest_cache";
     find "$CUDF_HOME" -type f -name '*.pyc' -delete;
     find "$CUDF_HOME" -type d -name '__pycache__' -delete;
     find "$CUDF_HOME/python/cudf/cudf" -type f -name '*.so' -delete;
@@ -357,10 +402,10 @@ clean-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning cuml";
     rm -rf "$CUML_HOME/python/dist" \
-            "$CUML_HOME/python/build" \
-            "$CUML_HOME/python/.hypothesis" \
-            "$CUML_HOME/python/.pytest_cache" \
-            "$CUML_HOME/python/external_repositories";
+           "$CUML_HOME/python/build" \
+           "$CUML_HOME/python/.hypothesis" \
+           "$CUML_HOME/python/.pytest_cache" \
+           "$CUML_HOME/python/external_repositories";
     find "$CUML_HOME" -type f -name '*.pyc' -delete;
     find "$CUML_HOME" -type d -name '__pycache__' -delete;
     find "$CUML_HOME/python/cuml" -type f -name '*.so' -delete;
@@ -373,9 +418,9 @@ clean-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning cugraph";
     rm -rf "$CUGRAPH_HOME/python/dist" \
-            "$CUGRAPH_HOME/python/build" \
-            "$CUGRAPH_HOME/python/.hypothesis" \
-            "$CUGRAPH_HOME/python/.pytest_cache";
+           "$CUGRAPH_HOME/python/build" \
+           "$CUGRAPH_HOME/python/.hypothesis" \
+           "$CUGRAPH_HOME/python/.pytest_cache";
     find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
     find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
@@ -383,6 +428,23 @@ clean-cugraph-python() {
 }
 
 export -f clean-cugraph-python;
+
+clean-cuspatial-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning cuspatial";
+    rm -rf "$CUSPATIAL_HOME/python/.hypothesis" \
+           "$CUSPATIAL_HOME/python/.pytest_cache" \
+           "$CUSPATIAL_HOME/python/cuspatial/dist" \
+           "$CUSPATIAL_HOME/python/cuspatial/build" \
+           "$CUSPATIAL_HOME/python/cuspatial/.hypothesis" \
+           "$CUSPATIAL_HOME/python/cuspatial/.pytest_cache";
+    find "$CUSPATIAL_HOME" -type f -name '*.pyc' -delete;
+    find "$CUSPATIAL_HOME" -type d -name '__pycache__' -delete;
+    find "$CUSPATIAL_HOME/python/cuspatial/cuspatial" -type f -name '*.so' -delete;
+    find "$CUSPATIAL_HOME/python/cuspatial/cuspatial" -type f -name '*.cpp' -delete;
+}
+
+export -f clean-cuspatial-python;
 
 lint-rmm-python() {
     print-heading "Linting rmm" && lint-python "$RMM_HOME";
@@ -407,6 +469,12 @@ lint-cugraph-python() {
 }
 
 export -f lint-cugraph-python;
+
+lint-cuspatial-python() {
+    print-heading "Linting cuspatial" && lint-python "$CUSPATIAL_HOME";
+}
+
+export -f lint-cuspatial-python;
 
 test-rmm-python() {
     test-python "$RMM_HOME/python" $@;
@@ -438,6 +506,12 @@ test-cugraph-python() {
 
 export -f test-cugraph-python;
 
+test-cuspatial-python() {
+    test-python "$CUSPATIAL_HOME/python/cuspatial" $@;
+}
+
+export -f test-cuspatial-python;
+
 configure-cpp() {
     (
         set -Eeo pipefail
@@ -461,17 +535,21 @@ configure-cpp() {
             -D BUILD_LEGACY_TESTS=${BUILD_LEGACY_TESTS:-OFF}
             -D RMM_LIBRARY=${RMM_LIBRARY}
             -D CUDF_LIBRARY=${CUDF_LIBRARY}
+            -D CUDFTESTUTIL_LIBRARY=${CUDFTESTUTIL_LIBRARY}
             -D CUML_LIBRARY=${CUML_LIBRARY}
             -D CUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
+            -D CUSPATIAL_LIBRARY=${CUSPATIAL_LIBRARY}
             -D NVSTRINGS_LIBRARY=${NVSTRINGS_LIBRARY}
             -D NVCATEGORY_LIBRARY=${NVCATEGORY_LIBRARY}
             -D NVTEXT_LIBRARY=${NVTEXT_LIBRARY}
             -D RMM_INCLUDE=${RMM_INCLUDE}
             -D CUDF_INCLUDE=${CUDF_INCLUDE}
+            -D CUDF_TEST_INCLUDE=${CUDF_TEST_INCLUDE}
             -D CUML_INCLUDE_DIR=${CUML_INCLUDE}
             -D DLPACK_INCLUDE=${COMPOSE_INCLUDE}
             -D NVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
             -D CUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
+            -D CUSPATIAL_INCLUDE=${CUSPATIAL_INCLUDE}
             -D PARALLEL_LEVEL=${PARALLEL_LEVEL}
             -D CMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
             -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids";
@@ -491,7 +569,6 @@ configure-cpp() {
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D LIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
-
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
             CMAKE_GENERATOR="Unix Makefiles";
             D_CMAKE_ARGS="$D_CMAKE_ARGS
@@ -502,6 +579,10 @@ configure-cpp() {
             -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
             -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
             -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
+        elif [ "$PROJECT_HOME" == "$CUSPATIAL_HOME" ]; then
+            D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CONDA_LINK_DIRS=${CONDA_HOME}/envs/rapids/lib
+            -D CONDA_INCLUDE_DIRS=${CONDA_HOME}/envs/rapids/include";
         fi;
 
         # Create or remove ccache compiler symlinks
@@ -797,6 +878,7 @@ find-project-home() {
     $CUDF_HOME
     $CUML_HOME
     $CUGRAPH_HOME
+    $CUSPATIAL_HOME
     $NOTEBOOKS_HOME
     $NOTEBOOKS_EXTENDED_HOME";
     for PROJECT_HOME in $PROJECT_HOMES; do
@@ -861,6 +943,7 @@ update-environment-variables() {
     build_cudf=
     build_cuml=
     build_cugraph=
+    build_cuspatial=
     legacy_tests=
     while [[ "$#" -gt 0 ]]; do
         case $1 in
@@ -868,10 +951,11 @@ update-environment-variables() {
             -t|--tests) tests="${tests:-ON}";;
             -d|--debug) btype="${btype:-Debug}";;
             -r|--release) btype="${btype:-Release}";;
-            --rmm) build_rmm="${rmm:-YES}";;
-            --cudf) build_cudf="${cudf:-YES}";;
-            --cuml) build_cuml="${cuml:-YES}";;
-            --cugraph) build_cugraph="${cugraph:-YES}";;
+            --rmm) build_rmm="${build_rmm:-YES}";;
+            --cudf) build_cudf="${build_cudf:-YES}";;
+            --cuml) build_cuml="${build_cuml:-YES}";;
+            --cugraph) build_cugraph="${build_cugraph:-YES}";;
+            --cuspatial) build_cuspatial="${build_cuspatial:-YES}";;
             --legacy) legacy_tests="${legacy_tests:-ON}";;
             *) args="${args:+$args }$1";;
         esac; shift;
@@ -880,6 +964,7 @@ update-environment-variables() {
     export BUILD_CUDF="${build_cudf:-$BUILD_CUDF}"
     export BUILD_CUML="${build_cuml:-$BUILD_CUML}"
     export BUILD_CUGRAPH="${build_cugraph:-$BUILD_CUGRAPH}"
+    export BUILD_CUSPATIAL="${build_cuspatial:-$BUILD_CUSPATIAL}"
     export BUILD_TESTS="${tests:-$BUILD_TESTS}";
     export BUILD_BENCHMARKS="${bench:-$BUILD_BENCHMARKS}";
     export CMAKE_BUILD_TYPE="${btype:-$CMAKE_BUILD_TYPE}";

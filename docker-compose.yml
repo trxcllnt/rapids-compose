@@ -34,6 +34,7 @@ services:
       - &cuml "${RAPIDS_HOME:-$PWD}/cuml:${RAPIDS_HOME:-$PWD}/cuml"
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
+      - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
       - "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
@@ -56,6 +57,7 @@ services:
       - *cuml
       - *compose
       - *cugraph
+      - *cuspatial
       - *bashrc
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:/home/rapids/notebooks/core"

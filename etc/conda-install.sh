@@ -99,15 +99,18 @@ mkdir -p "\$RMM_HOME/build"
 mkdir -p "\$CUDF_HOME/cpp/build"
 mkdir -p "\$CUML_HOME/cpp/build"
 mkdir -p "\$CUGRAPH_HOME/cpp/build"
+mkdir -p "\$CUSPATIAL_HOME/cpp/build"
 mkdir -p "\$CONDA_PREFIX/include/libcudf"
 
 make-symlink "\$CONDA_HOME/envs" "\$COMPOSE_HOME/etc/conda/envs"
 
 export RMM_INCLUDE="\$RMM_HOME/include"
 export CUDF_INCLUDE="\$CUDF_HOME/cpp/include"
+export CUDF_TEST_INCLUDE="\$CUDF_HOME/cpp"
 export NVSTRINGS_INCLUDE="\$CUDF_HOME/cpp/include"
 export CUML_INCLUDE="\$CUML_HOME/cpp/include"
 export CUGRAPH_INCLUDE="\$CUGRAPH_HOME/cpp/include"
+export CUSPATIAL_INCLUDE="\$CUSPATIAL_HOME/cpp/include"
 export COMPOSE_INCLUDE="\$COMPOSE_HOME/etc/rapids/include"
 
 export RMM_ROOT_ABS="\$RMM_HOME/\$(cpp-build-dir \$RMM_HOME)"
@@ -115,6 +118,7 @@ export CUDF_ROOT_ABS="\$CUDF_HOME/cpp/\$(cpp-build-dir \$CUDF_HOME)"
 export NVSTRINGS_ROOT_ABS="\$CUDF_HOME/cpp/\$(cpp-build-dir \$CUDF_HOME)"
 export CUML_ROOT_ABS="\$CUML_HOME/cpp/\$(cpp-build-dir \$CUML_HOME)"
 export CUGRAPH_ROOT_ABS="\$CUGRAPH_HOME/cpp/\$(cpp-build-dir \$CUGRAPH_HOME)"
+export CUSPATIAL_ROOT_ABS="\$CUSPATIAL_HOME/cpp/\$(cpp-build-dir \$CUSPATIAL_HOME)"
 
 ###
 # Define the *_ROOT paths as the symlinks that point to the absolute build dirs. For example:
@@ -133,10 +137,12 @@ export CUDF_ROOT="\$CUDF_HOME/cpp/build/\$(basename "\$CUDF_ROOT_ABS")"
 export NVSTRINGS_ROOT="\$CUDF_HOME/cpp/build/\$(basename "\$CUDF_ROOT_ABS")"
 export CUML_ROOT="\$CUML_HOME/cpp/build/\$(basename "\$CUML_ROOT_ABS")"
 export CUGRAPH_ROOT="\$CUGRAPH_HOME/cpp/build/\$(basename "\$CUGRAPH_ROOT_ABS")"
+export CUSPATIAL_ROOT="\$CUSPATIAL_HOME/cpp/build/\$(basename "\$CUSPATIAL_ROOT_ABS")"
 export CUML_BUILD_PATH="cpp/\$(cpp-build-dir \$CUML_HOME)"
 
 export RMM_LIBRARY="\$RMM_ROOT/librmm.so"
 export CUDF_LIBRARY="\$CUDF_ROOT/libcudf.so"
+export CUDFTESTUTIL_LIBRARY="\$CUDF_ROOT/tests/libcudftestutil.a"
 export NVSTRINGS_LIBRARY="\$NVSTRINGS_ROOT/libNVStrings.so"
 export NVCATEGORY_LIBRARY="\$NVSTRINGS_ROOT/libNVCategory.so"
 export NVTEXT_LIBRARY="\$NVSTRINGS_ROOT/libNVText.so"
@@ -144,6 +150,7 @@ export CUML_LIBRARY="\$CUML_ROOT/libcuml.so"
 export CUMLXX_LIBRARY="\$CUML_ROOT/libcuml++.so"
 export CUMLCOMMS_LIBRARY="\$CUML_ROOT/comms/std/libcumlcomms.so"
 export CUGRAPH_LIBRARY="\$CUGRAPH_ROOT/libcugraph.so"
+export CUSPATIAL_LIBRARY="\$CUSPATIAL_ROOT/libcuspatial.so"
 
 export LIBCUDF_KERNEL_CACHE_PATH="\$(find-cpp-build-home \$CUDF_HOME)/.jitify-cache"
 
@@ -153,7 +160,8 @@ export PYTHONPATH="\
 \$CUDF_HOME/python/cudf:\
 \$CUDF_HOME/python/dask_cudf:\
 \$CUML_HOME/python:\
-\$CUGRAPH_HOME/python"
+\$CUGRAPH_HOME/python:\
+\$CUSPATIAL_HOME/python"
 
 export OLD_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
 
@@ -161,17 +169,19 @@ export LD_LIBRARY_PATH="\
 \$CONDA_HOME/envs/rapids/lib:\
 \$CONDA_HOME/envs/$ENV_NAME/lib:\
 \$CONDA_HOME/lib:\$LD_LIBRARY_PATH:\
-\$RMM_ROOT:\$NVSTRINGS_ROOT:\$CUDF_ROOT:\$CUML_ROOT:\$CUGRAPH_ROOT"
+\$RMM_ROOT:\$NVSTRINGS_ROOT:\$CUDF_ROOT:\$CUML_ROOT:\$CUGRAPH_ROOT:\$CUSPATIAL_ROOT"
 
 make-symlink "\$RMM_ROOT_ABS" "\$RMM_ROOT"
 make-symlink "\$CUDF_ROOT_ABS" "\$CUDF_ROOT"
 make-symlink "\$CUML_ROOT_ABS" "\$CUML_ROOT"
 make-symlink "\$CUGRAPH_ROOT_ABS" "\$CUGRAPH_ROOT"
+make-symlink "\$CUSPATIAL_ROOT_ABS" "\$CUSPATIAL_ROOT"
 
 # make-symlink "\$RMM_ROOT/include" "\$RMM_HOME/build/include"
 make-symlink "\$CUDF_ROOT/include" "\$CUDF_HOME/cpp/build/include"
 # make-symlink "\$CUML_ROOT/include" "\$CUML_HOME/cpp/build/include"
 # make-symlink "\$CUGRAPH_ROOT/include" "\$CUGRAPH_HOME/cpp/build/include"
+# make-symlink "\$CUSPATIAL_ROOT/include" "\$CUSPATIAL_HOME/cpp/build/include"
 
 make-symlink "\$RMM_INCLUDE/rmm" "\$CONDA_PREFIX/include/rmm"
 make-symlink "\$CUDF_INCLUDE/cudf" "\$CONDA_PREFIX/include/cudf"
@@ -180,6 +190,7 @@ make-symlink "\$CUDF_ROOT/include/libcudacxx" "\$CONDA_PREFIX/include/libcudf/li
 make-symlink "\$NVSTRINGS_INCLUDE/nvstrings" "\$CONDA_PREFIX/include/nvstrings"
 make-symlink "\$CUML_INCLUDE" "\$CONDA_PREFIX/include/cuml"
 make-symlink "\$CUGRAPH_INCLUDE" "\$CONDA_PREFIX/include/cugraph"
+make-symlink "\$CUSPATIAL_INCLUDE" "\$CONDA_PREFIX/include/cuspatial"
 
 make-symlink "\$COMPOSE_HOME/etc/conda/envs/rapids/include/dlpack" "\$COMPOSE_INCLUDE/dlpack"
 make-symlink "\$CUML_HOME/cpp/comms/std/include/cuML_comms.hpp" "\$COMPOSE_HOME/etc/conda/envs/rapids/include/cuML_comms.hpp"
@@ -193,6 +204,7 @@ make-symlink "\$CUML_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUML_LIBRARY)"
 make-symlink "\$CUMLXX_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUMLXX_LIBRARY)"
 make-symlink "\$CUMLCOMMS_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUMLCOMMS_LIBRARY)"
 make-symlink "\$CUGRAPH_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUGRAPH_LIBRARY)"
+make-symlink "\$CUSPATIAL_LIBRARY" "\$CONDA_PREFIX/lib/\$(basename \$CUSPATIAL_LIBRARY)"
 
 export OLD_PATH="\$PATH"
 set +Ee;

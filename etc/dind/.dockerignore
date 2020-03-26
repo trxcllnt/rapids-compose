@@ -38,3 +38,6 @@
 **/cugraph/datasets
 **/cugraph/**/*.so
 **/cugraph/**/*.cpp
+
+**/cuspatial/**/*.so
+**/cuspatial/**/*.cpp

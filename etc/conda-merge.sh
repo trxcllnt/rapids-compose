@@ -43,11 +43,16 @@ cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.0.yml" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
   > cugraph.yml
 
-conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml rapids.yml > merged.yml
+cat "$CUSPATIAL_HOME/conda/environments/cuspatial_dev_cuda10.0.yml" \
+  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_SHORT_VERSION/g" \
+  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_SHORT_VERSION!g" \
+  > cuspatial.yml
+
+conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > merged.yml
 
  # Strip out the rapids packages and save the combined environment
 cat merged.yml \
-  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|nvstrings)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|cuspatial|nvstrings)(.*?)$' \
   > rapids.yml
 
 ####
