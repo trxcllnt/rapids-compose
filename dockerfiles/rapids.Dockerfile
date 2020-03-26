@@ -22,6 +22,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     curl wget \
     # Needed to build CMake 3.17.0
     zlib1g-dev libssl-dev libcurl4-openssl-dev \
+    # Needed to build ccache from master
+    unzip automake autoconf libb2-dev libzstd-dev \
     jq ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
@@ -40,7 +42,7 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
-ARG CCACHE_VERSION=3.7.7
+ARG CCACHE_VERSION=master
 ENV CCACHE_VERSION=${CCACHE_VERSION}
 
 ARG PYTHON_VERSION=3.7
@@ -67,9 +69,13 @@ ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
 
-RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
- && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
- && ./configure && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
+# RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
+#  && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
+#  && ./configure && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
+
+RUN curl -s -L https://github.com/ccache/ccache/archive/master.zip -o ccache-${CCACHE_VERSION}.zip \
+ && unzip -d ccache-${CCACHE_VERSION} ccache-${CCACHE_VERSION}.zip && cd ccache-${CCACHE_VERSION}/ccache-master \
+ && ./autogen.sh && ./configure --disable-man && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION}* \
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
