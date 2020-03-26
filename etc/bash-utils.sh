@@ -762,10 +762,11 @@ fix-nvcc-clangd-compile-commands() {
             -Wno-c++17-extensions
             -Wno-unevaluated-expression'));
 
-        REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations"
+        REPLACE_CROSS_EXECUTION_SPACE_CALL="-Wno-unevaluated-expression=cross-execution-space-call/";
+        REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations";
 
-        GPU_GENCODE_COMPUTE="-gencode arch=([^\-])* ";
-        GPU_ARCH_SM="-gencode arch=compute_.*,code=sm_";
+        GPU_GENCODE_COMPUTE="-gencode=arch=([^\-])* ";
+        GPU_ARCH_SM="-gencode=arch=compute_.*,code=sm_";
 
         # 1. Remove the second compiler invocation following the `&&`
         # 2. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
@@ -777,18 +778,23 @@ fix-nvcc-clangd-compile-commands() {
         # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
         # 9. Add flags to disable certain warnings for intellisense
         # 9. Replace -Wno-error=deprecated-declarations
-        cat "$CC_JSON"                                   \
-        | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"            \
-        | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"  \
-        | sed -r "s/$GPU_GENCODE_COMPUTE//g"             \
-        | sed -r "s/ --expt-extended-lambda/ /g"         \
-        | sed -r "s/ --expt-relaxed-constexpr/ /g"       \
-        | sed -r "s/-Wall,-Werror/-Wall -Werror/g"       \
-        | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"     \
-        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"   \
-        | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g" \
-        | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g" \
-        > "$CC_JSON_CLANGD"                              ;
+        cat "$CC_JSON"                                         \
+        | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
+        | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
+        | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
+        | sed -r "s/ --expt-extended-lambda/ /g"               \
+        | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
+        | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
+        | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
+        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"         \
+        | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
+        | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
+        | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
+        | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
+        | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
+        | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
+        | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
+        > "$CC_JSON_CLANGD"                                    ;
 
         # symlink compile_commands.json to the project root so clangd can find it
         make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
