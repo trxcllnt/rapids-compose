@@ -16,6 +16,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- cmake>=3.17.0
 - cmake_setuptools
 - python=${PYTHON_VERSION}
 - pip:
@@ -50,9 +51,10 @@ cat "$CUSPATIAL_HOME/conda/environments/cuspatial_dev_cuda10.0.yml" \
 
 conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > merged.yml
 
- # Strip out the rapids packages and save the combined environment
+# Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|cuspatial|nvstrings)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml
 
 ####
