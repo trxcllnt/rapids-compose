@@ -978,7 +978,7 @@ update-environment-variables() {
     export CMAKE_BUILD_TYPE="${btype:-$CMAKE_BUILD_TYPE}";
     export BUILD_LEGACY_TESTS="${legacy_tests:-$BUILD_LEGACY_TESTS}";
     if [ ${CONDA_PREFIX:-""} != "" ]; then
-        bash "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
+        source "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
     fi
     # return the rest of the unparsed args
     echo "$args";
