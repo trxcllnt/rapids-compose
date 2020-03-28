@@ -97,16 +97,12 @@ clone_or_fork_repo() {
     fi
 }
 
-install_post_checkout_hook() {
+remove_post_checkout_hook() {
     REPO="$1"
-    echo "Installing $REPO hooks..."
-    cp "$COMPOSE_HOME/scripts/git-utimes.pl" "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl"
-    cat << EOF > "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout"
-#!/bin/sh
-# when running the hook, cwd is the top level of working tree
-.git/hooks/git-utimes.pl
-EOF
-    chmod +x "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout"
+    if [ -f "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl" ]; then
+        rm "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl" || true;
+        rm "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout" || true;
+    fi
 }
 
 for REPO in $ALL_REPOS; do
@@ -118,5 +114,5 @@ for REPO in $ALL_REPOS; do
         fi
         clone_or_fork_repo $REPO
     fi
-    install_post_checkout_hook $REPO
+    remove_post_checkout_hook $REPO
 done
