@@ -674,6 +674,40 @@ lint-python() {
 
 export -f lint-python;
 
+set-gcc-version() {
+    V="${1:-}";
+    if [[ $V != "5" && $V != "7" && $V != "8" ]]; then
+        while true; do
+            read -p "Please select GCC version 5, 7, or 8: " V </dev/tty
+            case $V in
+                [578]* ) break;;
+                * ) >&2 echo "Invalid GCC version, please select 5, 7, or 8";;
+            esac
+        done
+    fi
+    echo "Using gcc-$V and g++-$V"
+    export GCC_VERSION="$V"
+    export CXX_VERSION="$V"
+    export NVCC="/usr/local/bin/nvcc"
+    export CC="/usr/local/bin/gcc-$GCC_VERSION"
+    export CXX="/usr/local/bin/g++-$CXX_VERSION"
+    echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
+    echo "rapids" | sudo -S update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION} >/dev/null 2>&1;
+    if [ "$USE_CCACHE" == "YES" ]; then
+        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
+    else
+        echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
+    fi
+}
+
+export -f set-gcc-version;
+
 test-python() {
     (
         args="";

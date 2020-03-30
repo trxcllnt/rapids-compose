@@ -22,8 +22,6 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt install -y \
     git sudo \
     curl wget \
-    # Needed to build CMake 3.17.0
-    zlib1g-dev libssl-dev libcurl4-openssl-dev \
     # Needed to build ccache from master
     unzip automake autoconf libb2-dev libzstd-dev \
     jq ed vim nano \
@@ -37,8 +35,9 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     libboost-all-dev \
     python3 python3-pip \
     apt-transport-https \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
- && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 0 \
  && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 0 \
