@@ -40,7 +40,7 @@ fi
 
 INSIDE__ENV_YML="/home/rapids/$ENV_NAME.yml"
 # TODO: this assumes the conda env name is the same as the folder under `compose/etc/`
-OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME.yml"
+OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME-$CUDA_SHORT_VERSION.yml"
 
 touch $INSIDE__ENV_YML
 
