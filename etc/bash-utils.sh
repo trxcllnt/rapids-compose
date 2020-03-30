@@ -783,16 +783,14 @@ fix-nvcc-clangd-compile-commands() {
         CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
 
         CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
-        # CLANG_CUDA_OPTIONS=$(echo $(echo "
-        #     -x cuda --no-cuda-version-check
         CLANG_CUDA_OPTIONS=$(echo $(echo "
-            -x cuda
             -fcuda-rdc
             -nocudalib
             -nodefaultlibs
             --no-cuda-version-check
             -D__CUDACC_VER_MAJOR__=$CUDA_VERSION_MAJOR
             -D__CUDACC_VER_MINOR__=$CUDA_VERSION_MINOR"));
+        CLANG_CUDA_OPTIONS="-x cuda -x cu $CLANG_CUDA_OPTIONS";
         ALLOWED_WARNINGS=$(echo $(echo '
             -Wno-unknown-pragmas
             -Wno-c++17-extensions
@@ -810,7 +808,7 @@ fix-nvcc-clangd-compile-commands() {
         # 4. Remove unsupported --expt-extended-lambda option
         # 5. Remove unsupported --expt-relaxed-constexpr option
         # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 7. Change `-x cu` to `-x cuda` and other clang cuda options
+        # 7. Change `-x cu` to `-x cuda -x cu`, plus other clangd cuda options
         # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
         # 9. Add flags to disable certain warnings for intellisense
         # 9. Replace -Wno-error=deprecated-declarations
