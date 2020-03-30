@@ -24,7 +24,7 @@ services:
 
   rapids:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:${RAPIDS_VERSION:-latest}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-10.0}-rapids-${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
@@ -43,7 +43,7 @@ services:
 
   notebooks:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:${RAPIDS_VERSION:-latest}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-10.0}-rapids-${RAPIDS_VERSION:-latest}
     build:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile
