@@ -11,7 +11,9 @@ ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks notebooks-contrib}"
 
 COMMON_BRANCHES=""
 
+echo "Determining available branches."
 for REPO in $CODE_REPOS; do
+    echo "$REPO ..."
     cd "$BASE_DIR/$REPO";
     git fetch upstream;
     REMOTE_BRANCHES="";
@@ -43,7 +45,9 @@ select BRANCH_NAME in "${BRANCHES[@]}" "Quit"; do
     fi
 done;
 
+echo "Starting checkout."
 for REPO in $CODE_REPOS; do
+    echo "----- $REPO/$BRANCH_NAME -----"
     cd "$BASE_DIR/$REPO";
     git checkout "$BRANCH_NAME";
     git submodule update --init --recursive;
