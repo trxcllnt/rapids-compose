@@ -1,4 +1,6 @@
 .env
+**/z-*
+**/etc/llvm
 **/etc/conda
 **/etc/.ccache
 

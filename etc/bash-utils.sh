@@ -784,7 +784,6 @@ fix-nvcc-clangd-compile-commands() {
 
         CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
         CLANG_CUDA_OPTIONS=$(echo $(echo "
-            -fcuda-rdc
             -nocudalib
             -nodefaultlibs
             --no-cuda-version-check
@@ -811,7 +810,11 @@ fix-nvcc-clangd-compile-commands() {
         # 7. Change `-x cu` to `-x cuda`, plus other clangd cuda options
         # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
         # 9. Add flags to disable certain warnings for intellisense
-        # 9. Replace -Wno-error=deprecated-declarations
+        # 10. Replace -Wno-error=deprecated-declarations
+        # 11. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 12. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 13. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 14. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
@@ -824,7 +827,6 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
-        | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \

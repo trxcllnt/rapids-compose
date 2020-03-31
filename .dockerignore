@@ -1,9 +1,11 @@
+**/z-*
 **/.env
 **/.git
 **/.cache
 **/.clangd
 **/.github
 **/.vscode
+**/etc/llvm
 **/etc/conda
 **/etc/.ccache
 **/etc/rapids/log

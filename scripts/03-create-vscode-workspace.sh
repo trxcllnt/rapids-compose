@@ -103,6 +103,7 @@ rapids_vscode_workspace() {
             \"-j=4\",
             \"--log=info\",
             \"--pch-storage=disk\",
+            \"--completion-parse=auto\",
             \"--fallback-style=Google\",
             \"--compile-commands-dir=\",
             \"--background-index=true\",
