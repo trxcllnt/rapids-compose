@@ -8,12 +8,6 @@ source /home/rapids/.bashrc
 # - ensure the rapids conda env is created/updated
 source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 
-# If fresh conda env and cmd is build-rapids,
-# do `clean-rapids` to delete build artifacts
-[ "$FRESH_CONDA_ENV" == "1" ] \
- && [ "$(echo $@)" == "bash -c build-rapids" ] \
- && clean-rapids;
-
 # activate the rapids conda environment
 source activate rapids
 
@@ -72,9 +66,9 @@ build_local_llvm_fork() {
 if [ ! -d "$LLVM_REPO" ]; then
     mkdir -p "$LLVM_REPO"
     ask_before_install "
-The current version of LLVM doesn't recognize \`.cuh\` files as CUDA headers. This causes intellisense activation to fail for \`.cuh\` files.
+The current version of LLVM doesn't recognize \`.cuh\` files as CUDA headers. This causes VSCode intellisense activation to fail for \`.cuh\` files.
 
-I can clone and build a fork of LLVM with this bug fixed. This will be a one-time cost, and use approx. 2.1 GiB of disk space.
+I can clone and build a fork of LLVM to fix VSCode intellisense for \`.cuh\` files. This will be a one-time cost, and use approx. 2.1 GiB of disk space.
 
 * If you accept, the project will be cloned and built in \"$LLVM_REPO\"
 * If you decline, an empty directory will be created for \"$LLVM_REPO\", and no further action will be taken.
@@ -87,6 +81,12 @@ Would you like to clone and build a local copy of LLVM now (y/n)?" \
     "echo -e \"\\nOk, skipping local llvm-project build.\\n\\nIf you change your mind, you can delete the directory at:\\n
 \\\"$LLVM_REPO\\\"\\nand this prompt will appear again on the next container restart.\\n\""
 fi;
+
+# If fresh conda env and cmd is build-rapids,
+# do `clean-rapids` to delete build artifacts
+[ "$FRESH_CONDA_ENV" == "1" ] \
+ && [ "$(echo $@)" == "bash -c build-rapids" ] \
+ && clean-rapids;
 
 RUN_CMD="$(echo $(eval "echo $@"))"
 
