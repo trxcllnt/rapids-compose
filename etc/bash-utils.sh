@@ -588,17 +588,7 @@ configure-cpp() {
         fi;
 
         # Create or remove ccache compiler symlinks
-        if [ "$USE_CCACHE" == "YES" ]; then
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
-        else
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
-        fi
+        set-gcc-version $GCC_VERSION;
 
         # CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE and CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE are
         # missing in CMake 3.17.0, but still used when -G"Unix Makefiles" is specified...?
@@ -645,17 +635,7 @@ build-python() {
     (
         cd "$1";
         # Create or remove ccache compiler symlinks
-        if [ "$USE_CCACHE" == "YES" ]; then
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
-        else
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
-            echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
-        fi
+        set-gcc-version $GCC_VERSION;
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         time python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
@@ -693,6 +673,7 @@ set-gcc-version() {
     export CXX="/usr/local/bin/g++-$CXX_VERSION"
     echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
     echo "rapids" | sudo -S update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION} >/dev/null 2>&1;
+    # Create or remove ccache compiler symlinks
     if [ "$USE_CCACHE" == "YES" ]; then
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
@@ -812,9 +793,10 @@ fix-nvcc-clangd-compile-commands() {
         # 9. Add flags to disable certain warnings for intellisense
         # 10. Replace -Wno-error=deprecated-declarations
         # 11. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 12. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 13. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 14. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 12. Remove -forward-unknown-to-host-compiler
+        # 13. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 14. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 15. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
@@ -827,6 +809,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
+        | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
