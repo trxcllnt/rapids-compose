@@ -794,9 +794,11 @@ fix-nvcc-clangd-compile-commands() {
         # 10. Replace -Wno-error=deprecated-declarations
         # 11. Remove -Wno-unevaluated-expression=cross-execution-space-call
         # 12. Remove -forward-unknown-to-host-compiler
-        # 13. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 14. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 15. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 13. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 14. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 15. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 16. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 17. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
@@ -810,6 +812,8 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
         | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
+        | sed -r "s/-Xcompiler=/-Xcompiler /g"                 \
+        | sed -r "s/-Xcompiler/-Xarch_host/g"                  \
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
