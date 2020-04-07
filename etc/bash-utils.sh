@@ -631,8 +631,17 @@ build-python() {
         cd "$1";
         # Create or remove ccache compiler symlinks
         set-gcc-version $GCC_VERSION;
+        CFLAGS_="${CFLAGS:-}";
+        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-reorder";
+        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-unknown-pragmas";
+        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-unused-variable";
+        if [ "${DISABLE_DEPRECATION_WARNINGS:-OFF}" == "ON" ]; then
+            CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-deprecated-declarations";
+        fi;
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        time python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
+        time env CFLAGS="$CFLAGS_" \
+             CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$CFLAGS_" \
+             python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         rm -rf ./*.egg-info;
     )
