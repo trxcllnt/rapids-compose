@@ -533,6 +533,7 @@ configure-cpp() {
             -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
             -D BUILD_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
+            -D CMAKE_ENABLE_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
             -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
             -D BUILD_LEGACY_TESTS=${BUILD_LEGACY_TESTS:-OFF}
             -D RMM_LIBRARY=${RMM_LIBRARY}
@@ -567,12 +568,10 @@ configure-cpp() {
         fi;
 
         if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
-            CMAKE_GENERATOR="Unix Makefiles";
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D LIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
-            CMAKE_GENERATOR="Unix Makefiles";
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D WITH_UCX=ON
             -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
@@ -620,11 +619,7 @@ build-cpp() {
             BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
         fi
         configure-cpp ${CONFIGURE_ARGS};
-        if [ -f "$BUILD_DIR_PATH/build.ninja" ]; then
-            time ninja -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
-        else
-            time make  -C "$BUILD_DIR_PATH" $BUILD_TARGETS -j$PARALLEL_LEVEL;
-        fi
+        time cmake --build "$BUILD_DIR_PATH" -- ${BUILD_TARGETS:-all};
         [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json)" || true ]];
     )
 }
