@@ -11,9 +11,6 @@ export CCACHE_COMPILERCHECK="%compiler% --version"
 
 source "$COMPOSE_HOME/etc/bash-utils.sh"
 
-# Create or remove ccache compiler symlinks
-set-gcc-version $GCC_VERSION;
-
 ninja-test() {
     update-environment-variables;
     cd "$(find-cpp-build-home)";

@@ -4,12 +4,12 @@ set -Eeo pipefail
 
 source /home/rapids/.bashrc
 
-# - ensure conda's installed
-# - ensure the notebooks conda env is created/updated
-source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
+# Create or remove ccache compiler symlinks
+set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 
-# activate the notebooks conda environment
-source activate notebooks
+# - ensure conda's installed
+# - ensure the notebooks conda env is created/updated/activated
+source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 
 # activate the notebooks conda environment on bash login
 echo "source /home/rapids/.bashrc && source activate notebooks" > /home/rapids/.bash_login

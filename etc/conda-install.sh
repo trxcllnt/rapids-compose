@@ -19,8 +19,6 @@ fi
 
 mkdir -p "$CONDA_HOME"
 
-source /home/rapids/.bashrc
-
 # ensure conda's installed
 if [[ -z `which conda` ]]; then
    curl -s -o /home/rapids/miniconda.sh -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -213,3 +211,6 @@ EOF
 
 chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d/env-vars.sh"
 chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d/env-vars.sh"
+
+# activate the $ENV_NAME conda environment
+source activate $ENV_NAME

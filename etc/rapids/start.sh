@@ -4,12 +4,12 @@ set -Eeo pipefail
 
 source /home/rapids/.bashrc
 
-# - ensure conda's installed
-# - ensure the rapids conda env is created/updated
-source "$COMPOSE_HOME/etc/conda-install.sh" rapids
+# Create or remove ccache compiler symlinks
+set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 
-# activate the rapids conda environment
-source activate rapids
+# - ensure conda's installed
+# - ensure the rapids conda env is created/updated/activated
+source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 
 # activate the rapids conda environment on bash login
 echo "source /home/rapids/.bashrc && source activate rapids" > /home/rapids/.bash_login
@@ -33,8 +33,6 @@ ask_before_install() {
 
 build_local_llvm_fork() {
     ORIG_DIR="$(pwd)";
-    # Ensure gcc/g++ symlinks are created
-    set-gcc-version $GCC_VERSION;
     (
         set -Eeo pipefail;
         rm -rf "$LLVM_REPO";
