@@ -25,6 +25,7 @@
 **/Makefile
 **/*Dockerfile*
 **/*compose*.yml
+**/etc/llvm
 **/etc/conda
 **/etc/.ccache
 **/etc/notebooks/sandbox
