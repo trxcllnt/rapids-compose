@@ -914,8 +914,9 @@ find-project-home() {
     $CUSPATIAL_HOME
     $NOTEBOOKS_HOME
     $NOTEBOOKS_EXTENDED_HOME";
+    CURDIR="$(realpath ${1:-$PWD})"
     for PROJECT_HOME in $PROJECT_HOMES; do
-        if [ -n "$(echo "${1:-$PWD}" | grep "$PROJECT_HOME" - || echo "")" ]; then
+        if [ -n "$(echo "$CURDIR" | grep "$PROJECT_HOME" - || echo "")" ]; then
             echo "$PROJECT_HOME"; break;
         fi;
     done
