@@ -217,47 +217,74 @@ export -f lint-rapids;
 
 build-rmm-cpp() {
     update-environment-variables $@ >/dev/null;
+    print-heading "Configuring librmm";
+    configure-cpp "$RMM_HOME" $@;
     print-heading "Building librmm";
-    build-cpp "$RMM_HOME" "" $@;
+    build-cpp "$RMM_HOME" "all";
 }
 
 export -f build-rmm-cpp;
 
 build-cudf-cpp() {
     update-environment-variables $@ >/dev/null;
+    print-heading "Configuring libnvstrings and libcudf";
+
+    configure-cpp "$CUDF_HOME/cpp" $@;
+
+    print-heading "Building libnvstrings";
+
+    [ "$BUILD_TESTS" != "ON" ] && \
+        BUILD_TARGETS="nvstrings" || \
+        BUILD_TARGETS="nvstrings build_tests_nvstrings";
+
     # temporary:
     # build nvstrings cpp and python before building libcudf, since
     # libcudf depends on libnvstrings having already been built
-    print-heading "Building libnvstrings";
-    build-cpp "$CUDF_HOME/cpp" "nvstrings install_nvstrings" $@;
+    build-cpp "$CUDF_HOME/cpp" "$BUILD_TARGETS";
     build-nvstrings-python $@;
 
     print-heading "Building libcudf";
-    build-cpp "$CUDF_HOME/cpp" "cudf" $@;
+
+    [ "$BUILD_TESTS" != "ON" ] && \
+        BUILD_TARGETS="cudf" || \
+        BUILD_TARGETS="cudf build_tests_cudf";
+
+    # build-cpp "$CUDF_HOME/cpp" "cudf" $@;
+    build-cpp "$CUDF_HOME/cpp" "$BUILD_TARGETS";
+
+    if [ "$BUILD_BENCHMARKS" == "ON" ]; then
+        build-cpp "$CUDF_HOME/cpp" "benchmarks/all" || true;
+    fi
 }
 
 export -f build-cudf-cpp;
 
 build-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
+    print-heading "Configuring libcuml";
+    configure-cpp "$CUML_HOME/cpp" $@;
     print-heading "Building libcuml";
-    build-cpp "$CUML_HOME/cpp" "" $@;
+    build-cpp "$CUML_HOME/cpp" "all";
 }
 
 export -f build-cuml-cpp;
 
 build-cugraph-cpp() {
     update-environment-variables $@ >/dev/null;
+    print-heading "Configuring libcugraph";
+    configure-cpp "$CUGRAPH_HOME/cpp" $@;
     print-heading "Building libcugraph";
-    build-cpp "$CUGRAPH_HOME/cpp" "" $@;
+    build-cpp "$CUGRAPH_HOME/cpp" "all";
 }
 
 export -f build-cugraph-cpp;
 
 build-cuspatial-cpp() {
     update-environment-variables $@ >/dev/null;
+    print-heading "Configuring libcuspatial";
+    configure-cpp "$CUSPATIAL_HOME/cpp" $@;
     print-heading "Building libcuspatial";
-    build-cpp "$CUSPATIAL_HOME/cpp" "" $@;
+    build-cpp "$CUSPATIAL_HOME/cpp" "all";
 }
 
 export -f build-cuspatial-cpp;
@@ -608,18 +635,12 @@ configure-cpp() {
 export -f configure-cpp;
 
 build-cpp() {
-    BUILD_TARGETS="${2:-}";
-    CONFIGURE_ARGS="$1 ${@:3}";
-    update-environment-variables ${@:3} >/dev/null;
+    BUILD_TARGETS="${2:-all}";
     (
         set -Eeo pipefail;
         cd "$(find-cpp-home $1)";
         BUILD_DIR_PATH="$(find-cpp-build-home $1)"
-        if [ -n "$BUILD_TARGETS" ] && [ "$BUILD_TESTS" = "ON" ]; then
-            BUILD_TARGETS="$BUILD_TARGETS build_tests_$BUILD_TARGETS";
-        fi
-        configure-cpp ${CONFIGURE_ARGS};
-        time cmake --build "$BUILD_DIR_PATH" -- ${BUILD_TARGETS:-all};
+        time cmake --build "$BUILD_DIR_PATH" -- $BUILD_TARGETS;
         [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json)" || true ]];
     )
 }
