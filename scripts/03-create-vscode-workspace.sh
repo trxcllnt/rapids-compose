@@ -87,6 +87,8 @@ rapids_vscode_workspace() {
     ],
     \"settings\": {
 
+        \"git.ignoreLimitWarning\": true,
+
         \"C_Cpp.formatting\": \"Disabled\",
         \"C_Cpp.autocomplete\": \"Disabled\",
         \"C_Cpp.errorSquiggles\": \"Disabled\",
@@ -114,6 +116,8 @@ rapids_vscode_workspace() {
             \"--header-insertion-decorators\",
         ],
         \"search.exclude\": {
+            \"**/.clangd\": true,
+            \"**/.clangd/**\": true,
             \"**/etc/llvm\": true,
             \"**/etc/llvm/**\": true,
             \"**/etc/conda\": true,
@@ -134,6 +138,8 @@ rapids_vscode_workspace() {
             \"**/.git/objects/**\": true,
             \"**/.git/subtree-cache/**\": true,
             \"**/node_modules/**\": true,
+            \"**/.clangd\": true,
+            \"**/.clangd/**\": true,
             \"**/etc/llvm\": true,
             \"**/etc/conda\": true,
             \"**/etc/.ccache\": true,
@@ -168,6 +174,8 @@ rapids_vscode_workspace() {
             \"**/*.egg-info\": true,
             \"**/__pycache__\": true,
             \"**/.pytest_cache\": true,
+            \"**/.clangd\": true,
+            \"**/.clangd/**\": true,
             \"**/build/lib\": true,
             \"**/build/include\": true,
             \"**/cudf/**/*.so\": true,
