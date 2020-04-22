@@ -693,20 +693,21 @@ set-gcc-version() {
     echo "Using gcc-$V and g++-$V"
     export GCC_VERSION="$V"
     export CXX_VERSION="$V"
-    export NVCC="/usr/local/bin/nvcc"
     export CC="/usr/local/bin/gcc-$GCC_VERSION"
     export CXX="/usr/local/bin/g++-$CXX_VERSION"
     echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
     echo "rapids" | sudo -S update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION} >/dev/null 2>&1;
     # Create or remove ccache compiler symlinks
     if [ "$USE_CCACHE" == "YES" ]; then
+        export NVCC="/usr/local/bin/nvcc"
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
     else
+        export NVCC="$CUDA_HOME/bin/nvcc"
+        echo "rapids" | sudo -S rm "/usr/local/bin/nvcc"  || true                                      >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
     fi
