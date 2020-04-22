@@ -110,7 +110,7 @@ rapids_vscode_workspace() {
             \"--compile-commands-dir=\",
             \"--background-index=true\",
             \"--all-scopes-completion\",
-            \"--header-insertion=never\",
+            \"--header-insertion=iwyu\",
             \"--suggest-missing-includes\",
             \"--completion-style=detailed\",
             \"--header-insertion-decorators\",
