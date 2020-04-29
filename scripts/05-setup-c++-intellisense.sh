@@ -50,8 +50,10 @@ for CODE in "code" "code-insiders"; do
     # 1. Install Microsoft C++ Tools if it isn't installed
     # 2. Install vscode-cudacpp if it isn't installed
     # 3. Install vscode-clangd if it isn't installed
-    [ -n "$(which $CODE)" ] && install_vscode_extensions "$CODE" \
-        "ms-vscode.cpptools" \
-        "kriegalex.vscode-cudacpp" \
-        "llvm-vs-code-extensions.vscode-clangd";
+    if [ -n "$(which $CODE)" ]; then
+        install_vscode_extensions "$CODE" \
+            "ms-vscode.cpptools" \
+            "kriegalex.vscode-cudacpp" \
+            "llvm-vs-code-extensions.vscode-clangd";
+    fi
 done
