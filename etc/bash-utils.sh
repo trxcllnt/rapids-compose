@@ -541,6 +541,36 @@ test-cuspatial-python() {
 
 export -f test-cuspatial-python;
 
+test-rmm-cpp() {
+    test-cpp "$(find-cpp-build-home rmm)" $@;
+}
+
+export -f test-rmm-cpp;
+
+test-cudf-cpp() {
+    test-cpp "$(find-cpp-build-home cudf)" $@;
+}
+
+export -f test-cudf-cpp;
+
+test-cuml-cpp() {
+    test-cpp "$(find-cpp-build-home cuml)" $@;
+}
+
+export -f test-cuml-cpp;
+
+test-cugraph-cpp() {
+    test-cpp "$(find-cpp-build-home cugraph)" $@;
+}
+
+export -f test-cugraph-cpp;
+
+test-cuspatial-cpp() {
+    test-cpp "$(find-cpp-build-home cuspatial)" $@;
+}
+
+export -f test-cuspatial-cpp;
+
 configure-cpp() {
     (
         set -Eeo pipefail
@@ -714,6 +744,40 @@ set-gcc-version() {
 }
 
 export -f set-gcc-version;
+
+test-cpp() {
+    update-environment-variables;
+    CTESTS="";
+    GTESTS="";
+    set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
+    ###
+    # Parse the test names from the input args. Assume all arguments up to
+    # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
+    # and all arguments after are ctest arguments. Strip `--` (if found)
+    # from the args list before passing the args to ctest. Example:
+    #
+    # $ ninja-test TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
+    # $ ninja-test gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
+    ###
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            --) shift; break;;
+            -*) break;;
+            *) NAMES=${1:-""};
+               for NAME in ${NAMES//,/ }; do
+                   NAME="${NAME#gtests/}";
+                   CTESTS="${CTESTS:+$CTESTS|}$NAME";
+                   GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
+               done;;
+        esac; shift;
+    done
+    for x in "1"; do
+        ninja -j$PARALLEL_LEVEL $GTESTS || break;
+        ctest --force-new-ctest-process \
+              --output-on-failure \
+              ${CTESTS:+-R $CTESTS} $* || break;
+    done;
+}
 
 test-python() {
     (
