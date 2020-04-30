@@ -84,6 +84,17 @@
 # lint-cuspatial-python  - (✝) Lint/fix the cuspatial Cython and Python source files
 # 
 ###
+# Commands to run each project's cpp tests:
+#
+# Note: These commands automatically build (if necessary) before testing.
+#
+# test-rmm-cpp        - (✝) Run rmm cpp tests
+# test-cudf-cpp       - (✝) Run cudf cpp tests
+# test-cuml-cpp       - (✝) Run cuml cpp tests
+# test-cugraph-cpp    - (✝) Run cugraph cpp tests
+# test-cuspatial-cpp  - (✝) Run cuspatial cpp tests
+#
+###
 # Commands to run each project's pytests:
 # 
 # Note: These commands automatically change into the correct directory before executing `pytest`.
