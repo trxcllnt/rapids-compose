@@ -84,6 +84,22 @@
 # lint-cuspatial-python  - (✝) Lint/fix the cuspatial Cython and Python source files
 # 
 ###
+# Commands to run each project's cpp tests:
+#
+# Note: These commands automatically build (if necessary) before testing.
+# Note: Flags are passed to ctest. To see a list of all avaialble flags, run ctest --help
+#
+# test-rmm-cpp        - (✝) Run rmm cpp tests
+# test-cudf-cpp       - (✝) Run cudf cpp tests
+# test-cuml-cpp       - (✝) Run cuml cpp tests
+# test-cugraph-cpp    - (✝) Run cugraph cpp tests
+# test-cuspatial-cpp  - (✝) Run cuspatial cpp tests
+#
+# Usage:
+# test-rmm-cpp TEST_NAME OTHER_TEST_NAME - Build `TEST_NAME` and `OTHER_TEST_NAME`, then execute.
+# test-rmm-cpp TEST_NAME --verbose       - Build and run `TEST_NAME`, passing --verbose to ctest.
+#
+###
 # Commands to run each project's pytests:
 # 
 # Note: These commands automatically change into the correct directory before executing `pytest`.
@@ -541,6 +557,36 @@ test-cuspatial-python() {
 
 export -f test-cuspatial-python;
 
+test-rmm-cpp() {
+    test-cpp "$(find-cpp-build-home $RMM_HOME)" $@;
+}
+
+export -f test-rmm-cpp;
+
+test-cudf-cpp() {
+    test-cpp "$(find-cpp-build-home $CUDF_HOME)" $@;
+}
+
+export -f test-cudf-cpp;
+
+test-cuml-cpp() {
+    test-cpp "$(find-cpp-build-home $CUML_HOME)" $@;
+}
+
+export -f test-cuml-cpp;
+
+test-cugraph-cpp() {
+    test-cpp "$(find-cpp-build-home $CUGRAPH_HOME)" $@;
+}
+
+export -f test-cugraph-cpp;
+
+test-cuspatial-cpp() {
+    test-cpp "$(find-cpp-build-home $CUSPATIAL_HOME)" $@;
+}
+
+export -f test-cuspatial-cpp;
+
 configure-cpp() {
     (
         set -Eeo pipefail
@@ -714,6 +760,40 @@ set-gcc-version() {
 }
 
 export -f set-gcc-version;
+
+test-cpp() {
+    update-environment-variables;
+    CTESTS="";
+    GTESTS="";
+    set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
+    ###
+    # Parse the test names from the input args. Assume all arguments up to
+    # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
+    # and all arguments after are ctest arguments. Strip `--` (if found)
+    # from the args list before passing the args to ctest. Example:
+    #
+    # $ ninja-test TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
+    # $ ninja-test gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
+    ###
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            --) shift; break;;
+            -*) break;;
+            *) NAMES=${1:-""};
+               for NAME in ${NAMES//,/ }; do
+                   NAME="${NAME#gtests/}";
+                   CTESTS="${CTESTS:+$CTESTS|}$NAME";
+                   GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
+               done;;
+        esac; shift;
+    done
+    for x in "1"; do
+        ninja -j$PARALLEL_LEVEL $GTESTS || break;
+        ctest --force-new-ctest-process \
+              --output-on-failure \
+              ${CTESTS:+-R $CTESTS} $* || break;
+    done;
+}
 
 test-python() {
     (
