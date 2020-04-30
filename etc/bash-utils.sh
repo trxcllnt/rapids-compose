@@ -542,31 +542,31 @@ test-cuspatial-python() {
 export -f test-cuspatial-python;
 
 test-rmm-cpp() {
-    test-cpp "$(find-cpp-build-home rmm)" $@;
+    test-cpp "$(find-cpp-build-home $RMM_HOME)" $@;
 }
 
 export -f test-rmm-cpp;
 
 test-cudf-cpp() {
-    test-cpp "$(find-cpp-build-home cudf)" $@;
+    test-cpp "$(find-cpp-build-home $CUDF_HOME)" $@;
 }
 
 export -f test-cudf-cpp;
 
 test-cuml-cpp() {
-    test-cpp "$(find-cpp-build-home cuml)" $@;
+    test-cpp "$(find-cpp-build-home $CUML_HOME)" $@;
 }
 
 export -f test-cuml-cpp;
 
 test-cugraph-cpp() {
-    test-cpp "$(find-cpp-build-home cugraph)" $@;
+    test-cpp "$(find-cpp-build-home $CUGRAPH_HOME)" $@;
 }
 
 export -f test-cugraph-cpp;
 
 test-cuspatial-cpp() {
-    test-cpp "$(find-cpp-build-home cuspatial)" $@;
+    test-cpp "$(find-cpp-build-home $CUSPATIAL_HOME)" $@;
 }
 
 export -f test-cuspatial-cpp;
