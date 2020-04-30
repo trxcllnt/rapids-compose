@@ -87,12 +87,17 @@
 # Commands to run each project's cpp tests:
 #
 # Note: These commands automatically build (if necessary) before testing.
+# Note: Flags are passed to ctest. To see a list of all avaialble flags, run ctest --help
 #
 # test-rmm-cpp        - (✝) Run rmm cpp tests
 # test-cudf-cpp       - (✝) Run cudf cpp tests
 # test-cuml-cpp       - (✝) Run cuml cpp tests
 # test-cugraph-cpp    - (✝) Run cugraph cpp tests
 # test-cuspatial-cpp  - (✝) Run cuspatial cpp tests
+#
+# Usage:
+# test-rmm-cpp TEST_NAME OTHER_TEST_NAME - Build `TEST_NAME` and `OTHER_TEST_NAME`, then execute.
+# test-rmm-cpp TEST_NAME --verbose       - Build and run `TEST_NAME`, passing --verbose to ctest.
 #
 ###
 # Commands to run each project's pytests:
