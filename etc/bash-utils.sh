@@ -1069,8 +1069,10 @@ make-symlink() {
 export -f make-symlink;
 
 update-environment-variables() {
+    GCC_VER="$GCC_VERSION"
     set -a && . "$COMPOSE_HOME/.env" && set +a;
     unset NVIDIA_VISIBLE_DEVICES;
+    export GCC_VERSION="$GCC_VER";
     args=
     tests=
     bench=
