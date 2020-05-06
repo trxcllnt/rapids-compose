@@ -53,7 +53,9 @@ for CODE in "code" "code-insiders"; do
     if [ -n "$(which $CODE)" ]; then
         install_vscode_extensions "$CODE" \
             "ms-vscode.cpptools" \
+            "xaver.clang-format" \
             "kriegalex.vscode-cudacpp" \
+            "augustocdias.tasks-shell-input" \
             "llvm-vs-code-extensions.vscode-clangd";
     fi
 done

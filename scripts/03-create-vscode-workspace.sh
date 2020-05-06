@@ -2,279 +2,458 @@
 
 set -Eeo pipefail
 
-cd $(dirname "$(realpath "$0")")/../../
+COMPOSE_HOME=$(dirname $(realpath "$0"))
+COMPOSE_HOME=$(realpath "$COMPOSE_HOME/../")
+RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
+
+cd "$RAPIDS_HOME"
 
 rapids_vscode_workspace() {
-    echo "\
+cat << EOF
 {
-    \"folders\": [
+    "folders": [
         {
-            \"name\": \"compose\",
-            \"path\": \"compose\"
+            "name": "compose",
+            "path": "compose"
         },
         {
-            \"name\": \"rmm\",
-            \"path\": \"rmm\"
+            "name": "rmm",
+            "path": "rmm"
         },
         {
-            \"name\": \"cudf\",
-            \"path\": \"cudf\"
+            "name": "cudf",
+            "path": "cudf"
         },
         {
-            \"name\": \"cudf-cpp\",
-            \"path\": \"cudf/cpp\"
+            "name": "cudf-cpp",
+            "path": "cudf/cpp"
         },
         {
-            \"name\": \"cudf-java\",
-            \"path\": \"cudf/java\"
+            "name": "cudf-java",
+            "path": "cudf/java"
         },
         {
-            \"name\": \"cudf-python\",
-            \"path\": \"cudf/python/cudf\"
+            "name": "cudf-python",
+            "path": "cudf/python/cudf"
         },
         {
-            \"name\": \"dask-cudf-python\",
-            \"path\": \"cudf/python/dask_cudf\"
+            "name": "dask-cudf-python",
+            "path": "cudf/python/dask_cudf"
         },
         {
-            \"name\": \"cugraph\",
-            \"path\": \"cugraph\"
+            "name": "cugraph",
+            "path": "cugraph"
         },
         {
-            \"name\": \"cugraph-cpp\",
-            \"path\": \"cugraph/cpp\"
+            "name": "cugraph-cpp",
+            "path": "cugraph/cpp"
         },
         {
-            \"name\": \"cugraph-python\",
-            \"path\": \"cugraph/python\"
+            "name": "cugraph-python",
+            "path": "cugraph/python"
         },
         {
-            \"name\": \"cuML\",
-            \"path\": \"cuml\"
+            "name": "cuML",
+            "path": "cuml"
         },
         {
-            \"name\": \"cuML-cpp\",
-            \"path\": \"cuml/cpp\"
+            "name": "cuML-cpp",
+            "path": "cuml/cpp"
         },
         {
-            \"name\": \"cuML-python\",
-            \"path\": \"cuml/python\"
+            "name": "cuML-python",
+            "path": "cuml/python"
         },
         {
-            \"name\": \"cuspatial\",
-            \"path\": \"cuspatial\"
+            "name": "cuspatial",
+            "path": "cuspatial"
         },
         {
-            \"name\": \"cuspatial-cpp\",
-            \"path\": \"cuspatial/cpp\"
+            "name": "cuspatial-cpp",
+            "path": "cuspatial/cpp"
         },
         {
-            \"name\": \"cuspatial-python\",
-            \"path\": \"cuspatial/python/cuspatial\"
+            "name": "cuspatial-python",
+            "path": "cuspatial/python/cuspatial"
         },
         {
-            \"name\": \"nvstrings-python\",
-            \"path\": \"cudf/python/nvstrings\"
+            "name": "nvstrings-python",
+            "path": "cudf/python/nvstrings"
         },
         {
-            \"name\": \"notebooks\",
-            \"path\": \"notebooks\"
+            "name": "notebooks",
+            "path": "notebooks"
         },
         {
-            \"name\": \"notebooks-contrib\",
-            \"path\": \"notebooks-contrib\"
+            "name": "notebooks-contrib",
+            "path": "notebooks-contrib"
         }
     ],
-    \"settings\": {
+    "settings": {
 
-        \"git.ignoreLimitWarning\": true,
+        "git.ignoreLimitWarning": true,
 
-        \"C_Cpp.formatting\": \"Disabled\",
-        \"C_Cpp.autocomplete\": \"Disabled\",
-        \"C_Cpp.errorSquiggles\": \"Disabled\",
-        \"C_Cpp.intelliSenseEngine\": \"Disabled\",
-        \"C_Cpp.configurationWarnings\": \"Disabled\",
-        \"C_Cpp.autoAddFileAssociations\": false,
-        \"C_Cpp.vcpkg.enabled\": false,
+        "C_Cpp.formatting": "Disabled",
+        "C_Cpp.autocomplete": "Disabled",
+        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.intelliSenseEngine": "Disabled",
+        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.autoAddFileAssociations": false,
+        "C_Cpp.vcpkg.enabled": false,
 
-        \"clangd.syncFileEvents\": true,
-        \"clangd.path\": \"/usr/bin/clangd\",
-        \"clangd.semanticHighlighting\": true,
-        \"clangd.trace\": \"$HOME/.vscode/clangd.log\",
-        \"clangd.arguments\": [
-            \"-j=4\",
-            \"--log=info\",
-            \"--pch-storage=disk\",
-            \"--completion-parse=auto\",
-            \"--fallback-style=Google\",
-            \"--compile-commands-dir=\",
-            \"--background-index=true\",
-            \"--all-scopes-completion\",
-            \"--header-insertion=iwyu\",
-            \"--suggest-missing-includes\",
-            \"--completion-style=detailed\",
-            \"--header-insertion-decorators\",
+        // Configure the xaver.clang-format plugin to use the conda-installed clang-format
+        "clang-format.fallbackStyle": "Google",
+        "clang-format.executable": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/clang-format",
+        "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
+        "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
+
+        // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
+        "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
+
+        "clangd.syncFileEvents": true,
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.semanticHighlighting": true,
+        "clangd.trace": "$HOME/.vscode/clangd.log",
+        "clangd.arguments": [
+            "-j=4",
+            "--log=info",
+            "--pch-storage=disk",
+            "--completion-parse=auto",
+            "--fallback-style=Google",
+            "--compile-commands-dir=",
+            "--background-index=true",
+            "--all-scopes-completion",
+            "--header-insertion=iwyu",
+            "--suggest-missing-includes",
+            "--completion-style=detailed",
+            "--header-insertion-decorators"
         ],
-        \"search.exclude\": {
-            \"**/.clangd\": true,
-            \"**/.clangd/**\": true,
-            \"**/etc/llvm\": true,
-            \"**/etc/llvm/**\": true,
-            \"**/etc/conda\": true,
-            \"**/etc/conda/**\": true,
-            \"**/etc/.ccache\": true,
-            \"**/etc/.ccache/**\": true,
-            \"**/build/cuda-*\": true,
-            \"**/build/debug\": true,
-            \"**/build/release\": true,
-            \"**/build/relwithdebinfo\": true,
+        "search.exclude": {
+            "**/.clangd": true,
+            "**/.clangd/**": true,
+            "**/etc/llvm": true,
+            "**/etc/llvm/**": true,
+            "**/etc/conda": true,
+            "**/etc/conda/**": true,
+            "**/etc/.ccache": true,
+            "**/etc/.ccache/**": true,
+            "**/build/cuda-*": true,
+            "**/build/debug": true,
+            "**/build/release": true,
+            "**/build/relwithdebinfo": true
         },
-        \"files.associations\": {
-            \"*.cu\": \"cuda\",
-            \"*.cuh\": \"cuda\",
-            \"**/libcudacxx/include/**/*\": \"cpp\"
+        "files.associations": {
+            "*.cu": "cuda",
+            "*.cuh": "cuda",
+            "**/libcudacxx/include/**/*": "cpp"
         },
-        \"files.watcherExclude\": {
-            \"**/.git/objects/**\": true,
-            \"**/.git/subtree-cache/**\": true,
-            \"**/node_modules/**\": true,
-            \"**/.clangd\": true,
-            \"**/.clangd/**\": true,
-            \"**/etc/llvm\": true,
-            \"**/etc/conda\": true,
-            \"**/etc/.ccache\": true,
-            \"**/build/lib\": true,
-            \"**/build/cuda-*\": true,
-            \"**/build/debug\": true,
-            \"**/build/release\": true,
-            \"**/build/relwithdebinfo\": true,
-            \"**/build/include\": true,
-            \"**/etc/llvm/**\": true,
-            \"**/etc/conda/**\": true,
-            \"**/etc/.ccache/**\": true,
-            \"**/cudf/**/*.so\": true,
-            \"**/cudf/**/*.cpp\": true,
-            \"**/cuml/**/*.so\": true,
-            \"**/cuml/**/*.cpp\": true,
-            \"**/cugraph/**/*.so\": true,
-            \"**/cugraph/**/*.cpp\": true,
-            \"**/cuspatial/**/*.so\": true,
-            \"**/cuspatial/**/*.cpp\": true,
-            \"**/build/lib.linux-x86_64*\": true,
-            \"**/build/temp.linux-x86_64*\": true,
-            \"**/build/bdist.linux-x86_64*\": true,
+        "files.watcherExclude": {
+            "**/.git/objects/**": true,
+            "**/.git/subtree-cache/**": true,
+            "**/node_modules/**": true,
+            "**/.clangd": true,
+            "**/.clangd/**": true,
+            "**/etc/llvm": true,
+            "**/etc/conda": true,
+            "**/etc/.ccache": true,
+            "**/build/lib": true,
+            "**/build/cuda-*": true,
+            "**/build/debug": true,
+            "**/build/release": true,
+            "**/build/relwithdebinfo": true,
+            "**/build/include": true,
+            "**/etc/llvm/**": true,
+            "**/etc/conda/**": true,
+            "**/etc/.ccache/**": true,
+            "**/cudf/**/*.so": true,
+            "**/cudf/**/*.cpp": true,
+            "**/cuml/**/*.so": true,
+            "**/cuml/**/*.cpp": true,
+            "**/cugraph/**/*.so": true,
+            "**/cugraph/**/*.cpp": true,
+            "**/cuspatial/**/*.so": true,
+            "**/cuspatial/**/*.cpp": true,
+            "**/build/lib.linux-x86_64*": true,
+            "**/build/temp.linux-x86_64*": true,
+            "**/build/bdist.linux-x86_64*": true
         },
-        \"files.exclude\": {
-            \"**/.git\": true,
-            \"**/.svn\": true,
-            \"**/.hg\": true,
-            \"**/CVS\": true,
-            \"**/.DS_Store\": true,
-            \"**/*.egg\": true,
-            \"**/*.egg-info\": true,
-            \"**/__pycache__\": true,
-            \"**/.pytest_cache\": true,
-            \"**/.clangd\": true,
-            \"**/.clangd/**\": true,
-            \"**/build/lib\": true,
-            \"**/build/include\": true,
-            \"**/cudf/**/*.so\": true,
-            \"**/cudf/**/*.cpp\": true,
-            \"**/cuml/**/*.so\": true,
-            \"**/cuml/**/*.cpp\": true,
-            \"**/cugraph/**/*.so\": true,
-            \"**/cugraph/**/*.cpp\": true,
-            \"**/cuspatial/**/*.so\": true,
-            \"**/cuspatial/**/*.cpp\": true,
-            \"**/build/lib.linux-x86_64*\": true,
-            \"**/build/temp.linux-x86_64*\": true,
-            \"**/build/bdist.linux-x86_64*\": true,
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/*.egg": true,
+            "**/*.egg-info": true,
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.clangd": true,
+            "**/.clangd/**": true,
+            "**/build/lib": true,
+            "**/build/include": true,
+            "**/cudf/**/*.so": true,
+            "**/cudf/**/*.cpp": true,
+            "**/cuml/**/*.so": true,
+            "**/cuml/**/*.cpp": true,
+            "**/cugraph/**/*.so": true,
+            "**/cugraph/**/*.cpp": true,
+            "**/cuspatial/**/*.so": true,
+            "**/cuspatial/**/*.cpp": true,
+            "**/build/lib.linux-x86_64*": true,
+            "**/build/temp.linux-x86_64*": true,
+            "**/build/bdist.linux-x86_64*": true
         }
     },
-    \"tasks\": {
-        \"version\": \"2.0.0\",
-        \"tasks\": [
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
             {
-                \"label\": \"Build all RAPIDS projects\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rapids\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build all RAPIDS projects",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-rapids\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build rmm C++\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-cpp\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build rmm C++",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-rmm-cpp\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build cuDF C++\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-cpp\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build cuDF C++",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cudf-cpp\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build cuML C++\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-cpp\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build cuML C++",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cuml-cpp\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build cuGraph C++\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-cpp\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build cuGraph C++",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cugraph-cpp\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build cuSpatial C++\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuspatial-cpp\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Configure and Build cuSpatial C++",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cuspatial-cpp\"",
+                "group": "build",
+                "problemMatcher": []
             },
             {
-                \"label\": \"Build rmm Cython/Python\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-rmm-python\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Recompile rmm C++ (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"update-environment-variables && ninja -C \\\\\$RMM_ROOT\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
-                \"label\": \"Build cuDF Cython/Python\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cudf-python\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Recompile cuDF C++ (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"update-environment-variables && ninja -C \\\\\$CUDF_ROOT\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
-                \"label\": \"Build cuML Cython/Python\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuml-python\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Recompile cuML C++ (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"update-environment-variables && ninja -C \\\\\$CUML_ROOT\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
-                \"label\": \"Build cuGraph Cython/Python\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cugraph-python\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Recompile cuGraph C++ (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"update-environment-variables && ninja -C \\\\\$CUGRAPH_ROOT\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
-                \"label\": \"Build cuSpatial Cython/Python\",
-                \"type\": \"shell\",
-                \"command\": \"docker exec -it \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\\\" \\\" -f1) bash -lic \\\"build-cuspatial-python\\\"\",
-                \"group\": \"build\",
-                \"problemMatcher\": []
+                "label": "Recompile cuSpatial C++ (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"update-environment-variables && ninja -C \\\\\$CUSPATIAL_ROOT\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            },
+            {
+                "label": "Recompile rmm Cython/Python (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-rmm-python\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:rmm_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:rmm_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            },
+            {
+                "label": "Recompile cuDF Cython/Python (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cudf-python\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cudf_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cudf_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            },
+            {
+                "label": "Recompile cuML Cython/Python (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cuml-python\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuml_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuml_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            },
+            {
+                "label": "Recompile cuGraph Cython/Python (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cugraph-python\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cugraph_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cugraph_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            },
+            {
+                "label": "Recompile cuSpatial Cython/Python (fast)",
+                "type": "shell",
+                "command": "docker exec -it \${input:rapids_container} bash -lic \"build-cuspatial-python\"",
+                "group": "build",
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuspatial_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuspatial_python_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
+            }
+        ],
+        "inputs": [
+            {
+                "type": "command",
+                "id": "rmm_cpp_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_ROOT)\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cudf_cpp_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_ROOT)\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cuml_cpp_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_ROOT)\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cugraph_cpp_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_ROOT)\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cuspatial_cpp_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_ROOT)\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "rmm_python_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_HOME)/python\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cudf_python_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_HOME)/python\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cuml_python_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_HOME)/python\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cugraph_python_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_HOME)/python\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "cuspatial_python_build_path",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_HOME)/python\""
+                }
+            },
+            {
+                "type": "command",
+                "id": "rapids_container",
+                "command": "shellCommand.execute",
+                "args": {
+                    "useFirstResult": true,
+                    "command": "docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1"
+                }
             }
         ]
     }
 }
-"
+EOF
 }
 
 # cat << EOF > "$PWD/rapids.code-workspace"
