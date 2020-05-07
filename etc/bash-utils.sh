@@ -223,9 +223,9 @@ RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@)";
         if [ $(should-build-rmm) == true ]; then lint-rmm-python $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then lint-cudf-python $@ || exit 1; fi
-        # if [ $(should-cuml-rmm) ]; then lint-cuml-python $@ || exit 1; fi
-        # if [ $(should-cugraph-cudf) ]; then lint-cugraph-python $@ || exit 1; fi
-        # if [ $(should-cuspatial-cudf) ]; then lint-cuspatial-python $@ || exit 1; fi
+        # if [ $(should-build-cuml) ]; then lint-cuml-python $@ || exit 1; fi
+        # if [ $(should-build-cugraph) ]; then lint-cugraph-python $@ || exit 1; fi
+        # if [ $(should-build-cuspatial) ]; then lint-cuspatial-python $@ || exit 1; fi
     )
 }
 
@@ -855,7 +855,7 @@ fix-nvcc-clangd-compile-commands() {
         ###
         # Make a few modifications to the compile_commands.json file
         # produced by CMake. This file is used by clangd to provide fast
-        # and smart intellisense, but `clang-10` doesn't yet support all
+        # and smart intellisense, but `clang-11` doesn't yet support all
         # the nvcc compilation options. This block translates or removes
         # unsupported options, so `clangd` has an easier time producing
         # usable intellisense results.
