@@ -27,7 +27,7 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
         "$RAPIDS_HOME/cudf/python/dask_cudf",
         "$RAPIDS_HOME/cuml/python",
         "$RAPIDS_HOME/cugraph/python",
-        "$RAPIDS_HOME/cuspatial/python",
+        "$RAPIDS_HOME/cuspatial/python/cuspatial",
     ],
     "python.jediEnabled": true,
     "python.languageServer": "Jedi",

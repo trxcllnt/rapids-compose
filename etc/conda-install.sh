@@ -159,7 +159,7 @@ export PYTHONPATH="\
 \$CUDF_HOME/python/dask_cudf:\
 \$CUML_HOME/python:\
 \$CUGRAPH_HOME/python:\
-\$CUSPATIAL_HOME/python"
+\$CUSPATIAL_HOME/python/cuspatial"
 
 export OLD_LD_LIBRARY_PATH="\$LD_LIBRARY_PATH"
 
