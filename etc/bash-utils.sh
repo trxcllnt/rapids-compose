@@ -75,6 +75,15 @@
 # clean-cuspatial-python - (✝) Clean the cuspatial Cython build assets
 # 
 ###
+# Commands to lint each C++ project separately:
+# 
+# lint-rmm-cpp        - (✝) Lint/fix the librmm C++/CUDA source files with clang-format
+# lint-cudf-cpp       - (✝) Lint/fix the libcudf C++/CUDA source files with clang-format
+# lint-cuml-cpp       - (✝) Lint/fix the libcuml C++/CUDA source files with clang-format
+# lint-cugraph-cpp    - (✝) Lint/fix the libcugraph C++/CUDA source files with clang-format
+# lint-cuspatial-cpp  - (✝) Lint/fix the libcuspatial C++/CUDA source files with clang-format
+# 
+###
 # Commands to lint each Python project separately:
 # 
 # lint-rmm-python        - (✝) Lint/fix the rmm Cython and Python source files
@@ -220,12 +229,13 @@ lint-rapids() {
         print-heading "\
 Linting RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
-cuDF: $(should-build-cudf $@)";
-        if [ $(should-build-rmm) == true ]; then lint-rmm-python $@ || exit 1; fi
-        if [ $(should-build-cudf) == true ]; then lint-cudf-python $@ || exit 1; fi
-        # if [ $(should-build-cuml) ]; then lint-cuml-python $@ || exit 1; fi
-        # if [ $(should-build-cugraph) ]; then lint-cugraph-python $@ || exit 1; fi
-        # if [ $(should-build-cuspatial) ]; then lint-cuspatial-python $@ || exit 1; fi
+cuDF: $(should-build-cudf $@) \
+cuSpatial: $(should-build-cuspatial $@)";
+        if [ $(should-build-rmm) == true ]; then lint-rmm-cpp $@ && lint-rmm-python $@ || exit 1; fi
+        if [ $(should-build-cudf) == true ]; then lint-cudf-cpp $@ && lint-cudf-python $@ || exit 1; fi
+        # if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
+        # if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
+        if [ $(should-build-cuspatial) ]; then lint-cuspatial-cpp $@ && lint-cuspatial-python $@ || exit 1; fi
     )
 }
 
@@ -491,6 +501,36 @@ clean-cuspatial-python() {
 
 export -f clean-cuspatial-python;
 
+lint-rmm-cpp() {
+    print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
+}
+
+export -f lint-rmm-cpp;
+
+lint-cudf-cpp() {
+    print-heading "Linting libcudf" && lint-cpp "$CUDF_HOME";
+}
+
+export -f lint-cudf-cpp;
+
+lint-cuml-cpp() {
+    print-heading "Linting libcuml" && lint-cpp "$CUML_HOME";
+}
+
+export -f lint-cuml-cpp;
+
+lint-cugraph-cpp() {
+    print-heading "Linting libcugraph" && lint-cpp "$CUGRAPH_HOME";
+}
+
+export -f lint-cugraph-cpp;
+
+lint-cuspatial-cpp() {
+    print-heading "Linting libcuspatial" && lint-cpp "$CUSPATIAL_HOME";
+}
+
+export -f lint-cuspatial-cpp;
+
 lint-rmm-python() {
     print-heading "Linting rmm" && lint-python "$RMM_HOME";
 }
@@ -520,6 +560,36 @@ lint-cuspatial-python() {
 }
 
 export -f lint-cuspatial-python;
+
+test-rmm-cpp() {
+    test-cpp "$(find-cpp-build-home $RMM_HOME)" $@;
+}
+
+export -f test-rmm-cpp;
+
+test-cudf-cpp() {
+    test-cpp "$(find-cpp-build-home $CUDF_HOME)" $@;
+}
+
+export -f test-cudf-cpp;
+
+test-cuml-cpp() {
+    test-cpp "$(find-cpp-build-home $CUML_HOME)" $@;
+}
+
+export -f test-cuml-cpp;
+
+test-cugraph-cpp() {
+    test-cpp "$(find-cpp-build-home $CUGRAPH_HOME)" $@;
+}
+
+export -f test-cugraph-cpp;
+
+test-cuspatial-cpp() {
+    test-cpp "$(find-cpp-build-home $CUSPATIAL_HOME)" $@;
+}
+
+export -f test-cuspatial-cpp;
 
 test-rmm-python() {
     test-python "$RMM_HOME/python" $@;
@@ -556,36 +626,6 @@ test-cuspatial-python() {
 }
 
 export -f test-cuspatial-python;
-
-test-rmm-cpp() {
-    test-cpp "$(find-cpp-build-home $RMM_HOME)" $@;
-}
-
-export -f test-rmm-cpp;
-
-test-cudf-cpp() {
-    test-cpp "$(find-cpp-build-home $CUDF_HOME)" $@;
-}
-
-export -f test-cudf-cpp;
-
-test-cuml-cpp() {
-    test-cpp "$(find-cpp-build-home $CUML_HOME)" $@;
-}
-
-export -f test-cuml-cpp;
-
-test-cugraph-cpp() {
-    test-cpp "$(find-cpp-build-home $CUGRAPH_HOME)" $@;
-}
-
-export -f test-cugraph-cpp;
-
-test-cuspatial-cpp() {
-    test-cpp "$(find-cpp-build-home $CUSPATIAL_HOME)" $@;
-}
-
-export -f test-cuspatial-cpp;
 
 configure-cpp() {
     (
@@ -715,6 +755,18 @@ build-python() {
 }
 
 export -f build-python;
+
+lint-cpp() {
+    (
+        cd "$1";
+        CLANG_FORMAT_PY="$(find -type f -name 'run-clang-format.py' | head -n1)"
+        if [[ "$CLANG_FORMAT_PY" != "" && -f "$CLANG_FORMAT_PY" ]]; then
+            python "$CLANG_FORMAT_PY" -inplace || true;
+        fi
+    )
+}
+
+export -f lint-cpp;
 
 lint-python() {
     (
