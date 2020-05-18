@@ -23,7 +23,7 @@ FLAKE_CYTHON_CONFIG="$(find -type f -name '.flake8.cython' | head -n1)"
 
 if [[ "$FLAKE_CYTHON_CONFIG" != "" && -f "$FLAKE_CYTHON_CONFIG" ]]; then
     # Run flake8-cython and get results/return code
-    FLAKE_CYTHON=`flake8 --config=$(realpath $FLAKE_CYTHON_CONFIG)`
+    FLAKE_CYTHON=`flake8 python --config=$(realpath $FLAKE_CYTHON_CONFIG)`
     FLAKE_CYTHON_RETVAL=$?
 fi
 
