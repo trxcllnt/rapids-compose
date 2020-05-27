@@ -36,17 +36,34 @@ choose_bool_option() {
     done
 }
 
+join-list-contents() {
+    local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
+}
+
+if [[ -n "$(which nvidia-smi)" ]]; then
+    NUM_GPUS="$(nvidia-smi --list-gpus | wc -l)"
+else
+    NUM_GPUS="$(lspci | grep -E "(NVIDIA|AMD)" | grep "VGA" | wc -l)"
+fi
+
+GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
+
+CURRENT_CUDA_VERSION="10.0"
+if [[ `which nvcc` != "" ]]; then
+    CURRENT_CUDA_VERSION="$(nvcc --version | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
+fi
+
 echo "###
 Configure RAPIDS environment \`.env\` file
 ###
 ";
 
 vGCC=$(select_version "Please enter your desired GCC version (5/7/8)" "5")
-CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.0/10.1/10.2)" "10.0")
+CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.0/10.1/10.2)" "$CURRENT_CUDA_VERSION")
 PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.6/3.7)" "3.7")
 CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
 PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")
-NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use (0,..num_gpus)" "0")
+NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")
 BUILD_TESTS=$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")
 BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")
 BUILD_LEGACY_TESTS=$(select_version "Select whether to build RAPIDS legacy C++ tests (ON/OFF)" "OFF")

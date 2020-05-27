@@ -57,44 +57,83 @@ install_github_cli() {
     rm -rf ./hub-linux-amd64-${GITHUB_VERSION} hub-linux-amd64-${GITHUB_VERSION}.tgz
 }
 
+clone_repo() {
+    REPO="$1"
+    git clone -c checkout.defaultRemote=upstream -j $(nproc) \
+        --recurse-submodules https://github.com/rapidsai/$REPO.git
+}
+
 fork_repo() {
     REPO="$1"
-    # Install github cli if it isn't installed
-    if [ -z `which hub` ]; then
+    if [[ `which hub` == "" ]]; then
+        # Install github cli if it isn't installed
         ask_before_install "Github CLI not detected. Install Github CLI (y/n)?" "install_github_cli"
     fi
-    echo "Forking rapidsai/$REPO to $GITHUB_USER/$REPO"
-    cd $REPO
-    hub fork --remote-name=origin
-    cd -
+    if [[ `which hub` != "" ]]; then
+        echo "Forking rapidsai/$REPO to $GITHUB_USER/$REPO";
+        # Clone the rapidsai fork first
+        clone_repo "$REPO";
+        cd "$REPO";
+        hub fork --remote-name=origin;
+        cd - >/dev/null 2>&1;
+    fi
 }
 
 clone_or_fork_repo() {
     REPO="$1"
-    REPO_RESPONSE_CODE="$(curl -I https://github.com/$GITHUB_USER/$REPO 2>/dev/null | head -n 1 | cut -d$' ' -f2)"
-    if [ "$REPO_RESPONSE_CODE" = "403" ] || [ "$REPO_RESPONSE_CODE" = "200" ]; then
-        git clone --recurse-submodules https://github.com/$GITHUB_USER/$REPO.git
+    HAS_FORK="NO"
+
+    # Clone and/or fork the repo
+    if [ "$GITHUB_USER" == "rapidsai" ]; then
+        # If default user, clone the rapidsai fork
+        clone_repo "$REPO";
     else
-        git clone --recurse-submodules https://github.com/rapidsai/$REPO.git
-        # Fork remote repo if the user doesn't have a fork and if the user isn't "rapidsai"
-        if [ "$GITHUB_USER" != "rapidsai" ]; then
+        REPO_RESPONSE_CODE="$(curl -I https://github.com/$GITHUB_USER/$REPO 2>/dev/null | head -n 1 | cut -d$' ' -f2)"
+        if [ "$REPO_RESPONSE_CODE" = "403" ] || [ "$REPO_RESPONSE_CODE" = "200" ]; then
+            HAS_FORK="YES";
+            # Clone the rapidsai fork first
+            clone_repo "$REPO";
+        else
+            # If the user doesn't have a fork of this repo yet, offer to fork it now
             ask_before_install "github.com/$GITHUB_USER/$REPO not found. Fork it now (y/n)?" "fork_repo $REPO"
-        fi
-    fi
-    # Fixup remote URLs if user isn't "rapidsai"
-    if [ "$GITHUB_USER" != "rapidsai" ]; then
-        cd $REPO
-        if [ -z "$(git remote show | grep upstream)" ]; then
-            git remote add -f upstream https://github.com/rapidsai/$REPO.git
-        fi
-        if [ "$USE_SSH_URLS" = "1" ]; then
-            if [ -n "$(git remote -v show | grep $GITHUB_USER/$REPO)" ]; then
-                git remote set-url origin git@github.com:$GITHUB_USER/$REPO.git
+            # If they declined to fork or to install the github cli, clone the rapidsai fork
+            if [ ! -d "$RAPIDS_HOME/$REPO" ]; then
+                clone_repo "$REPO";
             fi
-            git remote set-url upstream git@github.com:rapidsai/$REPO.git
         fi
-        cd -
     fi
+
+    # Now fix the remote URLs
+    cd "$REPO"
+    if [ -z "$(git remote show | grep upstream)" ]; then
+        HAS_FORK="NO"
+        # Always add an "upstream" remote that points to rapidsai
+        if [[ "$USE_SSH_URLS" == "1" ]]; then
+            git remote add -f --tags upstream git@github.com:rapidsai/$REPO.git
+        else
+            git remote add -f --tags upstream https://github.com/rapidsai/$REPO.git
+        fi
+    else
+        HAS_FORK="YES"
+    fi
+    if [[ "$HAS_FORK" == "YES" ]]; then
+        # If using the user's fork, rewrite the origin URL to point to it
+        if [[ "$USE_SSH_URLS" == "1" ]]; then
+            git remote set-url origin git@github.com:$GITHUB_USER/$REPO.git
+        else
+            git remote set-url origin https://github.com/$GITHUB_USER/$REPO.git
+        fi
+    else
+        # If not using a user fork, still add an origin, but make it read-only
+        if [[ "$USE_SSH_URLS" == "1" ]]; then
+            git remote set-url origin git@github.com:rapidsai/$REPO.git
+        else
+            git remote set-url origin https://github.com/rapidsai/$REPO.git
+        fi
+        git remote set-url --push origin read_only
+    fi
+    git remote set-url --push upstream read_only
+    cd - >/dev/null 2>&1
 }
 
 remove_post_checkout_hook() {
