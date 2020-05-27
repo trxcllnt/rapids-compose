@@ -99,6 +99,8 @@ clone_or_fork_repo() {
             # If they declined to fork or to install the github cli, clone the rapidsai fork
             if [ ! -d "$RAPIDS_HOME/$REPO" ]; then
                 clone_repo "$REPO";
+            else
+                HAS_FORK="YES";
             fi
         fi
     fi
@@ -106,15 +108,12 @@ clone_or_fork_repo() {
     # Now fix the remote URLs
     cd "$REPO"
     if [ -z "$(git remote show | grep upstream)" ]; then
-        HAS_FORK="NO"
         # Always add an "upstream" remote that points to rapidsai
         if [[ "$USE_SSH_URLS" == "1" ]]; then
             git remote add -f --tags upstream git@github.com:rapidsai/$REPO.git
         else
             git remote add -f --tags upstream https://github.com/rapidsai/$REPO.git
         fi
-    else
-        HAS_FORK="YES"
     fi
     if [[ "$HAS_FORK" == "YES" ]]; then
         # If using the user's fork, rewrite the origin URL to point to it
