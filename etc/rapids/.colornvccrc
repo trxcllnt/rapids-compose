@@ -37,12 +37,12 @@ introColor: reset
 # Each field may be assigned a different color.
 
 # Warnings
-warningFileNameColor: reset black on_white
-warningNumberColor:   bold yellow
-warningMessageColor:  yellow
+warningFileNameColor: bold
+warningNumberColor:   bold
+warningMessageColor:  magenta
 
 # Errors
-errorFileNameColor: reset black on_white
+errorFileNameColor: bold
 errorNumberColor:   bold red
 errorMessageColor:  red
 

@@ -223,6 +223,10 @@ if ($parent_proc_name eq "sh\n") {
 # code and use that as our return code.
 $compiler_pid = open3('<&STDIN', \*NVCCOUT, \*NVCCOUT, $compiler, @ARGV);
 
+$most_recent_file_name_color = color("reset");
+$most_recent_line_no_color = color("reset");
+$most_recent_message_color = color("reset");
+
 # Colorize the output from the compiler.
 while(<NVCCOUT>)
 {
@@ -238,21 +242,35 @@ while(<NVCCOUT>)
       elsif ($field3 =~ m/\s+(W|w)arn(u|i)ng:.*/)
       {
          # Warning
-         print($colors{"warningFileNameColor"}, "$field1:", color("reset"));
-         print($colors{"warningNumberColor"}, "($field2):", color("reset"));
+         print($colors{"warningFileNameColor"}, "$field1", color("reset"), " ");
+         print($colors{"warningNumberColor"}, "($field2)", color("reset"), ":");
          srcscan($field3, $colors{"warningMessageColor"});
+         $most_recent_file_name_color = $colors{"warningFileNameColor"};
+         $most_recent_line_no_color = $colors{"warningNumberColor"};
+         $most_recent_message_color = $colors{"warningMessageColor"};
+      }
+      elsif ($field3 =~ m/\s+(E|e)rror:.*/)
+      {
+         # Error
+         print($colors{"errorFileNameColor"}, "$field1", color("reset"), " ");
+         print($colors{"errorNumberColor"}, "($field2)", color("reset"), ":");
+         srcscan($field3, $colors{"errorMessageColor"});
+         $most_recent_file_name_color = $colors{"errorFileNameColor"};
+         $most_recent_line_no_color = $colors{"errorNumberColor"};
+         $most_recent_message_color = $colors{"errorMessageColor"};
       }
       else 
       {
-         # Error
-         print($colors{"errorFileNameColor"}, "$field1:", color("reset"));
-         print($colors{"errorNumberColor"}, "($field2):", color("reset"));
-         srcscan($field3, $colors{"errorMessageColor"});
+         # An intermediate or last line in a warning or error message
+         print($most_recent_file_name_color, "$field1", color("reset"), " ");
+         print($most_recent_line_no_color, "($field2)", color("reset"), ":");
+         srcscan($field3, $most_recent_message_color);
       }
       print("\n");
    }
    elsif (m/^$/) # empty line
    {
+      print($_);
    }
    elsif ($noColor eq "true")
    {

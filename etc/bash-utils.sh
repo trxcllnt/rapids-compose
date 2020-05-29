@@ -940,6 +940,7 @@ fix-nvcc-clangd-compile-commands() {
             -Wno-c++17-extensions
             -Wno-unevaluated-expression'));
 
+        REPLACE_DIAGNOSTIC_COLORS="-Xcompiler=-fdiagnostics-color=always/"
         REPLACE_CROSS_EXECUTION_SPACE_CALL="-Wno-unevaluated-expression=cross-execution-space-call/";
         REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations";
 
@@ -973,6 +974,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
         | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"         \
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
+        | sed -r "s/$REPLACE_DIAGNOSTIC_COLORS/g"              \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
         | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
