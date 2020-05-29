@@ -671,13 +671,15 @@ configure-cpp() {
             -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids";
 
         CMAKE_GENERATOR="Ninja";
+        CMAKE_C_FLAGS="-fdiagnostics-color=always"
+        CMAKE_CXX_FLAGS="-fdiagnostics-color=always"
+        CMAKE_CUDA_FLAGS="-Xcompiler=-fdiagnostics-color=always"
 
         if [ "${DISABLE_DEPRECATION_WARNINGS:-OFF}" == "ON" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D DISABLE_DEPRECATION_WARNING=ON
-            -D CMAKE_C_FLAGS=-Wno-deprecated-declarations
-            -D CMAKE_CXX_FLAGS=-Wno-deprecated-declarations
-            -D CMAKE_CUDA_FLAGS=-Xcompiler=-Wno-deprecated-declarations";
+            D_CMAKE_ARGS="$D_CMAKE_ARGS -D DISABLE_DEPRECATION_WARNING=ON";
+            CMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-deprecated-declarations"
+            CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations"
+            CMAKE_CUDA_FLAGS="${CMAKE_CUDA_FLAGS} -Xcompiler=-Wno-deprecated-declarations"
         fi;
 
         if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
@@ -686,6 +688,7 @@ configure-cpp() {
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D DETECT_CONDA_ENV=0
             -D WITH_UCX=ON
             -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
@@ -709,9 +712,12 @@ configure-cpp() {
         JOBS=$PARALLEL_LEVEL                                                 \
         PARALLEL_LEVEL=$PARALLEL_LEVEL                                       \
         CMAKE_GENERATOR="$CMAKE_GENERATOR"                                   \
-            cmake -G"$CMAKE_GENERATOR" $D_CMAKE_ARGS "$PROJECT_CPP_HOME"     \
-                  -D CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -ptx <SOURCE> -o <ASSEMBLY_SOURCE>'      \
-                  -D CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>' \
+        CFLAGS="$CMAKE_C_FLAGS"                                              \
+        CXXFLAGS="$CMAKE_CXX_FLAGS"                                          \
+        CUDAFLAGS="$CMAKE_CUDA_FLAGS"                                        \
+        cmake -G"$CMAKE_GENERATOR" ${D_CMAKE_ARGS} "$PROJECT_CPP_HOME"       \
+                -D CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -ptx <SOURCE> -o <ASSEMBLY_SOURCE>'      \
+                -D CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>' \
         && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
         ;
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
@@ -791,20 +797,20 @@ set-gcc-version() {
     echo "Using gcc-$V and g++-$V"
     export GCC_VERSION="$V"
     export CXX_VERSION="$V"
+    export NVCC="/usr/local/bin/nvcc"
     export CC="/usr/local/bin/gcc-$GCC_VERSION"
     export CXX="/usr/local/bin/g++-$CXX_VERSION"
     echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
     echo "rapids" | sudo -S update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION} >/dev/null 2>&1;
     # Create or remove ccache compiler symlinks
     if [ "$USE_CCACHE" == "YES" ]; then
-        export NVCC="/usr/local/bin/nvcc"
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
     else
-        export NVCC="$CUDA_HOME/bin/nvcc"
-        echo "rapids" | sudo -S rm "/usr/local/bin/nvcc"  || true                                      >/dev/null 2>&1;
+        # echo "rapids" | sudo -S rm "/usr/local/bin/nvcc" || true                                       >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
@@ -824,8 +830,8 @@ test-cpp() {
     # and all arguments after are ctest arguments. Strip `--` (if found)
     # from the args list before passing the args to ctest. Example:
     #
-    # $ ninja-test TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
-    # $ ninja-test gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
+    # $ test-cudf-cpp TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
+    # $ test-cudf-cpp gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
     ###
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
@@ -934,6 +940,7 @@ fix-nvcc-clangd-compile-commands() {
             -Wno-c++17-extensions
             -Wno-unevaluated-expression'));
 
+        REPLACE_DIAGNOSTIC_COLORS="-Xcompiler=-fdiagnostics-color=always/"
         REPLACE_CROSS_EXECUTION_SPACE_CALL="-Wno-unevaluated-expression=cross-execution-space-call/";
         REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations";
 
@@ -967,6 +974,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
         | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"         \
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
+        | sed -r "s/$REPLACE_DIAGNOSTIC_COLORS/g"              \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
         | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
