@@ -50,23 +50,6 @@ rapids.logs: cmd_args ?= -f
 rapids.logs:
 	@$(MAKE_Q) dc.logs svc="rapids" svc_args="$(args)" cmd_args="$(cmd_args)"
 
-rapids.cudf.run: args ?=
-rapids.cudf.run: cmd_args ?=
-rapids.cudf.run: work_dir ?= /rapids/cudf
-rapids.cudf.run:
-	@$(MAKE_Q) rapids.run work_dir="$(work_dir)" args="$(args)" cmd_args="$(cmd_args)"
-
-rapids.cudf.pytest: args ?= -v -x
-rapids.cudf.pytest:
-	@$(MAKE_Q) rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest $(args)"
-
-rapids.cudf.pytest.debug: args ?= -v -x
-rapids.cudf.pytest.debug:
-	@$(MAKE_Q) rapids.cudf.run work_dir="/rapids/cudf/python/cudf" args="pytest-debug $(args)"
-
-rapids.cudf.lint:
-	@$(MAKE_Q) rapids.cudf.run args="bash -c 'lint-cudf-python'"
-
 notebooks.build:
 	@$(MAKE_Q) dc.build svc="notebooks"
 

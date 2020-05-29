@@ -3,6 +3,7 @@
 **/etc/llvm
 **/etc/conda
 **/etc/.ccache
+**/etc/.bash_aliases
 
 **/etc/rapids/log/*
 **/etc/rapids/include/*

@@ -121,8 +121,9 @@ ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
 
 RUN pip3 install --no-cache-dir conda-merge==0.1.5
 
-ENV PATH="$CONDA_HOME/bin:$CUDA_HOME/bin:\
-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="$CONDA_HOME/bin:\
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\
+$CUDA_HOME/bin"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CUDA_HOME/lib64:/usr/local/lib"
 
 # Expose VSCode debugger port

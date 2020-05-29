@@ -37,7 +37,9 @@ services:
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
-      - "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
+      - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
+      - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:/home/rapids/.colornvccrc"
+      - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
     depends_on:
       - apt-cacher-ng
 
@@ -59,6 +61,9 @@ services:
       - *cugraph
       - *cuspatial
       - *bashrc
+      - *colornvcc
+      - *colornvccrc
+      - *bash_history
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:/home/rapids/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:/home/rapids/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
