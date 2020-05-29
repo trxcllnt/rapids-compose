@@ -756,7 +756,7 @@ build-python() {
              CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$CFLAGS_" \
              python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
-        rm -rf ./*.egg-info;
+        rm -rf ./*.egg-info ./.eggs;
     )
 }
 

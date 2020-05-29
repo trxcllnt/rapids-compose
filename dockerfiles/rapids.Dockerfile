@@ -92,7 +92,7 @@ RUN curl -s -L https://github.com/ccache/ccache/archive/master.zip -o ccache-${C
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
  && mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
-             /home/rapids /home/rapids/.conda /home/rapids/notebooks \
+             "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
  # Create a rapids user with the same GID/UID as your outside OS user,
@@ -101,16 +101,16 @@ RUN curl -s -L https://github.com/ccache/ccache/archive/master.zip -o ccache-${C
     # 1. Set up a rapids home directory
     # 2. Add this user to the tty group
     # 3. Assign bash as the login shell
-    -d /home/rapids -G tty -G sudo -s /bin/bash rapids \
+    -d "$RAPIDS_HOME" -G tty -G sudo -s /bin/bash rapids \
  && echo rapids:rapids | chpasswd \
  && chmod 0777 /tmp \
- && chown -R ${_UID}:${_GID} /home/rapids "$CONDA_HOME" \
- && chmod -R 0755 /var/log /home/rapids "$CONDA_HOME" "$PTVSD_LOG_DIR" \
+ && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
+ && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" "$PTVSD_LOG_DIR" \
  && bash -c "echo -e '#!/bin/bash -e\n\
 exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
- && touch /home/rapids/.bashrc && touch /home/rapids/.bash_history \
- && chown ${_UID}:${_GID} /entrypoint.sh /home/rapids/.bashrc /home/rapids/.bash_history \
+ && touch "$RAPIDS_HOME/.bashrc" && touch "$RAPIDS_HOME/.bash_history" \
+ && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
  && chmod +x /entrypoint.sh
 
 ENV NVCC="/usr/local/bin/nvcc"

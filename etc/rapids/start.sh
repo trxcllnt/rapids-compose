@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-source /home/rapids/.bashrc
+source "$RAPIDS_HOME/.bashrc"
 
 # Create or remove ccache compiler symlinks
 set-gcc-version $GCC_VERSION >/dev/null 2>&1;
@@ -12,7 +12,7 @@ set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 
 # activate the rapids conda environment on bash login
-echo "source /home/rapids/.bashrc && source activate rapids" > /home/rapids/.bash_login
+echo "source \"$RAPIDS_HOME/.bashrc\" && source activate rapids" > "$RAPIDS_HOME/.bash_login"
 
 # If fresh conda env and cmd is build-rapids,
 # do `clean-rapids` to delete build artifacts

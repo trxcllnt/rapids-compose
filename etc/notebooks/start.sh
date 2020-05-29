@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-source /home/rapids/.bashrc
+source "$RAPIDS_HOME/.bashrc"
 
 # Create or remove ccache compiler symlinks
 set-gcc-version $GCC_VERSION >/dev/null 2>&1;
@@ -12,7 +12,7 @@ set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 
 # activate the notebooks conda environment on bash login
-echo "source /home/rapids/.bashrc && source activate notebooks" > /home/rapids/.bash_login
+echo "source \"$RAPIDS_HOME/.bashrc\" && source activate notebooks" > "$RAPIDS_HOME/.bash_login"
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the dask and nvdashboard jupyterlab extensions
@@ -24,7 +24,7 @@ if [ "$FRESH_CONDA_ENV" = "1" ]; then
         "$CONDA_HOME/envs/notebooks/share/jupyter/lab/schemas/@jupyterlab/apputils-extension/themes.json"
 fi
 
-cd /home/rapids/notebooks
+cd "$RAPIDS_HOME/notebooks"
 
 RUN_CMD="$(echo $(eval "echo $@"))"
 

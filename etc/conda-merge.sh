@@ -2,7 +2,7 @@
 
 set -Eeo pipefail
 
-cd /home/rapids
+cd "$RAPIDS_HOME"
 
 ####
 # Merge the rapids projects' envs into one rapids.yml environment file

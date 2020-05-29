@@ -31,8 +31,8 @@ export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 # Define the *_ROOT paths as the symlinks that point to the absolute build dirs. For example:
 # 
 # ```shell
-# CUDF_ROOT="/home/rapids/cudf/cpp/build/debug"
-# CUDF_ROOT_ABS="/home/rapids/cudf/cpp/build/cuda-10.0/some-git-branch/debug"
+# CUDF_ROOT="$HOME/cudf/cpp/build/debug"
+# CUDF_ROOT_ABS="$HOME/cudf/cpp/build/cuda-10.0/some-git-branch/debug"
 # 
 ## Symlink `build/cuda-10.0/some-git-branch/debug` to -> `build/debug`
 # ln -n -s $CUDF_ROOT_ABS $CUDF_ROOT

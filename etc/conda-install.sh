@@ -21,8 +21,8 @@ mkdir -p "$CONDA_HOME"
 
 # ensure conda's installed
 if [[ -z `which conda` ]]; then
-   curl -s -o /home/rapids/miniconda.sh -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-   chmod +x /home/rapids/miniconda.sh && /home/rapids/miniconda.sh -f -b -p "$CONDA_HOME" && rm /home/rapids/miniconda.sh
+   curl -s -o $RAPIDS_HOME/miniconda.sh -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+   chmod +x $RAPIDS_HOME/miniconda.sh && $RAPIDS_HOME/miniconda.sh -f -b -p "$CONDA_HOME" && rm $RAPIDS_HOME/miniconda.sh
    conda config --system --set always_yes yes
 fi
 
@@ -36,7 +36,7 @@ fi
 # - Otherwise if they match, do nothing
 ####
 
-INSIDE__ENV_YML="/home/rapids/$ENV_NAME.yml"
+INSIDE__ENV_YML="$RAPIDS_HOME/$ENV_NAME.yml"
 # TODO: this assumes the conda env name is the same as the folder under `compose/etc/`
 OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME-$CUDA_SHORT_VERSION.yml"
 
@@ -73,6 +73,14 @@ elif [ -n "${CHANGED// }" ]; then
 fi
 
 export FRESH_CONDA_ENV
+
+rm "$RAPIDS_HOME/rmm.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/cudf.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/cuml.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/cugraph.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/cuspatial.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/rapids.yml" || true >/dev/null 2>&1;
+rm "$RAPIDS_HOME/notebooks.yml" || true >/dev/null 2>&1;
 
 mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d"
 mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d"

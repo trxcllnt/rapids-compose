@@ -28,6 +28,8 @@ services:
     build:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
+    cap_add:
+      - SYS_PTRACE
     volumes:
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
@@ -36,10 +38,10 @@ services:
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
-      - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:/home/rapids/.bashrc"
+      - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
-      - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:/home/rapids/.colornvccrc"
-      - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:/home/rapids/.bash_history"
+      - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
+      - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.bash_history"
     depends_on:
       - apt-cacher-ng
 
@@ -64,10 +66,10 @@ services:
       - *colornvcc
       - *colornvccrc
       - *bash_history
-      - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:/home/rapids/.jupyter"
-      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:/home/rapids/notebooks/core"
-      - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:/home/rapids/notebooks/sandbox"
-      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:/home/rapids/notebooks/contrib"
+      - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
+      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:${RAPIDS_HOME:-$PWD}/notebooks/core"
+      - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
+      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
     depends_on:
       - apt-cacher-ng
 
