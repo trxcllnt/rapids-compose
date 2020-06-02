@@ -17,8 +17,12 @@ cat << EOF
             "path": "compose"
         },
         {
-            "name": "rmm",
+            "name": "rmm-cpp",
             "path": "rmm"
+        },
+        {
+            "name": "rmm-python",
+            "path": "rmm/python"
         },
         {
             "name": "cudf",
@@ -63,6 +67,18 @@ cat << EOF
         {
             "name": "cuML-python",
             "path": "cuml/python"
+        },
+        {
+            "name": "raft",
+            "path": "raft"
+        },
+        {
+            "name": "raft-cpp",
+            "path": "raft/cpp"
+        },
+        {
+            "name": "raft-python",
+            "path": "raft/python"
         },
         {
             "name": "cuspatial",

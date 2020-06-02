@@ -24,16 +24,20 @@ services:
 
   rapids:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-10.0}-rapids-${RAPIDS_VERSION:-latest}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-10.0}
     build:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
+    tty: true
+    environment:
+      - TERM=xterm-256color
     cap_add:
       - SYS_PTRACE
     volumes:
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
       - &cuml "${RAPIDS_HOME:-$PWD}/cuml:${RAPIDS_HOME:-$PWD}/cuml"
+      - &raft "${RAPIDS_HOME:-$PWD}/raft:${RAPIDS_HOME:-$PWD}/raft"
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
@@ -47,10 +51,13 @@ services:
 
   notebooks:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-10.0}-rapids-${RAPIDS_VERSION:-latest}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-10.0}
     build:
       <<: *build_settings
       dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile
+    tty: true
+    environment:
+      - TERM=xterm-256color
     ports:
       - "5678:5678"
       - "8888:8888"
@@ -59,6 +66,7 @@ services:
       - *rmm
       - *cudf
       - *cuml
+      - *raft
       - *compose
       - *cugraph
       - *cuspatial
