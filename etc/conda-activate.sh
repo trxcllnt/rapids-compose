@@ -72,7 +72,7 @@ $CUDF_HOME/python/nvstrings:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
 $CUML_HOME/python:\
-$RAFT_HOME/python/raft:\
+$RAFT_HOME/python:\
 $CUGRAPH_HOME/python:\
 $CUSPATIAL_HOME/python/cuspatial"
 
