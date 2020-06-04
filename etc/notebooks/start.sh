@@ -4,6 +4,10 @@ set -Eeo pipefail
 
 source "$RAPIDS_HOME/.bashrc"
 
+export PATH="$CONDA_HOME/bin:\
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\
+$CUDA_HOME/bin"
+
 # Create or remove ccache compiler symlinks
 set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 
@@ -12,7 +16,7 @@ set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 
 # activate the notebooks conda environment on bash login
-echo "source \"$RAPIDS_HOME/.bashrc\" && source activate notebooks" > "$RAPIDS_HOME/.bash_login"
+echo "source activate notebooks && source \"$RAPIDS_HOME/.bashrc\"" > "$RAPIDS_HOME/.bash_login"
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the dask and nvdashboard jupyterlab extensions

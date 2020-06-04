@@ -13,7 +13,6 @@ PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
 						    cuml/python
                             cugraph/python
                             cudf/python/cudf
-                            cudf/python/nvstrings
                             cudf/python/dask_cudf
                             cuspatial/python/cuspatial}"
 
@@ -24,7 +23,6 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
     "python.autoComplete.extraPaths": [
         "$RAPIDS_HOME/rmm/python",
         "$RAPIDS_HOME/raft/python",
-        "$RAPIDS_HOME/cudf/python/nvstrings",
         "$RAPIDS_HOME/cudf/python/cudf",
         "$RAPIDS_HOME/cudf/python/dask_cudf",
         "$RAPIDS_HOME/cuml/python",

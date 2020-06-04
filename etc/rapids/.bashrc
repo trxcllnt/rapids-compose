@@ -5,14 +5,15 @@ export HISTCONTROL=ignoreboth;
 export HISTSIZE=INFINITE;
 export HISTFILESIZE=10000000;
 
-export CCACHE_NOHASHDIR=
+export CCACHE_NOHASHDIR=;
 export CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";
-export CCACHE_COMPILERCHECK="%compiler% --version"
+export CCACHE_COMPILERCHECK="%compiler% --version";
 # Set this to debug ccache preprocessor errors and cache misses
 # export CCACHE_LOGFILE="$COMPOSE_HOME/etc/.ccache/ccache.log";
 
 # Needed for CMake's legacy FindPackage(CUDA) when we're using colornvcc
-export CUDA_BIN_PATH="$CUDA_HOME"
+export CUDA_BIN_PATH="$CUDA_HOME";
+export CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION}";
 
 source "$COMPOSE_HOME/etc/bash-utils.sh"
 
@@ -53,16 +54,16 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;33m\]\u@compose\[\033[00m\]:\[\033[01;36m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)} \[\033[01;33m\]\u@compose\[\033[00m\]:\[\033[01;36m\]\w\[\033[00m\]\$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@compose:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)} \u@compose:\w\$ '
 fi
 unset color_prompt force_color_prompt
 
 # If this is an xterm set the title to user@host:dir
 case "$TERM" in
 xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@compose: \w\a\]$PS1"
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)} \u@compose: \w\a\]$PS1"
     ;;
 *)
     ;;

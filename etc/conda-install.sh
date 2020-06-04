@@ -20,9 +20,9 @@ fi
 mkdir -p "$CONDA_HOME"
 
 # ensure conda's installed
-if [[ -z `which conda` ]]; then
-   curl -s -o $RAPIDS_HOME/miniconda.sh -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-   chmod +x $RAPIDS_HOME/miniconda.sh && $RAPIDS_HOME/miniconda.sh -f -b -p "$CONDA_HOME" && rm $RAPIDS_HOME/miniconda.sh
+if [[ "$(which conda)" == "" ]]; then
+   curl -s -o "$RAPIDS_HOME/miniconda.sh" -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+   chmod +x "$RAPIDS_HOME/miniconda.sh" && "$RAPIDS_HOME/miniconda.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/miniconda.sh"
    conda config --system --set always_yes yes
 fi
 
@@ -36,9 +36,11 @@ fi
 # - Otherwise if they match, do nothing
 ####
 
+CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
+
 INSIDE__ENV_YML="$RAPIDS_HOME/$ENV_NAME.yml"
 # TODO: this assumes the conda env name is the same as the folder under `compose/etc/`
-OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME-$CUDA_SHORT_VERSION.yml"
+OUTSIDE_ENV_YML="$COMPOSE_HOME/etc/$ENV_NAME/$ENV_NAME-$CUDA_TOOLKIT_VERSION.yml"
 
 touch $INSIDE__ENV_YML
 
@@ -97,3 +99,5 @@ chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d/env-vars.sh"
 
 # activate the $ENV_NAME conda environment
 source activate $ENV_NAME
+
+export debian_chroot="$ENV_NAME"

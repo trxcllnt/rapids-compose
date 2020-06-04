@@ -130,6 +130,7 @@ dc:
 		PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
 		RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} \
 		RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
+		CONDA_CUDA_TOOLKIT_VERSION=$${CONDA_CUDA_TOOLKIT_VERSION:-$$CUDA_VERSION} \
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
@@ -140,7 +141,6 @@ init:
 						cuml/python \
 						cugraph/python \
 						cudf/python/cudf \
-						cudf/python/nvstrings \
 						cudf/python/dask_cudf \
 						cuspatial/python/cuspatial" && \
 	touch ./etc/rapids/.bash_history && \
@@ -197,4 +197,5 @@ dc.dind: dind
 		-e PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
 		-e RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} \
 		-e RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
+		-e CONDA_CUDA_TOOLKIT_VERSION=$${CONDA_CUDA_TOOLKIT_VERSION:-$$CUDA_VERSION} \
 		"$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" $(file) $(cmd_args) $(svc) $(svc_args)

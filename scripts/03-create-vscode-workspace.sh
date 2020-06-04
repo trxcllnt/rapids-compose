@@ -93,10 +93,6 @@ cat << EOF
             "path": "cuspatial/python/cuspatial"
         },
         {
-            "name": "nvstrings-python",
-            "path": "cudf/python/nvstrings"
-        },
-        {
             "name": "notebooks",
             "path": "notebooks"
         },
