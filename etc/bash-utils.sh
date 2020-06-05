@@ -416,14 +416,16 @@ export -f clean-rmm-cpp;
 clean-cudf-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning libcudf";
-    rm -rf "$CUDF_ROOT_ABS" \
-           "$CUDF_HOME/python/nvstrings/dist" \
-           "$CUDF_HOME/python/nvstrings/build" \
-           "$CUDF_HOME/python/nvstrings/.hypothesis" \
-           "$CUDF_HOME/python/nvstrings/.pytest_cache";
-    find "$CUDF_HOME/python/nvstrings" -type f -name '*.so' -delete;
-    find "$CUDF_HOME/python/nvstrings" -type f -name '*.pyc' -delete;
-    find "$CUDF_HOME/python/nvstrings" -type d -name '__pycache__' -delete;
+    rm -rf "$CUDF_ROOT_ABS";
+    if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
+        rm -rf "$CUDF_HOME/python/nvstrings/dist" \
+               "$CUDF_HOME/python/nvstrings/build" \
+               "$CUDF_HOME/python/nvstrings/.hypothesis" \
+               "$CUDF_HOME/python/nvstrings/.pytest_cache";
+        find "$CUDF_HOME/python/nvstrings" -type f -name '*.so' -delete;
+        find "$CUDF_HOME/python/nvstrings" -type f -name '*.pyc' -delete;
+        find "$CUDF_HOME/python/nvstrings" -type d -name '__pycache__' -delete;
+    fi
 }
 
 export -f clean-cudf-cpp;
@@ -747,7 +749,10 @@ configure-cpp() {
             -D CUSPATIAL_INCLUDE=${CUSPATIAL_INCLUDE}
             -D PARALLEL_LEVEL=${PARALLEL_LEVEL}
             -D CMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
-            -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids";
+            -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids
+            -D ARROW_INCLUDE=${CONDA_HOME}/envs/rapids/include
+            -D ARROW_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow.so
+            -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so";
 
         CMAKE_GENERATOR="Ninja";
         CMAKE_C_FLAGS="-fdiagnostics-color=always"
