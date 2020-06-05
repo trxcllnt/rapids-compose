@@ -833,6 +833,8 @@ build-python() {
         fi;
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         time env CFLAGS="$CFLAGS_" \
+             RAFT_PATH="$RAFT_HOME" \
+             RAFT_INCLUDE_DIR="$RAFT_INCLUDE" \
              CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$CFLAGS_" \
              python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
