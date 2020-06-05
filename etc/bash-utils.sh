@@ -1146,7 +1146,10 @@ EOF
 export -f create-cpp-launch-json;
 
 print-heading() {
-    echo -e "\n\n################\n#\n# $1 \n#\n################\n\n"
+    for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
+    echo -e "\n#\n# $1 \n#"
+    for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
+    echo -e "\n\n"
 }
 
 export -f print-heading;
