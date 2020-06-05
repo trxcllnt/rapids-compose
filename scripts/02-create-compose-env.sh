@@ -66,7 +66,6 @@ PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel com
 NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")
 BUILD_TESTS=$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")
 BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")
-BUILD_LEGACY_TESTS=$(select_version "Select whether to build RAPIDS legacy C++ tests (ON/OFF)" "OFF")
 
 USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
 
@@ -112,7 +111,6 @@ USE_CCACHE=$USE_CCACHE
 # Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS
-BUILD_LEGACY_TESTS=$BUILD_LEGACY_TESTS
 # Set to one of \"Debug\" \"Release\" \"MinSizeRel\" \"RelWithDebInfo\"
 CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 
