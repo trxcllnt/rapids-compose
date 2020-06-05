@@ -25,7 +25,6 @@
 # --cuspatial   Build libcuspatial and cuspatial (implies --cudf)
 # -b, --bench   Build C++ benchmarks
 # -t, --tests   Build C++ unit tests
-#     --legacy  Build cuDF legacy C++ tests
 # -d, --debug   Build C++ with CMAKE_BUILD_TYPE=Debug
 # -r, --release Build C++ with CMAKE_BUILD_TYPE=Release
 # 
@@ -727,7 +726,6 @@ configure-cpp() {
             -D BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
             -D CMAKE_ENABLE_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
             -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
-            -D BUILD_LEGACY_TESTS=${BUILD_LEGACY_TESTS:-OFF}
             -D RMM_LIBRARY=${RMM_LIBRARY}
             -D CUDF_LIBRARY=${CUDF_LIBRARY}
             -D CUDFTESTUTIL_LIBRARY=${CUDFTESTUTIL_LIBRARY}
@@ -1228,7 +1226,6 @@ update-environment-variables() {
     build_raft=
     build_cugraph=
     build_cuspatial=
-    legacy_tests=
     while [[ "$#" -gt 0 ]]; do
         case $1 in
             -b|--bench) bench="${bench:-ON}";;
@@ -1241,7 +1238,6 @@ update-environment-variables() {
             --rapids-raft) build_raft="${build_raft:-YES}";;
             --cugraph) build_cugraph="${build_cugraph:-YES}";;
             --cuspatial) build_cuspatial="${build_cuspatial:-YES}";;
-            --legacy) legacy_tests="${legacy_tests:-ON}";;
             *) args="${args:+$args }$1";;
         esac; shift;
     done
@@ -1254,7 +1250,6 @@ update-environment-variables() {
     export BUILD_TESTS="${tests:-$BUILD_TESTS}";
     export BUILD_BENCHMARKS="${bench:-$BUILD_BENCHMARKS}";
     export CMAKE_BUILD_TYPE="${btype:-$CMAKE_BUILD_TYPE}";
-    export BUILD_LEGACY_TESTS="${legacy_tests:-$BUILD_LEGACY_TESTS}";
 
     export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
     export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
