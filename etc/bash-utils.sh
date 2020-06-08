@@ -556,6 +556,14 @@ clean-cuspatial-python() {
 
 export -f clean-cuspatial-python;
 
+docs-cudf-cpp() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Generating docs for libcudf";
+    docs-cpp "$CUDF_HOME/cpp/doxygen";
+}
+
+export -f docs-cudf-cpp;
+
 lint-rmm-cpp() {
     print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
 }
@@ -846,6 +854,19 @@ build-python() {
 }
 
 export -f build-python;
+
+docs-cpp() {
+    (
+        cd "$1";
+        doxygen
+        if [[ -n $2 ]]; then
+            cd html
+            python -m http.server --bind localhost $2
+        fi
+    )
+}
+
+export -f docs-cpp;
 
 lint-cpp() {
     (
