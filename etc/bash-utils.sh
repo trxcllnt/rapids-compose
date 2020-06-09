@@ -570,13 +570,54 @@ clean-cuspatial-python() {
 
 export -f clean-cuspatial-python;
 
+docs-rmm-cpp() {
+    # update-environment-variables $@ >/dev/null;
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcudf";
+    docs-cpp "$RMM_HOME" "rmm_doc" "$RMM_HOME/cpp/doxygen/html" $ARGS;
+}
+
+export -f docs-rmm-cpp;
+
 docs-cudf-cpp() {
     # update-environment-variables $@ >/dev/null;
+    ARGS="$(update-environment-variables $@)";
     print-heading "Generating docs for libcudf";
-    docs-cpp "$CUDF_HOME/cpp/doxygen" $@;
+    docs-cpp "$CUDF_HOME" "docs_cudf" "$CUDF_HOME/cpp/doxygen/html" $ARGS;
 }
 
 export -f docs-cudf-cpp;
+
+docs-rapids-raft-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libraft";
+    docs-cpp "$RAFT_HOME" "doc" "$RAFT_ROOT_ABS/html" $ARGS;
+}
+
+export -f docs-rapids-raft-cpp;
+
+docs-cuml-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcuml";
+    docs-cpp "$CUML_HOME" "doc" "$CUML_ROOT_ABS/html" $ARGS;
+}
+
+export -f docs-cuml-cpp;
+
+docs-cugraph-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcugraph";
+    docs-cpp "$CUGRAPH_HOME" "docs_cugraph" "$CUGRAPH_HOME/cpp/doxygen/html" $ARGS;
+}
+
+export -f docs-cugraph-cpp;
+
+# docs-cuspatial-cpp() {
+#     print-heading "Generating docs for libcuspatial";
+#     docs-cpp "$CUSPATIAL_HOME" "docs_cuspatial" "doxygen/html" $@;
+# }
+
+# export -f docs-cuspatial-cpp;
 
 lint-rmm-cpp() {
     print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
@@ -871,17 +912,17 @@ export -f build-python;
 
 docs-cpp() {
     (
-        ARGS="$(update-environment-variables $@)";
-        WATCH=$(echo $ARGS | grep " --watch")
-        SERVE=$(echo $ARGS | grep " --serve")
-        cd "$1";
+        cd "$(find-cpp-home $1)";
+        WATCH=$(echo "$@" | grep " --watch")
+        SERVE=$(echo "$@" | grep " --serve")
+        BUILD_DIR_PATH="$(find-cpp-build-home $1)"
         pids="";
         if [[ "$WATCH" == "" ]]; then
-            bash -lc "echo \"recompiling doxygen...\" && doxygen 2>&1 | tail -n1" &
+            bash -lc "echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1" &
             pids="${pids:+$pids }$!";
         else
             bash -lc "while true; do \
-            find . ../src ../include -type f \
+            find doxygen src include -type f \
                 \( -iname \*.h \
                 -o -iname \*.c \
                 -o -iname \*.md \
@@ -889,13 +930,13 @@ docs-cpp() {
                 -o -iname \*.cuh \
                 -o -iname \*.hpp \
                 -o -iname \*.cpp \) \
-            | entr -dr sh -c 'echo \"recompiling doxygen...\" && doxygen 2>&1 | tail -n1'; \
+            | entr -dr sh -c 'echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1 | tail -n1'; \
             done" &
             pids="${pids:+$pids }$!";
         fi
         if [[ "$SERVE" != "" ]]; then
             PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
-            bash -lc "python -m http.server -d html --bind 0.0.0.0 $PORT" &
+            bash -lc "python -m http.server -d $3 --bind 0.0.0.0 $PORT" &
             pids="${pids:+$pids }$!";
         fi
         # Kill the server and doxygen watcher on ERR/EXIT
