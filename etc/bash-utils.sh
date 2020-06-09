@@ -890,6 +890,8 @@ configure-cpp() {
             -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
         elif [ "$PROJECT_HOME" == "$CUSPATIAL_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D GDAL_INCLUDE=${CONDA_HOME}/envs/rapids/include
+            -D GDAL_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libgdal.so
             -D CONDA_LINK_DIRS=${CONDA_HOME}/envs/rapids/lib
             -D CONDA_INCLUDE_DIRS=${CONDA_HOME}/envs/rapids/include";
         fi;
