@@ -571,7 +571,6 @@ clean-cuspatial-python() {
 export -f clean-cuspatial-python;
 
 docs-rmm-cpp() {
-    # update-environment-variables $@ >/dev/null;
     ARGS="$(update-environment-variables $@)";
     print-heading "Generating docs for libcudf";
     docs-cpp "$RMM_HOME" "rmm_doc" "$RMM_HOME/cpp/doxygen/html" $ARGS;
@@ -580,7 +579,6 @@ docs-rmm-cpp() {
 export -f docs-rmm-cpp;
 
 docs-cudf-cpp() {
-    # update-environment-variables $@ >/dev/null;
     ARGS="$(update-environment-variables $@)";
     print-heading "Generating docs for libcudf";
     docs-cpp "$CUDF_HOME" "docs_cudf" "$CUDF_HOME/cpp/doxygen/html" $ARGS;
@@ -612,12 +610,61 @@ docs-cugraph-cpp() {
 
 export -f docs-cugraph-cpp;
 
-# docs-cuspatial-cpp() {
-#     print-heading "Generating docs for libcuspatial";
-#     docs-cpp "$CUSPATIAL_HOME" "docs_cuspatial" "doxygen/html" $@;
-# }
+docs-cuspatial-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcuspatial";
+    docs-cpp "$CUSPATIAL_HOME" "docs_cuspatial" "doxygen/html" $ARGS;
+}
 
-# export -f docs-cuspatial-cpp;
+export -f docs-cuspatial-cpp;
+
+docs-rmm-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cudf";
+    docs-python "$RMM_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-rmm-python;
+
+docs-cudf-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cudf";
+    docs-python "$CUDF_HOME/docs/cudf" "html" $ARGS;
+}
+
+export -f docs-cudf-python;
+
+docs-rapids-raft-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for raft";
+    docs-python "$RAFT_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-rapids-raft-python;
+
+docs-cuml-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cuml";
+    docs-python "$CUML_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cuml-python;
+
+docs-cugraph-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cugraph";
+    docs-python "$CUGRAPH_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cugraph-python;
+
+docs-cuspatial-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cuspatial";
+    docs-python "$CUSPATIAL_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cuspatial-python;
 
 lint-rmm-cpp() {
     print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
@@ -936,7 +983,7 @@ docs-cpp() {
         fi
         if [[ "$SERVE" != "" ]]; then
             PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
-            bash -lc "python -m http.server -d $3 --bind 0.0.0.0 $PORT" &
+            bash -lc "python -m http.server -d \"$3\" --bind 0.0.0.0 $PORT" &
             pids="${pids:+$pids }$!";
         fi
         # Kill the server and doxygen watcher on ERR/EXIT
@@ -946,6 +993,39 @@ docs-cpp() {
 }
 
 export -f docs-cpp;
+
+docs-python() {
+    (
+        cd "$(find-project-home $1)";
+        WATCH=$(echo "$@" | grep " --watch")
+        SERVE=$(echo "$@" | grep " --serve")
+        pids="";
+        if [[ "$WATCH" == "" ]]; then
+            bash -lc "echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1" &
+            pids="${pids:+$pids }$!";
+        else
+            bash -lc "while true; do \
+            find python \"$1/source\" -type f \
+                \( -iname \*.md \
+                -o -iname \*.py \
+                -o -iname \*.rst \
+                -o -iname \*.css \) \
+            | entr -dr sh -c 'echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1 | tail -n5'; \
+            done" &
+            pids="${pids:+$pids }$!";
+        fi
+        if [[ "$SERVE" != "" ]]; then
+            PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+            bash -lc "python -m http.server -d \"$1/build/html\" --bind 0.0.0.0 $PORT" &
+            pids="${pids:+$pids }$!";
+        fi
+        # Kill the server and sphinx watcher on ERR/EXIT
+        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+        wait ${pids};
+    )
+}
+
+export -f docs-python;
 
 lint-cpp() {
     (
