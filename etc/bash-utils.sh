@@ -77,7 +77,7 @@
 # Commands to build documentation for each project separately:
 #
 # docs-rmm-cpp          - (✝) Build the librmm C++ library documentation
-# docs-cudf-cpp          - (✝) Build the libcudf C++ library documentation
+# docs-cudf-cpp         - (✝) Build the libcudf C++ library documentation
 # docs-cuml-cpp         - (✝) Build the libcuml C++ library documentation
 # docs-cugraph-cpp      - (✝) Build the libcugraph C++ library documentation
 # docs-cuspatial-cpp    - (✝) Build the libcuspatial C++ library documentation
