@@ -20,11 +20,9 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && add-apt-repository -y ppa:git-core/ppa \
  && apt update -y \
  && apt install -y \
-    git sudo \
-    curl wget \
+    jq ed git vim nano sudo curl wget entr \
     # Needed to build ccache from master
     unzip automake autoconf libb2-dev libzstd-dev \
-    jq ed vim nano \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
