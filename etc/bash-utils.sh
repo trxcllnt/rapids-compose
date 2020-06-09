@@ -3,21 +3,21 @@
 # set -Eeo pipefail
 
 ############
-# 
+#
 # This file defines and exports a set of helpful bash functions.
-# 
+#
 # Before executing, each of these functions will read the .env file in your
 # rapids-compose repo. It is safe to edit the .env file while the container
 # is running and re-execute any of these commands. The edited value will be
 # reflected in the command execution.
-# 
+#
 # Note: The (✝) character at the beginning of a command's description denotes
 #       the command can be run from any directory.
-# 
+#
 # Note: All commands accept the following optional arguments. These arguments
 #       will take precedence over .env configurations. If an argument is
 #       omitted, the corresponding .env configuration will be used.
-# 
+#
 # --rmm         Build librmm and rmm
 # --cudf        Build libcudf and cudf (implies --rmm)
 # --cuml        Build libcuml and cuml (implies --cudf)
@@ -27,7 +27,7 @@
 # -t, --tests   Build C++ unit tests
 # -d, --debug   Build C++ with CMAKE_BUILD_TYPE=Debug
 # -r, --release Build C++ with CMAKE_BUILD_TYPE=Release
-# 
+#
 # Examples:
 #   build-rmm-cpp --release        Build the librmm C++ library in release mode
 #   build-rmm-cpp --debug --tests  Build the librmm C++ library and tests in debug mode
@@ -45,63 +45,77 @@
 #
 ###
 # Commands to build each project separately:
-# 
+#
 # build-rmm-cpp          - (✝) Build the librmm C++ library
 # build-cudf-cpp         - (✝) Build the libcudf C++ library
 # build-cuml-cpp         - (✝) Build the libcuml C++ library
 # build-cugraph-cpp      - (✝) Build the libcugraph C++ library
 # build-cuspatial-cpp    - (✝) Build the libcuspatial C++ library
-# 
+#
 # build-rmm-python       - (✝) Build the rmm Cython bindings
 # build-cudf-python      - (✝) Build the cudf Cython bindings
 # build-cuml-python      - (✝) Build the cuml Cython bindings
 # build-cugraph-python   - (✝) Build the cugraph Cython bindings
 # build-cuspatial-python - (✝) Build the cuspatial Cython bindings
-# 
+#
 ###
 # Commands to clean each project separately:
-# 
+#
 # clean-rmm-cpp          - (✝) Clean the librmm C++ build artifacts for the current git branch
 # clean-cudf-cpp         - (✝) Clean the libcudf C++ build artifacts for the current git branch
 # clean-cuml-cpp         - (✝) Clean the libcuml C++ build artifacts for the current git branch
 # clean-cugraph-cpp      - (✝) Clean the libcugraph C++ build artifacts for the current git branch
 # clean-cuspatial-cpp    - (✝) Clean the libcuspatial C++ build artifacts for the current git branch
-# 
+#
 # clean-rmm-python       - (✝) Clean the rmm Cython build assets
 # clean-cudf-python      - (✝) Clean the cudf Cython build assets
 # clean-cuml-python      - (✝) Clean the cuml Cython build assets
 # clean-cugraph-python   - (✝) Clean the cugraph Cython build assets
 # clean-cuspatial-python - (✝) Clean the cuspatial Cython build assets
-# 
+#
 ###
+# Commands to build documentation for each project separately:
+#
+# docs-rmm-cpp          - (✝) Build the librmm C++ library documentation
+# docs-cudf-cpp         - (✝) Build the libcudf C++ library documentation
+# docs-cuml-cpp         - (✝) Build the libcuml C++ library documentation
+# docs-cugraph-cpp      - (✝) Build the libcugraph C++ library documentation
+# docs-cuspatial-cpp    - (✝) Build the libcuspatial C++ library documentation
+#
+# docs-rmm-python       - (✝) Build the rmm Python library documentation
+# docs-cudf-python      - (✝) Build the cudf library documentation
+# docs-cuml-python      - (✝) Build the cuml library documentation
+# docs-cugraph-python   - (✝) Build the cugraph library documentation
+# docs-cuspatial-python - (✝) Build the cuspatial library documentation
+####
 # Commands to lint each C++ project separately:
-# 
+#
 # lint-rmm-cpp        - (✝) Lint/fix the librmm C++/CUDA source files with clang-format
 # lint-cudf-cpp       - (✝) Lint/fix the libcudf C++/CUDA source files with clang-format
 # lint-cuml-cpp       - (✝) Lint/fix the libcuml C++/CUDA source files with clang-format
 # lint-cugraph-cpp    - (✝) Lint/fix the libcugraph C++/CUDA source files with clang-format
 # lint-cuspatial-cpp  - (✝) Lint/fix the libcuspatial C++/CUDA source files with clang-format
-# 
+#
 ###
 # Commands to lint each Python project separately:
-# 
+#
 # lint-rmm-python        - (✝) Lint/fix the rmm Cython and Python source files
 # lint-cudf-python       - (✝) Lint/fix the cudf Cython and Python source files
 # lint-cuml-python       - (✝) Lint/fix the cuml Cython and Python source files
 # lint-cugraph-python    - (✝) Lint/fix the cugraph Cython and Python source files
 # lint-cuspatial-python  - (✝) Lint/fix the cuspatial Cython and Python source files
-# 
+#
 ###
-# Commands to run each project's cpp tests:
+# Commands to run each project's C++ tests:
 #
 # Note: These commands automatically build (if necessary) before testing.
 # Note: Flags are passed to ctest. To see a list of all avaialble flags, run ctest --help
 #
-# test-rmm-cpp        - (✝) Run rmm cpp tests
-# test-cudf-cpp       - (✝) Run cudf cpp tests
-# test-cuml-cpp       - (✝) Run cuml cpp tests
-# test-cugraph-cpp    - (✝) Run cugraph cpp tests
-# test-cuspatial-cpp  - (✝) Run cuspatial cpp tests
+# test-rmm-cpp        - (✝) Run librmm C++ tests
+# test-cudf-cpp       - (✝) Run libcudf C++ tests
+# test-cuml-cpp       - (✝) Run libcuml C++ tests
+# test-cugraph-cpp    - (✝) Run libcugraph C++ tests
+# test-cuspatial-cpp  - (✝) Run libcuspatial C++ tests
 #
 # Usage:
 # test-rmm-cpp TEST_NAME OTHER_TEST_NAME - Build `TEST_NAME` and `OTHER_TEST_NAME`, then execute.
@@ -109,28 +123,28 @@
 #
 ###
 # Commands to run each project's pytests:
-# 
+#
 # Note: These commands automatically change into the correct directory before executing `pytest`.
 # Note: Pass --debug to use with the VSCode debugger `ptvsd`. All other arguments are forwarded to pytest.
 # Note: Arguments that end in '.py' are assumed to be pytest files used to reduce the number of tests
 #       collected on startup by pytest. These arguments will be expanded out to their full paths relative
 #       to the directory where pytests is run.
-# 
+#
 # test-rmm-python        - (✝) Run rmm pytests
 # test-cudf-python       - (✝) Run cudf pytests
 # test-cuml-python       - (✝) Run cuml pytests
 # test-cugraph-python    - (✝) Run cugraph pytests
 # test-cuspatial-python  - (✝) Run cuspatial pytests
-# 
+#
 # Usage:
 # test-cudf-python -n <num_cores>                               - Run all pytests in parallel with `pytest-xdist`
 # test-cudf-python -v -x -k 'a_test_function_name'              - Run all tests named 'a_test_function_name', be verbose, and exit on first fail
 # test-cudf-python -v -x -k 'a_test_function_name' --debug      - Run all tests named 'a_test_function_name', and start ptvsd for VSCode debugging
 # test-cudf-python -v -x -k 'test_a or test_b' foo/test_file.py - Run all tests named 'test_a' or 'test_b' in file paths matching foo/test_file.py
-# 
+#
 ###
 # Misc
-# 
+#
 # cpp-build-type               - (✝) Function to print the C++ CMAKE_BUILD_TYPE
 # cpp-build-dir                - (✝) Function to print the C++ build path relative to a project's C++ source directory
 # make-symlink                 - (✝) Function to safely make non-dereferenced symlinks
@@ -556,6 +570,102 @@ clean-cuspatial-python() {
 
 export -f clean-cuspatial-python;
 
+docs-rmm-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcudf";
+    docs-cpp "$RMM_HOME" "rmm_doc" "$RMM_HOME/cpp/doxygen/html" $ARGS;
+}
+
+export -f docs-rmm-cpp;
+
+docs-cudf-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcudf";
+    docs-cpp "$CUDF_HOME" "docs_cudf" "$CUDF_HOME/cpp/doxygen/html" $ARGS;
+}
+
+export -f docs-cudf-cpp;
+
+docs-rapids-raft-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libraft";
+    docs-cpp "$RAFT_HOME" "doc" "$RAFT_ROOT_ABS/html" $ARGS;
+}
+
+export -f docs-rapids-raft-cpp;
+
+docs-cuml-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcuml";
+    docs-cpp "$CUML_HOME" "doc" "$CUML_ROOT_ABS/html" $ARGS;
+}
+
+export -f docs-cuml-cpp;
+
+docs-cugraph-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcugraph";
+    docs-cpp "$CUGRAPH_HOME" "docs_cugraph" "$CUGRAPH_HOME/cpp/doxygen/html" $ARGS;
+}
+
+export -f docs-cugraph-cpp;
+
+docs-cuspatial-cpp() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for libcuspatial";
+    docs-cpp "$CUSPATIAL_HOME" "docs_cuspatial" "doxygen/html" $ARGS;
+}
+
+export -f docs-cuspatial-cpp;
+
+docs-rmm-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cudf";
+    docs-python "$RMM_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-rmm-python;
+
+docs-cudf-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cudf";
+    docs-python "$CUDF_HOME/docs/cudf" "html" $ARGS;
+}
+
+export -f docs-cudf-python;
+
+docs-rapids-raft-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for raft";
+    docs-python "$RAFT_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-rapids-raft-python;
+
+docs-cuml-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cuml";
+    docs-python "$CUML_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cuml-python;
+
+docs-cugraph-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cugraph";
+    docs-python "$CUGRAPH_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cugraph-python;
+
+docs-cuspatial-python() {
+    ARGS="$(update-environment-variables $@)";
+    print-heading "Generating docs for cuspatial";
+    docs-python "$CUSPATIAL_HOME/docs" "html" $ARGS;
+}
+
+export -f docs-cuspatial-python;
+
 lint-rmm-cpp() {
     print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
 }
@@ -846,6 +956,76 @@ build-python() {
 }
 
 export -f build-python;
+
+docs-cpp() {
+    (
+        cd "$(find-cpp-home $1)";
+        WATCH=$(echo "$@" | grep " --watch")
+        SERVE=$(echo "$@" | grep " --serve")
+        BUILD_DIR_PATH="$(find-cpp-build-home $1)"
+        pids="";
+        if [[ "$WATCH" == "" ]]; then
+            bash -lc "echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1" &
+            pids="${pids:+$pids }$!";
+        else
+            bash -lc "while true; do \
+            find doxygen src include -type f \
+                \( -iname \*.h \
+                -o -iname \*.c \
+                -o -iname \*.md \
+                -o -iname \*.cu \
+                -o -iname \*.cuh \
+                -o -iname \*.hpp \
+                -o -iname \*.cpp \) \
+            | entr -dr sh -c 'echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1 | tail -n1'; \
+            done" &
+            pids="${pids:+$pids }$!";
+        fi
+        if [[ "$SERVE" != "" ]]; then
+            PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+            bash -lc "python -m http.server -d \"$3\" --bind 0.0.0.0 $PORT" &
+            pids="${pids:+$pids }$!";
+        fi
+        # Kill the server and doxygen watcher on ERR/EXIT
+        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+        wait ${pids};
+    )
+}
+
+export -f docs-cpp;
+
+docs-python() {
+    (
+        cd "$(find-project-home $1)";
+        WATCH=$(echo "$@" | grep " --watch")
+        SERVE=$(echo "$@" | grep " --serve")
+        pids="";
+        if [[ "$WATCH" == "" ]]; then
+            bash -lc "echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1" &
+            pids="${pids:+$pids }$!";
+        else
+            bash -lc "while true; do \
+            find python \"$1/source\" -type f \
+                \( -iname \*.md \
+                -o -iname \*.py \
+                -o -iname \*.rst \
+                -o -iname \*.css \) \
+            | entr -dr sh -c 'echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1 | tail -n5'; \
+            done" &
+            pids="${pids:+$pids }$!";
+        fi
+        if [[ "$SERVE" != "" ]]; then
+            PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+            bash -lc "python -m http.server -d \"$1/build/html\" --bind 0.0.0.0 $PORT" &
+            pids="${pids:+$pids }$!";
+        fi
+        # Kill the server and sphinx watcher on ERR/EXIT
+        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+        wait ${pids};
+    )
+}
+
+export -f docs-python;
 
 lint-cpp() {
     (
