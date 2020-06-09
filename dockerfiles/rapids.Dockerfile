@@ -30,6 +30,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     gcc-7 g++-7 \
     gcc-8 g++-8 \
     ninja-build \
+    doxygen graphviz \
     libboost-all-dev \
     python3 python3-pip \
     apt-transport-https \
