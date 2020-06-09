@@ -557,9 +557,9 @@ clean-cuspatial-python() {
 export -f clean-cuspatial-python;
 
 docs-cudf-cpp() {
-    update-environment-variables $@ >/dev/null;
+    # update-environment-variables $@ >/dev/null;
     print-heading "Generating docs for libcudf";
-    docs-cpp "$CUDF_HOME/cpp/doxygen";
+    docs-cpp "$CUDF_HOME/cpp/doxygen" $@;
 }
 
 export -f docs-cudf-cpp;
@@ -857,12 +857,36 @@ export -f build-python;
 
 docs-cpp() {
     (
+        ARGS="$(update-environment-variables $@)";
+        WATCH=$(echo $ARGS | grep " --watch")
+        SERVE=$(echo $ARGS | grep " --serve")
         cd "$1";
-        doxygen
-        if [[ -n $2 ]]; then
-            cd html
-            python -m http.server --bind localhost $2
+        pids="";
+        if [[ "$WATCH" == "" ]]; then
+            bash -lc "echo \"recompiling doxygen...\" && doxygen 2>&1 | tail -n1" &
+            pids="${pids:+$pids }$!";
+        else
+            bash -lc "while true; do \
+            find . ../src ../include -type f \
+                \( -iname \*.h \
+                -o -iname \*.c \
+                -o -iname \*.md \
+                -o -iname \*.cu \
+                -o -iname \*.cuh \
+                -o -iname \*.hpp \
+                -o -iname \*.cpp \) \
+            | entr -dr sh -c 'echo \"recompiling doxygen...\" && doxygen 2>&1 | tail -n1'; \
+            done" &
+            pids="${pids:+$pids }$!";
         fi
+        if [[ "$SERVE" != "" ]]; then
+            PORT="$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1])')";
+            bash -lc "python -m http.server -d html --bind 0.0.0.0 $PORT" &
+            pids="${pids:+$pids }$!";
+        fi
+        # Kill the server and doxygen watcher on ERR/EXIT
+        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+        wait ${pids};
     )
 }
 
