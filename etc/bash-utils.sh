@@ -967,8 +967,7 @@ docs-cpp() {
         BUILD_DIR_PATH="$(find-cpp-build-home $1)"
         pids="";
         if [[ "$WATCH" == "" ]]; then
-            bash -lc "echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1" &
-            pids="${pids:+$pids }$!";
+            bash -lc "echo \"building docs...\" && cmake --build "$BUILD_DIR_PATH" -- $2 2>&1"
         else
             bash -lc "while true; do \
             find doxygen src include -type f \
@@ -988,9 +987,11 @@ docs-cpp() {
             bash -lc "python -m http.server -d \"$3\" --bind 0.0.0.0 $PORT" &
             pids="${pids:+$pids }$!";
         fi
-        # Kill the server and doxygen watcher on ERR/EXIT
-        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
-        wait ${pids};
+        if [[ "$pids" != "" ]]; then
+            # Kill the server and doxygen watcher on ERR/EXIT
+            trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+            wait ${pids};
+        fi
     )
 }
 
@@ -1003,7 +1004,7 @@ docs-python() {
         SERVE=$(echo "$@" | grep " --serve")
         pids="";
         if [[ "$WATCH" == "" ]]; then
-            bash -lc "echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1" &
+            bash -lc "echo \"building docs...\" && make --no-print-directory $2 -C \"$1\" 2>&1"
             pids="${pids:+$pids }$!";
         else
             bash -lc "while true; do \
@@ -1021,9 +1022,11 @@ docs-python() {
             bash -lc "python -m http.server -d \"$1/build/html\" --bind 0.0.0.0 $PORT" &
             pids="${pids:+$pids }$!";
         fi
-        # Kill the server and sphinx watcher on ERR/EXIT
-        trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
-        wait ${pids};
+        if [[ "$pids" != "" ]]; then
+            # Kill the server and sphinx watcher on ERR/EXIT
+            trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+            wait ${pids};
+        fi
     )
 }
 
