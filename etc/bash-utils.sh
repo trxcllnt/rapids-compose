@@ -259,8 +259,8 @@ cuDF: $(should-build-cudf $@) \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then lint-rmm-cpp $@ && lint-rmm-python $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then lint-cudf-cpp $@ && lint-cudf-python $@ || exit 1; fi
-        # if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
-        # if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
+        if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
+        if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
         if [ $(should-build-cuspatial) ]; then lint-cuspatial-cpp $@ && lint-cuspatial-python $@ || exit 1; fi
     )
 }
@@ -703,37 +703,37 @@ lint-cuspatial-cpp() {
 export -f lint-cuspatial-cpp;
 
 lint-rmm-python() {
-    print-heading "Linting rmm" && lint-python "$RMM_HOME";
+    print-heading "Linting rmm" && lint-python "$RMM_HOME" --black --isort --flake8;
 }
 
 export -f lint-rmm-python;
 
 lint-cudf-python() {
-    print-heading "Linting cudf" && lint-python "$CUDF_HOME";
+    print-heading "Linting cudf" && lint-python "$CUDF_HOME" --black --isort --flake8;
 }
 
 export -f lint-cudf-python;
 
 lint-rapids-raft-python() {
-    print-heading "Linting raft" && lint-python "$RAFT_HOME";
+    print-heading "Linting raft" && lint-python "$RAFT_HOME" --flake8;
 }
 
 export -f lint-rapids-raft-python;
 
 lint-cuml-python() {
-    print-heading "Linting cuml" && lint-python "$CUML_HOME";
+    print-heading "Linting cuml" && lint-python "$CUML_HOME" --flake8;
 }
 
 export -f lint-cuml-python;
 
 lint-cugraph-python() {
-    print-heading "Linting cugraph" && lint-python "$CUGRAPH_HOME";
+    print-heading "Linting cugraph" && lint-python "$CUGRAPH_HOME" --flake8;
 }
 
 export -f lint-cugraph-python;
 
 lint-cuspatial-python() {
-    print-heading "Linting cuspatial" && lint-python "$CUSPATIAL_HOME";
+    print-heading "Linting cuspatial" && lint-python "$CUSPATIAL_HOME" --black --isort --flake8;
 }
 
 export -f lint-cuspatial-python;
@@ -1047,7 +1047,7 @@ export -f lint-cpp;
 lint-python() {
     (
         cd "$1";
-        bash "$COMPOSE_HOME/etc/rapids/lint.sh" || true;
+        bash "$COMPOSE_HOME/etc/rapids/lint.sh" ${@:2} || true;
     )
 }
 
@@ -1337,7 +1337,7 @@ print-heading() {
     for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
     echo -e "\n#\n# $1 \n#"
     for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
-    echo -e "\n\n"
+    echo -e "\n"
 }
 
 export -f print-heading;

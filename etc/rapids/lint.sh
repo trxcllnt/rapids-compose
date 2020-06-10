@@ -1,66 +1,97 @@
 #!/usr/bin/env bash
+set -Eeo pipefail
 
-echo -e "\nrunning \`isort --recursive --atomic python\`"
-isort --recursive --atomic python
-echo -e "\nrunning \`black python 2>/dev/null\`"
-black python 2>/dev/null
+# set -x
 
-# Run isort and get results/return code
-ISORT=`isort --recursive --check-only python`
-ISORT_RETVAL=$?
+SHOULD_RUN_BLACK=$(echo " $@ " | grep " --black " || echo "")
+SHOULD_RUN_ISORT=$(echo " $@ " | grep " --isort " || echo "")
+SHOULD_RUN_FLAKE8=$(echo " $@ " | grep " --flake8 " || echo "")
 
-# Run black and get results/return code
-BLACK=`black -q --check python 2>/dev/null`
-BLACK_RETVAL=$?
+BLACK=""
+BLACK_RETVAL="0"
+
+ISORT=""
+ISORT_RETVAL="0"
+
+FLAKE8=""
+FLAKE8_RETVAL="0"
+
+FLAKE8_CYTHON=""
+FLAKE8_CYTHON_RETVAL="0"
+
+if [[ "$SHOULD_RUN_BLACK" != "" ]]; then
+    if [[ "$SHOULD_RUN_ISORT" != "" ]]; then
+        echo -e "Fixing imports..."
+        isort --recursive --atomic python
+        echo -e "Fixing python lint..."
+        black python 2>/dev/null
+        # Run isort and get results/return code
+        ISORT=`isort --recursive --check-only python`
+        ISORT_RETVAL=$?
+
+        # Output results if failure otherwise show pass
+        if [ "$ISORT_RETVAL" != "0" ]; then
+            echo -e "\n\n>>>> FAILED: isort style check; begin output\n\n"
+            echo -e "$ISORT"
+            echo -e "\n\n>>>> FAILED: isort style check; end output\n\n"
+        else
+            echo -e ">>>> PASSED: isort style check"
+        fi
+    fi
+    # Run black and get results/return code
+    BLACK=`black -q --check python 2>/dev/null`
+    BLACK_RETVAL=$?
+    if [ "$BLACK_RETVAL" != "0" ]; then
+        echo -e "\n\n>>>> FAILED: black style check; begin output\n\n"
+        echo -e $(black --check --diff python)
+        echo -e "\n\n>>>> FAILED: black style check; end output\n\n"
+    else
+        echo -e ">>>> PASSED: black style check"
+    fi
+fi
 
 # Run flake8 and get results/return code
-FLAKE=`flake8 python`
-FLAKE_RETVAL=$?
+if [[ "$SHOULD_RUN_FLAKE8" != "" ]]; then
 
-FLAKE_CYTHON=""
-FLAKE_CYTHON_RETVAL="0"
-FLAKE_CYTHON_CONFIG="$(find -type f -name '.flake8.cython' | head -n1)"
+    FLAKE8_CONFIG="$(find python -type f -name '.flake8' | head -n1)"
 
-if [[ "$FLAKE_CYTHON_CONFIG" != "" && -f "$FLAKE_CYTHON_CONFIG" ]]; then
-    # Run flake8-cython and get results/return code
-    FLAKE_CYTHON=`flake8 python --config=$(realpath $FLAKE_CYTHON_CONFIG)`
-    FLAKE_CYTHON_RETVAL=$?
+    if [[ "$FLAKE8_CONFIG" != "" && -f "$FLAKE8_CONFIG" ]]; then
+        # Run flake8-cython and get results/return code
+        FLAKE8_CONFIG="$(realpath $FLAKE8_CONFIG)"
+        FLAKE8=`flake8 python --exclude=cpp,thirdparty,_external_repositories,__init__.py,versioneer.py --config="$FLAKE8_CONFIG"`
+        FLAKE8_RETVAL=$?
+    else
+        FLAKE8=`flake8 python --exclude=cpp,thirdparty,_external_repositories,__init__.py,versioneer.py`
+        FLAKE8_RETVAL=$?
+    fi
+
+    if [ "$FLAKE8_RETVAL" != "0" ]; then
+        echo -e "\n\n>>>> FAILED: flake8 style check; begin output\n\n"
+        echo -e "$FLAKE8"
+        echo -e "\n\n>>>> FAILED: flake8 style check; end output\n\n"
+    else
+        echo -e ">>>> PASSED: flake8 style check"
+    fi
+
+    FLAKE8_CYTHON_CONFIG="$(find python -type f -name '.flake8.cython' | head -n1)"
+
+    if [[ "$FLAKE8_CYTHON_CONFIG" != "" && -f "$FLAKE8_CYTHON_CONFIG" ]]; then
+        # Run flake8-cython and get results/return code
+        FLAKE8_CYTHON_CONFIG="$(realpath $FLAKE8_CYTHON_CONFIG)"
+        FLAKE8_CYTHON=`flake8 python --config="$FLAKE8_CYTHON_CONFIG"`
+        FLAKE8_CYTHON_RETVAL=$?
+
+        if [ "$FLAKE8_CYTHON_RETVAL" != "0" ]; then
+            echo -e "\n\n>>>> FAILED: flake8-cython style check; begin output\n\n"
+            echo -e "$FLAKE8_CYTHON"
+            echo -e "\n\n>>>> FAILED: flake8-cython style check; end output\n\n"
+        else
+            echo -e ">>>> PASSED: flake8-cython style check"
+        fi
+    fi
 fi
 
-# Output results if failure otherwise show pass
-if [ "$ISORT_RETVAL" != "0" ]; then
-  echo -e "\n\n>>>> FAILED: isort style check; begin output\n\n"
-  echo -e "$ISORT"
-  echo -e "\n\n>>>> FAILED: isort style check; end output\n\n"
-else
-  echo -e ">>>> PASSED: isort style check"
-fi
-
-if [ "$BLACK_RETVAL" != "0" ]; then
-  echo -e "\n\n>>>> FAILED: black style check; begin output\n\n"
-  echo -e $(black --check --diff python)
-  echo -e "\n\n>>>> FAILED: black style check; end output\n\n"
-else
-  echo -e ">>>> PASSED: black style check"
-fi
-
-if [ "$FLAKE_RETVAL" != "0" ]; then
-  echo -e "\n\n>>>> FAILED: flake8 style check; begin output\n\n"
-  echo -e "$FLAKE"
-  echo -e "\n\n>>>> FAILED: flake8 style check; end output\n\n"
-else
-  echo -e ">>>> PASSED: flake8 style check"
-fi
-
-if [ "$FLAKE_CYTHON_RETVAL" != "0" ]; then
-  echo -e "\n\n>>>> FAILED: flake8-cython style check; begin output\n\n"
-  echo -e "$FLAKE_CYTHON"
-  echo -e "\n\n>>>> FAILED: flake8-cython style check; end output\n\n"
-else
-  echo -e ">>>> PASSED: flake8-cython style check"
-fi
-
-RETVALS=($ISORT_RETVAL $BLACK_RETVAL $FLAKE_RETVAL $FLAKE_CYTHON_RETVAL)
+RETVALS=($ISORT_RETVAL $BLACK_RETVAL $FLAKE8_RETVAL $FLAKE8_CYTHON_RETVAL)
 IFS=$'\n'
 RETVAL=`echo "${RETVALS[*]}" | sort -nr | head -n1`
 
