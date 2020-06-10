@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-set -Eeo pipefail
-
-# set -x
 
 SHOULD_RUN_BLACK=$(echo " $@ " | grep " --black " || echo "")
 SHOULD_RUN_ISORT=$(echo " $@ " | grep " --isort " || echo "")
