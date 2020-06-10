@@ -232,18 +232,32 @@ raft: $(should-build-rapids-raft $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
-        if [ $(should-build-rmm) == true ]; then clean-rmm-cpp $@ || exit 1; fi
-        if [ $(should-build-cudf) == true ]; then clean-cudf-cpp $@ || exit 1; fi
-        if [ $(should-build-rapids-raft) == true ]; then clean-rapids-raft-cpp $@ || exit 1; fi
-        if [ $(should-build-cuml) == true ]; then clean-cuml-cpp $@ || exit 1; fi
-        if [ $(should-build-cugraph) == true ]; then clean-cugraph-cpp $@ || exit 1; fi
-        if [ $(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@ || exit 1; fi
-        if [ $(should-build-rmm) == true ]; then clean-rmm-python $@ || exit 1; fi
-        if [ $(should-build-cudf) == true ]; then clean-cudf-python $@ || exit 1; fi
-        if [ $(should-build-rapids-raft) == true ]; then clean-rapids-raft-python $@ || exit 1; fi
-        if [ $(should-build-cuml) == true ]; then clean-cuml-python $@ || exit 1; fi
-        if [ $(should-build-cugraph) == true ]; then clean-cugraph-python $@ || exit 1; fi
-        if [ $(should-build-cuspatial) == true ]; then clean-cuspatial-python $@ || exit 1; fi
+
+        pids="";
+
+        run-in-background() {
+            bash -l <<< "$@" &
+            pids="${pids:+$pids }$!"
+        }
+
+        run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-cpp $@; fi"
+        run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-cpp $@; fi"
+        run-in-background "if [ \$(should-build-rapids-raft) == true ]; then clean-rapids-raft-cpp $@; fi"
+        run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-cpp $@; fi"
+        run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-cpp $@; fi"
+        run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@; fi"
+        run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-python $@; fi"
+        run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-python $@; fi"
+        run-in-background "if [ \$(should-build-rapids-raft) == true ]; then clean-rapids-raft-python $@; fi"
+        run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-python $@; fi"
+        run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-python $@; fi"
+        run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-python $@; fi"
+
+        if [[ "$pids" != "" ]]; then
+            # Kill the background procs on ERR/EXIT
+            trap "ERRCODE=$? && kill -9 ${pids} >/dev/null 2>&1 || true && exit $ERRCODE" ERR EXIT
+            wait ${pids};
+        fi
     )
 }
 
@@ -255,10 +269,14 @@ lint-rapids() {
         print-heading "\
 Linting RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
-cuDF: $(should-build-cudf $@) \
+cuDF: $(should-build-cudf $@), \
+raft: $(should-build-rapids-raft $@), \
+cuML: $(should-build-cuml $@), \
+cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then lint-rmm-cpp $@ && lint-rmm-python $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then lint-cudf-cpp $@ && lint-cudf-python $@ || exit 1; fi
+        if [ $(should-build-rapids-raft) == true ]; then lint-rapids-raft-cpp $@ && lint-rapids-raft-python $@ || exit 1; fi
         if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
         if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
         if [ $(should-build-cuspatial) ]; then lint-cuspatial-cpp $@ && lint-cuspatial-python $@ || exit 1; fi
@@ -1334,10 +1352,13 @@ EOF
 export -f create-cpp-launch-json;
 
 print-heading() {
-    for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
-    echo -e "\n#\n# $1 \n#"
-    for ((i=1; i<=${#1}+2; i++)); do echo -n "#"; done
-    echo -e "\n"
+    (
+        msg=""
+        for ((i=1; i<=${#1}+4; i++)); do msg="$msg#"; done
+        msg="$msg\n# $1 #\n"
+        for ((i=1; i<=${#1}+4; i++)); do msg="$msg#"; done
+        echo -e "$msg"
+    )
 }
 
 export -f print-heading;
