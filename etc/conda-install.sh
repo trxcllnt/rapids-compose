@@ -21,9 +21,10 @@ mkdir -p "$CONDA_HOME"
 
 # ensure conda's installed
 if [[ "$(which conda)" == "" ]]; then
-   curl -s -o "$RAPIDS_HOME/miniconda.sh" -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-   chmod +x "$RAPIDS_HOME/miniconda.sh" && "$RAPIDS_HOME/miniconda.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/miniconda.sh"
-   conda config --system --set always_yes yes
+    curl -s -o "$RAPIDS_HOME/miniconda.sh" -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    chmod +x "$RAPIDS_HOME/miniconda.sh" && "$RAPIDS_HOME/miniconda.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/miniconda.sh"
+    conda config --system --set always_yes yes
+    conda config --system --set changeps1 False
 fi
 
 ####
@@ -97,7 +98,9 @@ cp  "$COMPOSE_HOME/etc/conda-deactivate.sh" \
 
 chmod +x "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d/env-vars.sh"
 
-# activate the $ENV_NAME conda environment
-source activate $ENV_NAME
+if [ -z "$(grep changeps1 "$CONDA_HOME/.condarc" 2> /dev/null)" ]; then
+    echo "changeps1: false" >> "$CONDA_HOME/.condarc"
+fi
 
-export debian_chroot="$ENV_NAME"
+# activate the $ENV_NAME conda environment
+source activate "$ENV_NAME"
