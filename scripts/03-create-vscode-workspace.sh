@@ -215,6 +215,7 @@ cat << EOF
             "**/build/temp.linux-x86_64*": true,
             "**/build/bdist.linux-x86_64*": true
         },
+        "terminal.integrated.automationShell.linux": "/bin/bash",
         "terminal.integrated.shell.linux": "/bin/bash",
         "terminal.integrated.shellArgs.linux": ["-c", "rapids_container=\$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1 || echo \"\"); if [ \"\$rapids_container\" == \"\" ]; then exec \$SHELL; else exec docker exec -u \${UID}:\${GID} -it -w \"\$PWD\" \"\$rapids_container\" bash -li; fi"],
     },
