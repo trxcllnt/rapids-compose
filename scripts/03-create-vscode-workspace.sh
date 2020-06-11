@@ -463,7 +463,9 @@ cat << EOF
                 }
             }
         ]
-    }
+    },
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "terminal.integrated.shellArgs.linux": ["-c", "docker exec -it -w $PWD $(docker ps | grep rapidsai/$(whoami)/rapids | cut -d\" \" -f1) bash"],
 }
 EOF
 }
