@@ -16,7 +16,10 @@ set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 source "$COMPOSE_HOME/etc/conda-install.sh" rapids
 
 # activate the rapids conda environment on bash login
-echo "source \"$RAPIDS_HOME/compose/etc/bash-utils.sh && source activate rapids && source \"$RAPIDS_HOME/.bashrc\"" > "$RAPIDS_HOME/.bash_login"
+echo "export CONDA_DEFAULT_ENV=rapids \
+   && source \"$RAPIDS_HOME/.bashrc\" \
+   && source activate rapids" \
+> "$RAPIDS_HOME/.bash_login"
 
 # If fresh conda env and cmd is build-rapids,
 # do `clean-rapids` to delete build artifacts
