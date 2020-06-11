@@ -16,7 +16,7 @@ set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 
 # activate the notebooks conda environment on bash login
-echo "source activate notebooks && source \"$RAPIDS_HOME/.bashrc\"" > "$RAPIDS_HOME/.bash_login"
+echo "source \"$RAPIDS_HOME/compose/etc/bash-utils.sh && source activate notebooks && source \"$RAPIDS_HOME/.bashrc\"" > "$RAPIDS_HOME/.bash_login"
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the dask and nvdashboard jupyterlab extensions
