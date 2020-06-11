@@ -214,7 +214,9 @@ cat << EOF
             "**/build/lib.linux-x86_64*": true,
             "**/build/temp.linux-x86_64*": true,
             "**/build/bdist.linux-x86_64*": true
-        }
+        },
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "terminal.integrated.shellArgs.linux": ["-c", "docker exec -it -w $PWD $(docker ps | grep rapidsai/$(whoami)/rapids | cut -d\" \" -f1) bash"]
     },
     "tasks": {
         "version": "2.0.0",
@@ -463,9 +465,7 @@ cat << EOF
                 }
             }
         ]
-    },
-    "terminal.integrated.shell.linux": "/bin/bash",
-    "terminal.integrated.shellArgs.linux": ["-c", "docker exec -it -w $PWD $(docker ps | grep rapidsai/$(whoami)/rapids | cut -d\" \" -f1) bash"],
+    }
 }
 EOF
 }
