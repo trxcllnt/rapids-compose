@@ -14,6 +14,9 @@ export CCACHE_COMPILERCHECK="%compiler% --version";
 # Needed for CMake's legacy FindPackage(CUDA) when we're using colornvcc
 export CUDA_BIN_PATH="$CUDA_HOME";
 export CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION}";
+export PATH="$CONDA_HOME/bin:\
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\
+$CUDA_HOME/bin"
 
 source "$COMPOSE_HOME/etc/bash-utils.sh"
 

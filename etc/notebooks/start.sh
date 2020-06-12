@@ -4,10 +4,6 @@ set -Eeo pipefail
 
 source "$RAPIDS_HOME/.bashrc"
 
-export PATH="$CONDA_HOME/bin:\
-/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\
-$CUDA_HOME/bin"
-
 # Create or remove ccache compiler symlinks
 set-gcc-version $GCC_VERSION >/dev/null 2>&1;
 
