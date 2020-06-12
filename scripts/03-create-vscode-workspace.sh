@@ -105,6 +105,9 @@ cat << EOF
 
         "git.ignoreLimitWarning": true,
 
+        // Fix to make the "<ctrl>+<shift>+<B>" tasks list launch instantly
+        "typescript.tsc.autoDetect": "off",
+
         "C_Cpp.formatting": "Disabled",
         "C_Cpp.autocomplete": "Disabled",
         "C_Cpp.errorSquiggles": "Disabled",
