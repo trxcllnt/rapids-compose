@@ -105,7 +105,8 @@ cat << EOF
 
         "git.ignoreLimitWarning": true,
 
-        // Fix to make the "<ctrl>+<shift>+<B>" tasks list launch instantly
+        // Fixes to make the "<ctrl>+<shift>+<B>" tasks list launch instantly
+        "task.autoDetect": "off",
         "typescript.tsc.autoDetect": "off",
 
         "C_Cpp.formatting": "Disabled",
@@ -237,7 +238,6 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-rmm-cpp\"",
                 "group": "build",
-                "options": { "cwd": "\${input:rmm_cpp_build_path}" },
                 "problemMatcher": [
                     { "owner": "cuda", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
                     { "owner": "cpp", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
@@ -248,7 +248,6 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cudf-cpp\"",
                 "group": "build",
-                "options": { "cwd": "\${input:cudf_cpp_build_path}" },
                 "problemMatcher": [
                     { "owner": "cuda", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
                     { "owner": "cpp", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
@@ -259,7 +258,6 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cuml-cpp\"",
                 "group": "build",
-                "options": { "cwd": "\${input:cuml_cpp_build_path}" },
                 "problemMatcher": [
                     { "owner": "cuda", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
                     { "owner": "cpp", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
@@ -270,7 +268,6 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cugraph-cpp\"",
                 "group": "build",
-                "options": { "cwd": "\${input:cugraph_cpp_build_path}" },
                 "problemMatcher": [
                     { "owner": "cuda", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
                     { "owner": "cpp", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
@@ -281,7 +278,6 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cuspatial-cpp\"",
                 "group": "build",
-                "options": { "cwd": "\${input:cuspatial_cpp_build_path}" },
                 "problemMatcher": [
                     { "owner": "cuda", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
                     { "owner": "cpp", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
