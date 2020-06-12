@@ -46,16 +46,16 @@ install_vscode_extensions() {
     done
 }
 
-for CODE in "code" "code-insiders"; do
-    # 1. Install Microsoft C++ Tools if it isn't installed
-    # 2. Install vscode-cudacpp if it isn't installed
-    # 3. Install vscode-clangd if it isn't installed
-    if [ -n "$(which $CODE)" ]; then
+for CODE in code code-insiders; do
+    if [ "$(which $CODE)" != "" ]; then
         install_vscode_extensions "$CODE" \
+            "twxs.cmake" \
             "ms-vscode.cpptools" \
             "xaver.clang-format" \
+            "cschlosser.doxdocgen" \
             "kriegalex.vscode-cudacpp" \
             "augustocdias.tasks-shell-input" \
+            "dotiful.dotfiles-syntax-highlighting" \
             "llvm-vs-code-extensions.vscode-clangd";
     fi
 done

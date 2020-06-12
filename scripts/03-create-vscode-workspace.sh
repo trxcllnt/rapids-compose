@@ -101,6 +101,20 @@ cat << EOF
             "path": "notebooks-contrib"
         }
     ],
+    "extensions": {
+        "recommendations": [
+            "twxs.cmake",
+            "ms-python.python",
+            "ms-vscode.cpptools",
+            "xaver.clang-format",
+            "cschlosser.doxdocgen",
+            "guyskk.language-cython",
+            "kriegalex.vscode-cudacpp",
+            "augustocdias.tasks-shell-input",
+            "dotiful.dotfiles-syntax-highlighting",
+            "llvm-vs-code-extensions.vscode-clangd",
+        ]
+    },
     "settings": {
 
         "git.ignoreLimitWarning": true,

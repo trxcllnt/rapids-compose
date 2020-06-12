@@ -58,3 +58,33 @@ for PYDIR in $PYTHON_DIRS; do
 }
 EOF
 done
+
+ask_before_install() {
+    while true; do
+        read -p "$1 " CHOICE </dev/tty
+        case $CHOICE in
+            [Nn]* ) break;;
+            [Yy]* ) eval $2; break;;
+            * ) echo "Please answer 'y' or 'n'";;
+        esac
+    done
+}
+
+install_vscode_extensions() {
+    CODE="$1"
+    for EXT in ${@:2}; do
+        if [ -z "$($CODE --list-extensions | grep $EXT)" ]; then
+            ask_before_install \
+                "Missing $CODE extension $EXT. Install $EXT now? (y/n)" \
+                "$CODE --install-extension $EXT"
+        fi
+    done
+}
+
+for CODE in code code-insiders; do
+    if [ "$(which $CODE)" != "" ]; then
+        install_vscode_extensions "$CODE" \
+            "ms-python.python" \
+            "guyskk.language-cython";
+    fi
+done
