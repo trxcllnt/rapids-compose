@@ -237,35 +237,50 @@ cat << EOF
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-rmm-cpp\"",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:rmm_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
                 "label": "Configure and Build cuDF C++",
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cudf-cpp\"",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cudf_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
                 "label": "Configure and Build cuML C++",
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cuml-cpp\"",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuml_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
                 "label": "Configure and Build cuGraph C++",
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cugraph-cpp\"",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cugraph_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
                 "label": "Configure and Build cuSpatial C++",
                 "type": "shell",
                 "command": "docker exec -u \${UID}:\${GID} -it \${input:rapids_container} bash -lic \"build-cuspatial-cpp\"",
                 "group": "build",
-                "problemMatcher": []
+                "problemMatcher": [
+                    { "owner": "cuda", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 3, "message": 4, "regexp": "^(.*)\\\((\\\d+)\\\):\\\s+(error|warning|note|info):\\\s+(.*)\$"} },
+                    { "owner": "cpp", "fileLocation": ["relative", "\${input:cuspatial_cpp_build_path}"], "pattern": {"file": 1, "line": 2, "severity": 4, "message": 5, "regexp": "^(.*):(\\\d+):(\\\d+):\\\s+(error|warning|note|info):\\\s+(.*)\$"} }
+                ]
             },
             {
                 "label": "Recompile rmm C++ (fast)",
@@ -375,7 +390,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_ROOT)\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_ROOT)\""
                 }
             },
             {
@@ -384,7 +399,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_ROOT)\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_ROOT)\""
                 }
             },
             {
@@ -393,7 +408,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_ROOT)\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_ROOT)\""
                 }
             },
             {
@@ -402,7 +417,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_ROOT)\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_ROOT)\""
                 }
             },
             {
@@ -411,7 +426,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_ROOT)\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_ROOT)\""
                 }
             },
             {
@@ -420,7 +435,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_HOME)/python\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$RMM_HOME)/python\""
                 }
             },
             {
@@ -429,7 +444,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_HOME)/python\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUDF_HOME)/python\""
                 }
             },
             {
@@ -438,7 +453,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_HOME)/python\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUML_HOME)/python\""
                 }
             },
             {
@@ -447,7 +462,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_HOME)/python\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUGRAPH_HOME)/python\""
                 }
             },
             {
@@ -456,7 +471,7 @@ cat << EOF
                 "command": "shellCommand.execute",
                 "args": {
                     "useFirstResult": true,
-                    "command": "docker exec -u \${UID}:\${GID} \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_HOME)/python\""
+                    "command": "docker exec \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1) bash -lic \"echo \\\\\$(realpath -m \\\\\$CUSPATIAL_HOME)/python\""
                 }
             },
             {
