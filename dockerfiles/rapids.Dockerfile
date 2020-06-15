@@ -21,8 +21,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt update -y \
  && apt install -y \
     jq ed git vim nano sudo curl wget entr \
-    # Needed to build ccache from master
-    unzip automake autoconf libb2-dev libzstd-dev \
+    # CMake dependencies
+    curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
@@ -51,6 +51,8 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
+ARG CMAKE_VERSION=3.17.2
+ENV CMAKE_VERSION=${CMAKE_VERSION}
 ARG CCACHE_VERSION=master
 ENV CCACHE_VERSION=${CCACHE_VERSION}
 
@@ -84,9 +86,21 @@ ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
 #  && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
 #  && ./configure && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION} ./ccache-${CCACHE_VERSION}.tar.gz \
 
-RUN curl -s -L https://github.com/ccache/ccache/archive/master.zip -o ccache-${CCACHE_VERSION}.zip \
- && unzip -d ccache-${CCACHE_VERSION} ccache-${CCACHE_VERSION}.zip && cd ccache-${CCACHE_VERSION}/ccache-master \
- && ./autogen.sh && ./configure --disable-man && make install -j${PARALLEL_LEVEL} && cd - && rm -rf ./ccache-${CCACHE_VERSION}* \
+ # Install CMake
+RUN curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
+ && tar -xvzf cmake-$CMAKE_VERSION.tar.gz && cd cmake-$CMAKE_VERSION \
+ && ./bootstrap --system-curl --parallel=${PARALLEL_LEVEL} && make install -j${PARALLEL_LEVEL} \
+ && cd - && rm -rf ./cmake-$CMAKE_VERSION ./cmake-$CMAKE_VERSION.tar.gz \
+ # Install ccache
+ && git clone https://github.com/ccache/ccache.git /tmp/ccache && cd /tmp/ccache \
+ && git checkout -b rapids-compose-tmp e071bcfd37dfb02b4f1fa4b45fff8feb10d1cbd2 \
+ && mkdir -p /tmp/ccache/build && cd /tmp/ccache/build \
+ && cmake \
+    -DENABLE_TESTING=OFF \
+    -DUSE_LIBB2_FROM_INTERNET=ON \
+    -DUSE_LIBZSTD_FROM_INTERNET=ON .. \
+ && make ccache -j${PARALLEL_LEVEL} && make install && cd / && rm -rf /tmp/ccache \
+ # Install tini
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
