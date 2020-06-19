@@ -88,6 +88,7 @@ dependencies:
 - tensorflow
 - umap-learn
 - pip:
+  - graphistry
   - git+https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git
 EOF
 
