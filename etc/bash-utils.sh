@@ -544,6 +544,7 @@ clean-cuml-python() {
     print-heading "Cleaning cuml";
     rm -rf "$CUML_HOME/python/dist" \
            "$CUML_HOME/python/build" \
+           "$CUML_HOME/python/cuml/raft" \
            "$CUML_HOME/python/.hypothesis" \
            "$CUML_HOME/python/.pytest_cache" \
            "$CUML_HOME/python/_external_repositories";
@@ -561,6 +562,7 @@ clean-cugraph-python() {
     rm -rf "$CUGRAPH_HOME/python/dist" \
            "$CUGRAPH_HOME/python/build" \
            "$CUGRAPH_HOME/python/.hypothesis" \
+           "$CUGRAPH_HOME/python/cugraph/raft" \
            "$CUGRAPH_HOME/python/.pytest_cache" \
            "$CUGRAPH_HOME/python/_external_repositories";
     find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
