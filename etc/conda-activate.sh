@@ -49,7 +49,6 @@ export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
 export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
 export CUSPATIAL_ROOT="$CUSPATIAL_HOME/cpp/build/$(basename "$CUSPATIAL_ROOT_ABS")"
-export CUML_BUILD_PATH="cpp/$(cpp-build-dir $CUML_HOME)"
 
 export RMM_LIBRARY="$RMM_ROOT/librmm.so"
 export CUDF_LIBRARY="$CUDF_ROOT/libcudf.so"
@@ -61,8 +60,10 @@ export CUML_LIBRARY="$CUML_ROOT/libcuml.so"
 export CUMLXX_LIBRARY="$CUML_ROOT/libcuml++.so"
 export CUMLCOMMS_LIBRARY="$CUML_ROOT/comms/std/libcumlcomms.so"
 export CUGRAPH_LIBRARY="$CUGRAPH_ROOT/libcugraph.so"
-export CUGRAPH_BUILD_PATH="$CUGRAPH_ROOT"
 export CUSPATIAL_LIBRARY="$CUSPATIAL_ROOT/libcuspatial.so"
+
+export CUML_BUILD_PATH="$CUML_ROOT"
+export CUGRAPH_BUILD_PATH="$CUGRAPH_ROOT"
 
 export LIBCUDF_KERNEL_CACHE_PATH="$(find-cpp-build-home $CUDF_HOME)/.jitify-cache"
 
