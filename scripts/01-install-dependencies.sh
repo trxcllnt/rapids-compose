@@ -54,7 +54,7 @@ install_docker_compose() {
         DOCKER_COMPOSE_VERSION="1.25.5"
     fi
     sudo curl \
-        -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` \
+        -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
         -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
 }
 
@@ -67,13 +67,13 @@ install_nvidia_docker_2() {
 }
 
 # Install curl if not installed
-[ -z `which curl` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }curl libssl-dev libcurl4-openssl-dev"
+[ -z "$(which curl)" ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }curl libssl-dev libcurl4-openssl-dev"
 # Install wget if not installed
-[ -z `which wget` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }wget"
+[ -z "$(which wget)" ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }wget"
 # Install make if not installed
-[ -z `which make` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }make"
+[ -z "$(which make)" ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }make"
 # Install jq if not installed
-[ -z `which jq` ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }jq"
+[ -z "$(which jq)" ] && APT_DEPS="${APT_DEPS:+$APT_DEPS }jq"
 
 if [ -n "$APT_DEPS" ]; then
     sudo apt update || true
@@ -82,22 +82,22 @@ if [ -n "$APT_DEPS" ]; then
 fi;
 
 # Install clangd-11 if not installed
-if [ -z `which clangd` ]; then
+if [ -z "$(which clangd)" ]; then
     ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
 fi
 
 # Install vscode if not installed
-if [ -z `which code` ]; then
+if [ -z "$(which code)" ]; then
     ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
 fi
 
 # Install docker-ce if not installed
-if [ -z `which docker` ]; then
+if [ -z "$(which docker)" ]; then
     ask_before_install "docker not found. Install docker (y/n)?" "install_docker"
 fi
 
 # Install docker-compose if not installed
-if [ -z `which docker-compose` ]; then
+if [ -z "$(which docker-compose)" ]; then
     ask_before_install "docker-compose not found. Install docker-compose (y/n)?" "install_docker_compose"
 fi
 
