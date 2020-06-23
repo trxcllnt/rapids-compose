@@ -47,6 +47,8 @@ services:
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
       - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.bash_history"
+      - "/etc/localtime:/etc/localtime"
+      - "/etc/timezone:/etc/timezone"
     depends_on:
       - apt-cacher-ng
 
@@ -80,6 +82,8 @@ services:
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:${RAPIDS_HOME:-$PWD}/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
       - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
+      - "/etc/localtime:/etc/localtime"
+      - "/etc/timezone:/etc/timezone"
     depends_on:
       - apt-cacher-ng
 
