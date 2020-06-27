@@ -19,6 +19,26 @@ x-service-settings: &service_settings
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
+  tty: true
+  environment:
+    TERM: "${TERM}"
+    # LC_ALL: C
+    # Use the host's X11 display
+    DISPLAY: "${DISPLAY}"
+    XAUTHORITY: "${XAUTHORITY}"
+    XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
+    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
+    DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS}"
+    QT_AUTO_SCREEN_SCALE_FACTOR: 0
+    NVIDIA_DRIVER_CAPABILITIES: all
+  cap_add:
+    - SYS_ADMIN
+    - SYS_PTRACE
+  security_opt:
+    - apparmor=unconfined
+    - seccomp="${COMPOSE_HOME:-$PWD/compose}/etc/.config/docker-seccomp-with-perf.json"
+  depends_on:
+    - apt-cacher-ng
 
 services:
 
@@ -27,13 +47,7 @@ services:
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-10.0}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
-    tty: true
-    environment:
-      - TERM=xterm-256color
-      - NVIDIA_DRIVER_CAPABILITIES=all
-    cap_add:
-      - SYS_PTRACE
+      dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile"
     volumes:
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
@@ -47,24 +61,24 @@ services:
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
       - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.bash_history"
-      - "/etc/localtime:/etc/localtime"
-      - "/etc/timezone:/etc/timezone"
-    depends_on:
-      - apt-cacher-ng
+      - &nsight_settings_ini "${COMPOSE_HOME:-$PWD/compose}/etc/.config/nsight.ini:${RAPIDS_HOME:-$PWD}/.config/NVIDIA Corporation/NVIDIA Nsight Systems.ini"
+      - &etc_localtime "/etc/localtime:/etc/localtime"
+      - &etc_timezone "/etc/timezone:/etc/timezone"
+      - &etc_fonts "/etc/fonts:/etc/fonts:ro"
+      - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
+      - &xdg_runtime_dir "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+      - &dbus_system_bus_socket "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
 
   notebooks:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-10.0}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile
-    tty: true
-    environment:
-      - TERM=xterm-256color
-      - NVIDIA_DRIVER_CAPABILITIES=all
-    ports:
-      - "5678:5678"
-      - "8888:8888"
+      dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile"
+    # ports:
+    #   - "5678:5678"
+    #   - "8888:8888"
     volumes:
       - *ptvsd_logs
       - *rmm
@@ -78,14 +92,18 @@ services:
       - *colornvcc
       - *colornvccrc
       - *bash_history
+      - *nsight_settings_ini
+      - *etc_localtime
+      - *etc_timezone
+      - *etc_fonts
+      - *x11_socket
+      - *usr_share_fonts
+      - *xdg_runtime_dir
+      - *dbus_system_bus_socket
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
       - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:${RAPIDS_HOME:-$PWD}/notebooks/core"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
       - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
-      - "/etc/localtime:/etc/localtime"
-      - "/etc/timezone:/etc/timezone"
-    depends_on:
-      - apt-cacher-ng
 
   apt-cacher-ng:
     restart: always

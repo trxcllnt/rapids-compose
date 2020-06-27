@@ -3,7 +3,7 @@ ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
-FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
+FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG CUDA_SHORT_VERSION
 
@@ -33,7 +33,22 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     doxygen graphviz \
     libboost-all-dev \
     python3 python3-pip \
+    # Needed for nsight-gui
+    ca-certificates \
     apt-transport-https \
+    libglib2.0-0 libsqlite3-0 \
+    xcb xkb-data openssh-client \
+    dbus fontconfig gnupg libfreetype6 \
+    libx11-xcb1 libxcb-glx0 libxcb-xkb1 \
+    libxcomposite1 libxi6 libxml2 libxrender1 \
+ && bash -c '\
+if [[ "$CUDA_SHORT_VERSION" == "10.1" ]]; then \
+    apt install -y cuda-nsight-systems-10-1 nsight-systems-2019.3.7; \
+elif [[ "$CUDA_SHORT_VERSION" == "10.2" ]]; then \
+    apt install -y cuda-nsight-systems-10-2 nsight-systems-2019.5.2; \
+elif [[ "$CUDA_SHORT_VERSION" == "11.0" ]]; then \
+    apt install -y cuda-nsight-systems-11-0 nsight-systems-2020.2.5; \
+fi' \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
