@@ -182,11 +182,11 @@ conflicts. What do I do?"
 repos (cuDF, cuML, cuGraph, RMM, etc.). So if one of those repos on your system is out of sync, 
 there can be conflicts. To solve this:
 
- - ensure you have all repos pulled to the same branch. If you are working on a feature branch,
+ * ensure you have all repos pulled to the same branch. If you are working on a feature branch,
    you may need to merge the latest from the base branch into your feature branch.
- - `compose/scripts/git-checkout-same-branch.sh` is a script that automates checking out all of your
+ * `compose/scripts/git-checkout-same-branch.sh` is a script that automates checking out all of your
    repos to the same branch. It examines the repos and prompts with a choice of common branches.
- - If you are using a CUDA toolkit release candidate or prerelease (e.g. CUDA 11.0 RC), there may
+ * If you are using a CUDA toolkit release candidate or prerelease (e.g. CUDA 11.0 RC), there may
    not be conda packages for this available yet. In this case, you can still build RAPIDS libraries 
    (e.g. libcudf.so) from source, but you may not be able to build and use the Python 
    bindings/libraries. In this situation, in the `compose/.env` file, you need to set `CUDA_VERSION`
