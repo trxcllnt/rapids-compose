@@ -222,7 +222,7 @@ cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-python $@ || exit 1; fi;
-        #if [ $(should-build-blazingsql) == true ]; then build-blazingsql $@ || exit 1; fi;
+        if [ $(should-build-blazingsql) == true ]; then build-blazingsql $@ || exit 1; fi;
     )
 }
 
@@ -444,9 +444,11 @@ build-cuspatial-python() {
 export -f build-cuspatial-python;
 
 build-blazingsql() {
-    BLAZINGSQL_HOME=$THIRDPARTY_HOME/blazingsql
     if [ ! -d "$BLAZINGSQL_HOME/thirdparty/cudf" ]; then 
-        ln -s $CUDF_HOME $BLAZINGSQL_HOME/thirdparty/cudf
+        # link to host cudf? this causes issues with running 
+        # BlazingSQLs build script if you're running on a fork
+        #ln -s $CUDF_HOME $BLAZINGSQL_HOME/thirdparty/cudf
+        
         ln -s $BLAZINGSQL_HOME $CONDA_PREFIX/blazingsql
     fi
     export CUDACXX=/usr/local/cuda/bin/nvcc
