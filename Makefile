@@ -124,6 +124,7 @@ dc:
 		_GID=$${GID:-$(GID)} \
 		RAPIDS_HOME="$$RAPIDS_HOME" \
 		COMPOSE_HOME="$$COMPOSE_HOME" \
+		THIRDPARTY_HOME="$$THIRDPARTY_HOME" \
 		PARALLEL_LEVEL=$${PARALLEL_LEVEL:-$(shell nproc --ignore=2)} \
 		CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
@@ -186,6 +187,7 @@ dc.dind: dind
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/cuspatial:$$RAPIDS_HOME/cuspatial" \
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
+		-v "$$THIRDPARTY_HOME:$$THIRDPARTY_HOME" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-e _UID=$${UID:-$(UID)} \

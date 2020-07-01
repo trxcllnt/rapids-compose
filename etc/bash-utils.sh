@@ -56,8 +56,7 @@
 # build-cudf-python      - (✝) Build the cudf Cython bindings
 # build-cuml-python      - (✝) Build the cuml Cython bindings
 # build-cugraph-python   - (✝) Build the cugraph Cython bindings
-# build-cuspatial-python - (✝) Build the cuspatial Cython bindings
-#
+
 ###
 # Commands to clean each project separately:
 #
@@ -193,6 +192,13 @@ should-build-cuspatial() {
 
 export -f should-build-cuspatial;
 
+should-build-blazingsql() {
+    update-environment-variables $@ >/dev/null;
+    [ "$BUILD_BLAZINGSQL" == "YES" ] && echo true || echo false;
+}
+
+export -f should-build-blazingsql;
+
 build-rapids() {
     (
         set -Eeo pipefail
@@ -216,6 +222,7 @@ cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-python $@ || exit 1; fi;
+        #if [ $(should-build-blazingsql) == true ]; then build-blazingsql $@ || exit 1; fi;
     )
 }
 
@@ -437,16 +444,14 @@ build-cuspatial-python() {
 export -f build-cuspatial-python;
 
 build-blazingsql() {
+    BLAZINGSQL_HOME=$THIRDPARTY_HOME/blazingsql
     if [ ! -d "$BLAZINGSQL_HOME/thirdparty/cudf" ]; then 
         ln -s $CUDF_HOME $BLAZINGSQL_HOME/thirdparty/cudf
         ln -s $BLAZINGSQL_HOME $CONDA_PREFIX/blazingsql
     fi
     export CUDACXX=/usr/local/cuda/bin/nvcc
-    pushd $CONDA_PREFIX/blazingsql/thirdparty
-        git clone https://github.com/googleapis/google-cloud-cpp.git
-        git clone https://github.com/zeromq/cppzmq.git
-        wget http://www.apache.org/dyn/closer.cgi?path=/thrift/0.13.0/thrift-0.13.0.tar.gz -O thrift-0.13.0.tar.gz
-        tar -xvf thrift-0.13.0.tar.gz
+    pushd $CONDA_PREFIX/blazingsql/
+        ./build.sh
     popd
 }
 
