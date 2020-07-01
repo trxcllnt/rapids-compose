@@ -93,6 +93,8 @@ if [[ "$BUILD_CUDF" == "NO" ]]; then
     BUILD_RMM=$(choose_bool_option "Build rmm C++ and Cython? (Y/N)" "YES")
 fi
 
+BUILD_BLAZINGSQL=$(choose_bool_option "Build BlazingSQL  (Y/N)" "NO")
+
 compose_env_file() {
     echo "\
 # Outside paths for docker volume mounts
@@ -131,6 +133,12 @@ BUILD_RAFT=$BUILD_RAFT
 BUILD_CUSPATIAL=$BUILD_CUSPATIAL
 # Whether to disable rmm C++ deprecation warnings
 DISABLE_DEPRECATION_WARNINGS=ON
+
+###
+# Select external dependencies to build
+###
+# Wether to build BlazingSQL (implies BUILD_BLAZINGSQL=YES)
+BUILD_BLAZINGSQL=$BUILD_BLAZINGSQL
 
 # Select which GPU(s) the container will use when running tests/notebooks
 NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES

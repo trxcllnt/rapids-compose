@@ -26,32 +26,56 @@ EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
 
-cat "$RMM_HOME/conda/environments/rmm_dev_cuda10.0.yml" \
-  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > rmm.yml
+if [ "$BUILD_RMM" = "YES" ]; then
+  cat "$RMM_HOME/conda/environments/rmm_dev_cuda10.0.yml" \
+    | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
+    | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
+    > rmm.yml
+    RAPIDS_CONDA="$RAPIDS_CONDA rmm.yml"
+fi
 
+if [ "$BUILD_CUDF" = "YES" ]; then
 cat "$CUDF_HOME/conda/environments/cudf_dev_cuda10.0.yml" \
   | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cudf.yml
+  RAPIDS_CONDA="$RAPIDS_CONDA cudf.yml"
+fi
 
+if [ "$BUILD_CUML" = "YES" ]; then
 cat "$CUML_HOME/conda/environments/cuml_dev_cuda10.0.yml" \
   | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cuml.yml
+  RAPIDS_CONDA="$RAPIDS_CONDA cuml.yml"
+fi
 
+if [ "$BUILD_CUGRAPH" = "YES" ]; then
 cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.0.yml" \
   | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cugraph.yml
+  RAPIDS_CONDA="$RAPIDS_CONDA cugraph.yml"
+fi
 
+if [ "$BUILD_CUSPATIAL" = "YES" ]; then
 cat "$CUSPATIAL_HOME/conda/environments/cuspatial_dev_cuda10.0.yml" \
   | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cuspatial.yml
+  RAPIDS_CONDA="$RAPIDS_CONDA cuspatial.yml"
+fi
 
-conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > merged.yml
+if [ "$BUILD_BLAZINGSQL" = "YES" ]; then
+  cat "$RAPIDS_HOME/thirdparty/blazingsql/conda/recipes/blazingsql/meta.yaml" \
+  | tail -n +21 \
+  | sed -r "s/\{\{ cuda_version \}\}/$CUDA_TOOLKIT_VERSION/g" \
+  | sed -r "s!\{\{ minor_version \}\}!$CUDA_TOOLKIT_VERSION!g" \
+  > blazingsql.yml
+  RAPIDS_CONDA="$RAPIDS_CONDA blazingsql.yml"
+fi
+
+conda-merge $RAPIDS_CONDA > merged.yml
 
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \

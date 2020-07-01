@@ -436,6 +436,22 @@ build-cuspatial-python() {
 
 export -f build-cuspatial-python;
 
+build-blazingsql() {
+    if [ ! -d "$BLAZINGSQL_HOME/thirdparty/cudf" ]; then 
+        ln -s $CUDF_HOME $BLAZINGSQL_HOME/thirdparty/cudf
+        ln -s $BLAZINGSQL_HOME $CONDA_PREFIX/blazingsql
+    fi
+    export CUDACXX=/usr/local/cuda/bin/nvcc
+    pushd $CONDA_PREFIX/blazingsql/thirdparty
+        git clone https://github.com/googleapis/google-cloud-cpp.git
+        git clone https://github.com/zeromq/cppzmq.git
+        wget http://www.apache.org/dyn/closer.cgi?path=/thrift/0.13.0/thrift-0.13.0.tar.gz -O thrift-0.13.0.tar.gz
+        tar -xvf thrift-0.13.0.tar.gz
+    popd
+}
+
+export -f build-blazingsql;
+
 clean-rmm-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning librmm";
