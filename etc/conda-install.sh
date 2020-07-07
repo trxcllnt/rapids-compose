@@ -27,6 +27,10 @@ if [[ "$(which conda)" == "" ]]; then
     conda config --system --set changeps1 False
 fi
 
+if [[ "$(which mamba)" == "" ]]; then
+    conda install -n base -c conda-forge mamba
+fi
+
 ####
 # Diff the conda environment.yml file created when the container was built
 # against the environment.yml that exists in the container's volume mount.
@@ -59,8 +63,9 @@ FRESH_CONDA_ENV=${FRESH_CONDA_ENV:-0}
 if [ ! -d "$CONDA_HOME/envs/$ENV_NAME" ]; then
     FRESH_CONDA_ENV=1
     # create a new environment
-    conda update -n base -c defaults conda
-    conda env create -n $ENV_NAME --file $INSIDE__ENV_YML
+    mamba update -n base -c defaults conda
+    mamba update -n base -c conda-forge mamba
+    mamba env create -n $ENV_NAME --file $INSIDE__ENV_YML
     # copy the conda environment.yml from inside the container to the outside
     cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
 # otherwise if the environment.yml inside/outside are different, update the existing conda env
@@ -69,8 +74,9 @@ elif [ -n "${CHANGED// }" ]; then
     # print the diff to the console for debugging
     diff -wy $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true
     # update the existing environment
-    conda update -n base -c defaults conda
-    conda env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune
+    mamba update -n base -c defaults conda
+    mamba update -n base -c conda-forge mamba
+    mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune
     # copy the conda environment.yml from inside the container to the outside
     cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
 fi
