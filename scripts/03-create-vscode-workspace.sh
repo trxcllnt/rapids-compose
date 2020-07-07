@@ -172,6 +172,8 @@ cat << EOF
             "**/build/release": true,
             "**/build/relwithdebinfo": true
         },
+        "files.insertFinalNewline": true,
+        "files.trimFinalNewlines": true,
         "files.associations": {
             "*.cu": "cuda",
             "*.cuh": "cuda",
