@@ -5,7 +5,7 @@ set -Eeo pipefail
 COMPOSE_HOME=$(dirname $(realpath "$0"))
 COMPOSE_HOME=$(realpath "$COMPOSE_HOME/../")
 RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
-THIRDPARTY_HOME=$(realpath "$RAPIDS_HOME/thirdparty/")
+EXTRA_HOME=$(realpath "$RAPIDS_HOME/extra/")
 
 cd "$RAPIDS_HOME"
 
@@ -156,14 +156,14 @@ for REPO in $ALL_REPOS; do
     remove_post_checkout_hook $REPO
 done
 
-if [ ! -d $THIRDPARTY_HOME ]; then
-    mkdir -p $THIRDPARTY_HOME
+if [ ! -d $EXTRA_HOME ]; then
+    mkdir -p $EXTRA_HOME
 fi
 
 if [ "$BUILD_BLAZING" = "YES" ]; then
-    if [ ! -d "$THIRDPARTY_HOME/blazingsql" ]; then
-        pushd $THIRDPARTY_HOME
-        git clone git@github.com:BlazingDB/blazingsql.git 
+    if [ ! -d "$EXTRA_HOME/blazingsql" ]; then
+        pushd $EXTRA_HOME
+            git clone git@github.com:BlazingDB/blazingsql.git 
         popd
     fi
 fi

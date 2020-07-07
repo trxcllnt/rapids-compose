@@ -14,7 +14,7 @@ x-service-settings: &service_settings
       CXX_VERSION: "${CXX_VERSION:-5}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
-      THIRDPARTY_HOME: "${THIRDPARTY_HOME:-$PWD/thirdparty}"
+      EXTRA_HOME: "${EXTRA_HOME:-$PWD/extra}"
       CUDA_VERSION: "${CUDA_VERSION:-10.0}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
@@ -43,7 +43,7 @@ services:
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
-      - &thirdparty "${RAPIDS_HOME:-$PWD}/thirdparty:${RAPIDS_HOME:-$PWD}/thirdparty"
+      - &extra "${RAPIDS_HOME:-$PWD}/extra:${RAPIDS_HOME:-$PWD}/extra"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
@@ -76,7 +76,7 @@ services:
       - *compose
       - *cugraph
       - *cuspatial
-      - *thirdparty
+      - *extra
       - *bashrc
       - *colornvcc
       - *colornvccrc

@@ -67,7 +67,7 @@ cat "$CUSPATIAL_HOME/conda/environments/cuspatial_dev_cuda10.0.yml" \
 fi
 
 if [ "$BUILD_BLAZINGSQL" = "YES" ]; then
-  cat "$RAPIDS_HOME/thirdparty/blazingsql/conda/recipes/blazingsql/meta.yaml" \
+  cat "$RAPIDS_HOME/extra/blazingsql/conda/recipes/blazingsql/meta.yaml" \
   | tail -n +21 \
   | sed -r "s/\{\{ cuda_version \}\}/$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!\{\{ minor_version \}\}!$CUDA_TOOLKIT_VERSION!g" \

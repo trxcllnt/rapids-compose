@@ -444,16 +444,14 @@ build-cuspatial-python() {
 export -f build-cuspatial-python;
 
 build-blazingsql() {
-    if [ ! -d "$BLAZINGSQL_HOME/thirdparty/cudf" ]; then 
-        # link to host cudf? this causes issues with running 
-        # BlazingSQLs build script if you're running on a fork
-        #ln -s $CUDF_HOME $BLAZINGSQL_HOME/thirdparty/cudf
-        
+    if [ ! -d "$CONDA_PREFIX/blazingsql" ]; then 
         ln -s $BLAZINGSQL_HOME $CONDA_PREFIX/blazingsql
     fi
-    export CUDACXX=/usr/local/cuda/bin/nvcc
+    export CUDACXX="/usr/local/bin/nvcc"
     pushd $CONDA_PREFIX/blazingsql/
-        ./build.sh
+        conda install --yes -c conda-forge google-cloud-cpp ninja
+        conda install --yes -c conda-forge gtest gmock cppzmq maven
+        ./build.sh -t
     popd
 }
 
