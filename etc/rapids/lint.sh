@@ -19,11 +19,11 @@ FLAKE8_CYTHON_RETVAL="0"
 if [[ "$SHOULD_RUN_BLACK" != "" ]]; then
     if [[ "$SHOULD_RUN_ISORT" != "" ]]; then
         echo -e "Fixing imports..."
-        isort --recursive --atomic python
+        isort --atomic python/**/*.py
         echo -e "Fixing python lint..."
         black python 2>/dev/null
         # Run isort and get results/return code
-        ISORT=`isort --recursive --check-only python`
+        ISORT=`isort --check-only python/**/*.py`
         ISORT_RETVAL=$?
 
         # Output results if failure otherwise show pass
