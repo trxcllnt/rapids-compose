@@ -1509,7 +1509,7 @@ update-environment-variables() {
 export -f update-environment-variables;
 
 print-env() {
-    bash $COMPOSE_HOME/etc/print-env.sh    
+    bash $COMPOSE_HOME/etc/print_env.sh    
 }
 
 export -f print-env;

@@ -50,11 +50,6 @@ rapids.logs: cmd_args ?= -f
 rapids.logs:
 	@$(MAKE_Q) dc.logs svc="rapids" svc_args="$(args)" cmd_args="$(cmd_args)"
 
-rapids.debug.env: args ?=
-rapids.debug.env: cmd_args ?= -f
-rapids.debug.env:
-	@$(MAKE_Q) dc.run svc="rapids" args="print-env"
-
 notebooks.build:
 	@$(MAKE_Q) dc.build svc="notebooks"
 
