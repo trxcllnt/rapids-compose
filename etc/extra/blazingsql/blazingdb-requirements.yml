@@ -1,0 +1,8 @@
+name: blazingdb_dev
+dependencies:
+  - google-cloud-cpp>=1.15.0
+  - ninja>=1.10.0
+  - maven>=3.6.0
+  - cppzmq>=4.6.0
+  - gmock>=1.10.0
+  - gtest>=1.10.0

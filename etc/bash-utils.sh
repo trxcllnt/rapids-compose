@@ -447,10 +447,12 @@ build-blazingsql() {
     if [ ! -d "$CONDA_PREFIX/blazingsql" ]; then 
         ln -s $BLAZINGSQL_HOME $CONDA_PREFIX/blazingsql
     fi
-    export CUDACXX="/usr/local/bin/nvcc"
+    # export CUDACXX="/usr/local/bin/nvcc"
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building blazingsql";
     pushd $CONDA_PREFIX/blazingsql/
-        conda install --yes -c conda-forge google-cloud-cpp ninja
-        conda install --yes -c conda-forge gtest gmock cppzmq maven
+        # conda install --yes -c conda-forge google-cloud-cpp ninja
+        # conda install --yes -c conda-forge gtest gmock cppzmq maven
         ./build.sh -t
     popd
 }

@@ -163,7 +163,11 @@ fi
 if [ "$BUILD_BLAZING" = "YES" ]; then
     if [ ! -d "$EXTRA_HOME/blazingsql" ]; then
         pushd $EXTRA_HOME
-            git clone git@github.com:BlazingDB/blazingsql.git 
+            # PR to BlazingDB for CUDFTESTUTIL library hits
+            # https://github.com/BlazingDB/blazingsql/pull/860/
+            git clone -b cudftest-util-cmake-testpath git@github.com:millerhooks/blazingsql.git 
+            
+            #git clone git@github.com:BlazingDB/blazingsql.git 
         popd
     fi
 fi

@@ -72,7 +72,7 @@ if [ "$BUILD_BLAZINGSQL" = "YES" ]; then
   | sed -r "s/\{\{ cuda_version \}\}/$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!\{\{ minor_version \}\}!$CUDA_TOOLKIT_VERSION!g" \
   > blazingsql.yml
-  RAPIDS_CONDA="$RAPIDS_CONDA blazingsql.yml"
+  RAPIDS_CONDA="$RAPIDS_CONDA blazingsql.yml $RAPIDS_HOME/compose/etc/extra/blazingsql/blazingdb-requirements.yml"
 fi
 
 conda-merge $RAPIDS_CONDA > merged.yml

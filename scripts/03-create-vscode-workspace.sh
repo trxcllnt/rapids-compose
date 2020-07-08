@@ -8,6 +8,15 @@ RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
 
 cd "$RAPIDS_HOME"
 
+if [ -d "$RAPIDS_HOME/extra" ]; then 
+read -r -d '' EXTRA_HOME <<- EOM
+        {
+            "name": "extra",
+            "path": "extra"
+        },
+EOM
+fi   
+
 rapids_vscode_workspace() {
 cat << EOF
 {
@@ -27,10 +36,10 @@ cat << EOF
         {
             "name": "cudf",
             "path": "cudf"
+        },        {
+            "name": "compose",
+            "path": "compose"
         },
-        {
-            "name": "cudf-cpp",
-            "path": "cudf/cpp"
         },
         {
             "name": "cudf-java",
@@ -99,6 +108,10 @@ cat << EOF
         {
             "name": "notebooks-contrib",
             "path": "notebooks-contrib"
+        },
+        {
+            "name": "extra",
+            "path": "extra"
         }
     ],
     "extensions": {
