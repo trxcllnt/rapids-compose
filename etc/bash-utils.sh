@@ -1511,4 +1511,10 @@ update-environment-variables() {
 
 export -f update-environment-variables;
 
+print-env() {
+    bash $COMPOSE_HOME/etc/print-env.sh    
+}
+
+export -f print-env;
+
 # set +Eeo pipefail
