@@ -335,12 +335,13 @@ build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     D_CMAKE_ARGS=$(update-environment-variables $@);
     D_CMAKE_ARGS="$D_CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+    D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
     (
         cd "$CUDF_HOME/java";
         mkdir -p "$CUDF_JNI_ROOT_ABS";
         print-heading "Building libcudfjni";
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        mvn clean package "$D_CMAKE_ARGS" "$CUDF_JNI_ROOT"
+        mvn clean package ${D_CMAKE_ARGS} -Dnative.build.path="$CUDF_JNI_ROOT"
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
