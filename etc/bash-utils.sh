@@ -904,7 +904,7 @@ configure-cpp() {
             -D WITH_UCX=ON
             -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
-            -D BUILD_CUML_MG_TESTS=${BUILD_TESTS:-OFF}
+            -D BUILD_CUML_MG_TESTS=OFF
             -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
             -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
             -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
