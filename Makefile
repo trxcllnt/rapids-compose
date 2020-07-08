@@ -188,9 +188,18 @@ dc.dind: dind
 		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+		-v "/usr/share/fonts:/usr/share/fonts:ro" \
+		-v "$${XDG_RUNTIME_DIR}:$${XDG_RUNTIME_DIR}" \
+		-v "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket" \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \
 		-e RAPIDS_HOME="$$RAPIDS_HOME" \
+		-e DISPLAY="$$DISPLAY" \
+		-e XAUTHORITY="$$XAUTHORITY" \
+		-e XDG_RUNTIME_DIR="$$XDG_RUNTIME_DIR" \
+		-e XDG_SESSION_TYPE="$$XDG_SESSION_TYPE" \
+		-e DBUS_SESSION_BUS_ADDRESS="$$DBUS_SESSION_BUS_ADDRESS" \
 		-e PARALLEL_LEVEL=$${PARALLEL_LEVEL:-$(shell nproc --ignore=2)} \
 		-e CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		-e LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
