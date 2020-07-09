@@ -8,17 +8,12 @@ CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
 
 # Setup C++
 for REPO in $CODE_REPOS; do
-    CPP_DIR="$PWD/$REPO"
-    COMPILE_COMMANDS_JSON="compile_commands.json"
-    if [ "$REPO" != "rmm" ]; then
-        CPP_DIR="$CPP_DIR/cpp"
-        COMPILE_COMMANDS_JSON="cpp/$COMPILE_COMMANDS_JSON"
-    fi
     # local-ignore .clangd folders
     if [ -z `grep .clangd $PWD/$REPO/.git/info/exclude` ]; then
         echo ".clangd" >> "$PWD/$REPO/.git/info/exclude"
     fi
-    # local-ignore the compile_commands.json symlink we're about to create
+    # local-ignore **/compile_commands.json symlinks
+    COMPILE_COMMANDS_JSON="**/compile_commands.json"
     if [ -z `grep $COMPILE_COMMANDS_JSON $PWD/$REPO/.git/info/exclude` ]; then
         echo "$COMPILE_COMMANDS_JSON" >> "$PWD/$REPO/.git/info/exclude"
     fi

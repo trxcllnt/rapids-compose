@@ -9,6 +9,7 @@ mkdir -p "$RAFT_HOME/cpp/build"
 mkdir -p "$CUGRAPH_HOME/cpp/build"
 mkdir -p "$CUSPATIAL_HOME/cpp/build"
 mkdir -p "$CONDA_PREFIX/include/libcudf"
+mkdir -p "$CUDF_HOME/java/src/main/native/build"
 
 make-symlink "$CONDA_HOME/envs" "$COMPOSE_HOME/etc/conda/envs"
 
@@ -21,6 +22,7 @@ export RAFT_INCLUDE="$RAFT_HOME/cpp/include"
 export CUGRAPH_INCLUDE="$CUGRAPH_HOME/cpp/include"
 export CUSPATIAL_INCLUDE="$CUSPATIAL_HOME/cpp/include"
 export COMPOSE_INCLUDE="$COMPOSE_HOME/etc/rapids/include"
+export CUDF_JNI_INCLUDE="$CUDF_HOME/java/src/main/native/include"
 
 export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
 export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
@@ -29,6 +31,7 @@ export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
 export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
 export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
 export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
+export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_HOME)"
 
 ###
 # Define the *_ROOT paths as the symlinks that point to the absolute build dirs. For example:
@@ -49,9 +52,11 @@ export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
 export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
 export CUSPATIAL_ROOT="$CUSPATIAL_HOME/cpp/build/$(basename "$CUSPATIAL_ROOT_ABS")"
+export CUDF_JNI_ROOT="$CUDF_HOME/java/src/main/native/build/$(basename "$CUDF_JNI_ROOT_ABS")"
 
 export RMM_LIBRARY="$RMM_ROOT/librmm.so"
 export CUDF_LIBRARY="$CUDF_ROOT/libcudf.so"
+export CUDF_JNI_LIBRARY="$CUDF_JNI_ROOT/libcudfjni.so"
 export CUDFTESTUTIL_LIBRARY="$CUDF_ROOT/tests/libcudftestutil.a"
 export NVSTRINGS_LIBRARY="$NVSTRINGS_ROOT/libNVStrings.so"
 export NVCATEGORY_LIBRARY="$NVSTRINGS_ROOT/libNVCategory.so"
@@ -108,6 +113,7 @@ make-symlink "$CUML_ROOT_ABS" "$CUML_ROOT"
 make-symlink "$RAFT_ROOT_ABS" "$RAFT_ROOT"
 make-symlink "$CUGRAPH_ROOT_ABS" "$CUGRAPH_ROOT"
 make-symlink "$CUSPATIAL_ROOT_ABS" "$CUSPATIAL_ROOT"
+make-symlink "$CUDF_JNI_ROOT_ABS" "$CUDF_JNI_ROOT"
 
 # make-symlink "$RMM_ROOT/include" "$RMM_HOME/build/include"
 make-symlink "$CUDF_ROOT/include" "$CUDF_HOME/cpp/build/include"

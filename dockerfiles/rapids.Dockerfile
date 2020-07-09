@@ -33,6 +33,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     doxygen graphviz \
     libboost-all-dev \
     python3 python3-pip \
+    # for building cudf-java
+    maven openjdk-8-jdk \
     apt-transport-https \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
