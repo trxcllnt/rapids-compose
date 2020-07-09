@@ -353,8 +353,9 @@ build-cudf-java() {
         mvn package \
             ${D_CMAKE_ARGS} \
             -Dmaven.test.skip=true \
-            -Dcmake.export.compile.commands=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -Dnative.build.path="$CUDF_JNI_ROOT"
+            -Dgit.branch=`git branch --show-current`
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
