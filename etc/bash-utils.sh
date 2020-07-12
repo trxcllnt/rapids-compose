@@ -58,6 +58,8 @@
 # build-cugraph-python   - (✝) Build the cugraph Cython bindings
 # build-cuspatial-python - (✝) Build the cuspatial Cython bindings
 #
+# build-cudf-java        - (✝) Build the cudf-java maven artifacts and JNI bindings
+#
 ###
 # Commands to clean each project separately:
 #
@@ -72,6 +74,8 @@
 # clean-cuml-python      - (✝) Clean the cuml Cython build assets
 # clean-cugraph-python   - (✝) Clean the cugraph Cython build assets
 # clean-cuspatial-python - (✝) Clean the cuspatial Cython build assets
+#
+# clean-cudf-java        - (✝) Clean the cudf-java maven artifacts and JNI bindings
 #
 ###
 # Commands to build documentation for each project separately:
@@ -141,6 +145,11 @@
 # test-cudf-python -v -x -k 'a_test_function_name'              - Run all tests named 'a_test_function_name', be verbose, and exit on first fail
 # test-cudf-python -v -x -k 'a_test_function_name' --debug      - Run all tests named 'a_test_function_name', and start ptvsd for VSCode debugging
 # test-cudf-python -v -x -k 'test_a or test_b' foo/test_file.py - Run all tests named 'test_a' or 'test_b' in file paths matching foo/test_file.py
+#
+###
+# Commands to run the JUnit tests
+# 
+# test-cudf-java        - (✝) Run cudf-java JUnit tests
 #
 ###
 # Misc
@@ -331,6 +340,28 @@ build-cudf-cpp() {
 
 export -f build-cudf-cpp;
 
+build-cudf-java() {
+    CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
+    D_CMAKE_ARGS=$(update-environment-variables $@);
+    D_CMAKE_ARGS="$D_CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+    D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
+    (
+        cd "$CUDF_HOME/java";
+        mkdir -p "$CUDF_JNI_ROOT_ABS";
+        print-heading "Building libcudfjni";
+        export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
+        mvn package \
+            ${D_CMAKE_ARGS} \
+            -Dmaven.test.skip=true \
+            -Dcmake.export.compile.commands=ON \
+            -Dnative.build.path="$CUDF_JNI_ROOT"
+        export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
+        fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
+    )
+}
+
+export -f build-cudf-java;
+
 build-rapids-raft-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libraft";
@@ -460,6 +491,18 @@ clean-cudf-cpp() {
 }
 
 export -f clean-cudf-cpp;
+
+clean-cudf-java() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning libcudfjni";
+    rm -rf "$CUDF_JNI_ROOT_ABS";
+    (
+        cd "$CUDF_HOME/java";
+        mvn clean -Dnative.build.path="$CUDF_JNI_ROOT"
+    )
+}
+
+export -f clean-cudf-java;
 
 clean-rapids-raft-cpp() {
     update-environment-variables $@ >/dev/null;
@@ -769,6 +812,18 @@ test-cudf-cpp() {
 }
 
 export -f test-cudf-cpp;
+
+test-cudf-java() {
+    TEST_ARGS=$(update-environment-variables $@);
+    (
+        cd "$CUDF_HOME/java";
+        mvn test \
+            -Dnative.build.path="$CUDF_JNI_ROOT" \
+            ${TEST_ARGS};
+    )
+}
+
+export -f test-cudf-java;
 
 test-rapids-raft-cpp() {
     cd "$(find-cpp-build-home $RAFT_HOME)" && ./test_raft;

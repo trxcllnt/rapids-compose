@@ -35,6 +35,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     python3 python3-pip \
     # Needed for nsight-gui
     ca-certificates \
+    # for building cudf-java
+    maven openjdk-8-jdk \
     apt-transport-https \
     libglib2.0-0 libsqlite3-0 \
     xcb xkb-data openssh-client \
