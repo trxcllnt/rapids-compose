@@ -880,7 +880,10 @@ configure-cpp() {
             -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids
             -D ARROW_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D ARROW_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow.so
-            -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so";
+            -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
+            -D GTEST_INCLUDE_DIR=${CONDA_HOME}/envs/rapids/include
+            -D GTEST_LIBRARY_DIRY=${CONDA_HOME}/envs/rapids/lib
+            -D GTEST_FOUND=True";
 
         CMAKE_GENERATOR="Ninja";
         CMAKE_C_FLAGS="-fdiagnostics-color=always"
