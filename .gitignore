@@ -15,8 +15,13 @@
 **/etc/notebooks/.jupyter/*
 **/etc/notebooks/notebooks*.yml
 
+**/etc/local/share/
+**/etc/config/fish/*
+
 !etc/rapids/log/.keepDir
 !etc/rapids/include/.keepDir
 !etc/rapids/.vscode/.keepDir
 !etc/notebooks/sandbox/.keepDir
 !etc/notebooks/.jupyter/.keepDir
+#!etc/local/share/.keepDir
+!etc/config/fish/config.fish

@@ -129,6 +129,10 @@ exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
  && chmod +x /entrypoint.sh
 
+RUN add-apt-repository -y ppa:fish-shell/release-3 \
+ && apt update -y \
+ && apt install -y fish
+
 ENV NVCC="/usr/local/bin/nvcc"
 ENV CC="/usr/local/bin/gcc-$GCC_VERSION"
 ENV CXX="/usr/local/bin/g++-$CXX_VERSION"

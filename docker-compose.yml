@@ -42,6 +42,8 @@ services:
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
+      - &config "${COMPOSE_HOME:-$PWD/compose}/etc/config:${RAPIDS_HOME:-$PWD}/.config"
+      - &local_share "${COMPOSE_HOME:-$PWD/compose}/etc/local/share/:${RAPIDS_HOME:-$PWD}/.local/share"
       - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
