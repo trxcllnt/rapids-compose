@@ -23,5 +23,5 @@
 !etc/rapids/.vscode/.keepDir
 !etc/notebooks/sandbox/.keepDir
 !etc/notebooks/.jupyter/.keepDir
-#!etc/local/share/.keepDir
+!etc/local/share/.keepDir
 !etc/config/fish/config.fish
