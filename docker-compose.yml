@@ -47,6 +47,7 @@ services:
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
       - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.bash_history"
+      - &ipython "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.ipython:${RAPIDS_HOME:-$PWD}/.ipython"
       - "/etc/localtime:/etc/localtime"
       - "/etc/timezone:/etc/timezone"
     depends_on:
