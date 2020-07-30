@@ -190,7 +190,7 @@ dc.dind: dind
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		-v "/usr/share/fonts:/usr/share/fonts:ro" \
-		-v "$${XDG_RUNTIME_DIR}:$${XDG_RUNTIME_DIR}" \
+		-v "$${XDG_RUNTIME_DIR-/run/user/$$UID}:$${XDG_RUNTIME_DIR-/run/user/$$UID}" \
 		-v "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket" \
 		-e _UID=$${UID:-$(UID)} \
 		-e _GID=$${GID:-$(GID)} \

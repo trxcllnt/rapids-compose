@@ -24,11 +24,11 @@ x-service-settings: &service_settings
     TERM: "${TERM}"
     # LC_ALL: C
     # Use the host's X11 display
-    DISPLAY: "${DISPLAY}"
-    XAUTHORITY: "${XAUTHORITY}"
-    XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR}"
-    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE}"
-    DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS}"
+    DISPLAY: "${DISPLAY:-}"
+    XAUTHORITY: "${XAUTHORITY:-}"
+    XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$_UID}"
+    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
+    DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$_UID/bus}"
     QT_AUTO_SCREEN_SCALE_FACTOR: 0
     NVIDIA_DRIVER_CAPABILITIES: all
   cap_add:
@@ -67,8 +67,8 @@ services:
       - &etc_fonts "/etc/fonts:/etc/fonts:ro"
       - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
       - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
-      - &xdg_runtime_dir "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
       - &dbus_system_bus_socket "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - &xdg_runtime_dir "${XDG_RUNTIME_DIR:-/run/user/$_UID}:${XDG_RUNTIME_DIR:-/run/user/$_UID}"
 
   notebooks:
     <<: *service_settings
