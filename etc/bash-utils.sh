@@ -1292,24 +1292,26 @@ fix-nvcc-clangd-compile-commands() {
         GPU_GENCODE_COMPUTE="-gencode=arch=([^\-])* ";
         GPU_ARCH_SM="-gencode=arch=compute_.*,code=sm_";
 
-        # 1. Remove the second compiler invocation following the `&&`
-        # 2. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 3. Remove unsupported -gencode options
-        # 4. Remove unsupported --expt-extended-lambda option
-        # 5. Remove unsupported --expt-relaxed-constexpr option
-        # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 7. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 9. Add flags to disable certain warnings for intellisense
-        # 10. Replace -Wno-error=deprecated-declarations
-        # 11. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 12. Remove -forward-unknown-to-host-compiler
-        # 13. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 14. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 15. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 16. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 17. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 1. Replace `-isystem=` with `-I`
+        # 2. Remove the second compiler invocation following the `&&`
+        # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
+        # 4. Remove unsupported -gencode options
+        # 5. Remove unsupported --expt-extended-lambda option
+        # 6. Remove unsupported --expt-relaxed-constexpr option
+        # 7. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 8. Change `-x cu` to `-x cuda`, plus other clangd cuda options
+        # 9. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 10. Add flags to disable certain warnings for intellisense
+        # 11. Replace -Wno-error=deprecated-declarations
+        # 12. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 13. Remove -forward-unknown-to-host-compiler
+        # 14. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 15. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 16. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 17. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 18. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
+        | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
         | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
