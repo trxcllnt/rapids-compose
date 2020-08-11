@@ -78,6 +78,7 @@ dependencies:
 - dask-labextension
 - dask-ml
 - ipython=${IPYTHON_VERSION:-"7.3.0"}
+- ipywidgets
 - jupyterlab=1.0.9
 - matplotlib
 - networkx
