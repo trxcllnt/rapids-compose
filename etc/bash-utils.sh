@@ -365,7 +365,7 @@ export -f build-cudf-java;
 build-rapids-raft-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libraft";
-    configure-cpp "$RAFT_HOME/cpp" $@;
+    configure-cpp "$RAFT_HOME/cpp" $@ -DBUILD_GTEST=ON;
     print-heading "Building libraft";
     build-cpp "$RAFT_HOME/cpp" "all";
 }
