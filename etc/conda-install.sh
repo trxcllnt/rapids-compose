@@ -71,14 +71,27 @@ if [ ! -d "$CONDA_HOME/envs/$ENV_NAME" ]; then
 # otherwise if the environment.yml inside/outside are different, update the existing conda env
 elif [ -n "${CHANGED// }" ]; then
     FRESH_CONDA_ENV=1
+    CONDA_ENV_UPDATE_FAILED=0
     # print the diff to the console for debugging
     diff -wy $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true
     # update the existing environment
     mamba update -n base -c defaults conda
     mamba update -n base -c conda-forge mamba
-    mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune
-    # copy the conda environment.yml from inside the container to the outside
-    cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
+    mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune || CONDA_ENV_UPDATE_FAILED=1
+    if [ "$CONDA_ENV_UPDATE_FAILED" -eq "0" ]; then
+        # copy the conda environment.yml from inside the container to the outside
+        cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
+    else
+        while true; do
+            read -p "Failed to update conda environment. Continue anyway? (Y/N, default: Y) " CHOICE </dev/tty
+            if [ "$CHOICE" = "" ]; then CHOICE="Y"; fi
+            case $CHOICE in
+                [Nn]* ) exit 1;;
+                [Yy]* ) break;;
+                * ) echo "Please answer 'y' or 'n'";;
+            esac
+        done
+    fi
 fi
 
 export FRESH_CONDA_ENV
