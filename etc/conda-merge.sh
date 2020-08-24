@@ -58,39 +58,3 @@ cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|cuspatial|nvstrings)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml
-
-####
-# Merge the rapids env with this hard-coded one here for notebooks
-# env since the notebooks repos don't include theirs in the github repo
-# Pulled from https://github.com/rapidsai/build/blob/d2acf98d0f069d3dad6f0e2e4b33d5e6dcda80df/generatedDockerfiles/Dockerfile.ubuntu-runtime#L45
-####
-cat << EOF > notebooks.yml
-name: notebooks
-channels:
-- rapidsai
-- nvidia
-- rapidsai-nightly
-- numba
-- conda-forge
-- defaults
-dependencies:
-- bokeh
-- dask-labextension
-- dask-ml
-- ipython=${IPYTHON_VERSION:-"7.3.0"}
-- ipywidgets
-- jupyterlab=1.0.9
-- matplotlib
-- networkx
-- nodejs
-- scikit-learn
-- scipy
-- seaborn
-- tensorflow
-- umap-learn
-- pip:
-  - graphistry
-  - git+https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git
-EOF
-
-conda-merge rapids.yml notebooks.yml > merged.yml && mv merged.yml notebooks.yml

@@ -81,7 +81,6 @@ ENV CUML_HOME="$RAPIDS_HOME/cuml"
 ENV RAFT_HOME="$RAPIDS_HOME/raft"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
-ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
 ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
 
 # RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
@@ -108,7 +107,7 @@ RUN curl -fsSLO --compressed "https://github.com/Kitware/CMake/releases/download
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
  && mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
-             "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
+             "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
  # Create a rapids user with the same GID/UID as your outside OS user,

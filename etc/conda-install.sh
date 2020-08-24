@@ -102,7 +102,6 @@ rm "$RAPIDS_HOME/cuml.yml" || true >/dev/null 2>&1;
 rm "$RAPIDS_HOME/cugraph.yml" || true >/dev/null 2>&1;
 rm "$RAPIDS_HOME/cuspatial.yml" || true >/dev/null 2>&1;
 rm "$RAPIDS_HOME/rapids.yml" || true >/dev/null 2>&1;
-rm "$RAPIDS_HOME/notebooks.yml" || true >/dev/null 2>&1;
 
 mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/activate.d"
 mkdir -p "$CONDA_HOME/envs/$ENV_NAME/etc/conda/deactivate.d"
