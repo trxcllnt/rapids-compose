@@ -36,13 +36,13 @@ cat "$CUDF_HOME/conda/environments/cudf_dev_cuda10.0.yml" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cudf.yml
 
-cat "$CUML_HOME/conda/environments/cuml_dev_cuda10.0.yml" \
-  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
+cat "$CUML_HOME/conda/environments/cuml_dev_cuda10.1.yml" \
+  | sed -r "s/cudatoolkit=10.1/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cuml.yml
 
-cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.0.yml" \
-  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
+cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.1.yml" \
+  | sed -r "s/cudatoolkit=10.1/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
   > cugraph.yml
 
