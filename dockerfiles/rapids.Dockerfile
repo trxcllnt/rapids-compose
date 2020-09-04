@@ -89,6 +89,7 @@ ENV CXX="/usr/bin/g++-$CXX_VERSION"
 
 ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
+
 # Install CMake
 RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
     "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
