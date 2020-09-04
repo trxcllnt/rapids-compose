@@ -49,8 +49,8 @@ fi
 GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 
 CURRENT_CUDA_VERSION="10.1"
-if [[ `which nvcc` != "" ]]; then
-    CURRENT_CUDA_VERSION="$(nvcc --version | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
+if [[ "$(which nvcc)" != "" ]]; then
+    CURRENT_CUDA_VERSION="$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
 fi
 
 echo "###
@@ -58,39 +58,50 @@ Configure RAPIDS environment \`.env\` file
 ###
 ";
 
-vGCC=$(select_version "Please enter your desired GCC version (7/8)" "7")
-CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.1/10.2/11.0)" "$CURRENT_CUDA_VERSION")
-PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.7/3.8)" "3.7")
-CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
-PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")
-NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")
-BUILD_TESTS=$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")
-BUILD_BENCHMARKS=$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")
+if [ -f "$COMPOSE_HOME/.env" ]; then
+    USE_EXISTING_ENV=$(choose_bool_option "Found config file at \"$COMPOSE_HOME/.env\"
 
-USE_CCACHE=$(choose_bool_option "Use ccache for C++ builds? (Y/N)" "YES")
+Would you like me to reuse your existing config? (y/n)" "YES")
+    if [[ "$USE_EXISTING_ENV" == "YES" ]]; then
+        set -a && . "$COMPOSE_HOME/.env" && set +a
+    fi
+    echo ""
+fi
+
+GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (7/8)" "7")}
+CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (10.1/10.2/11.0)" "$CURRENT_CUDA_VERSION")}
+PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.7/3.8)" "3.7")}
+CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
+PARALLEL_LEVEL=${PARALLEL_LEVEL:-$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")}
+NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")}
+BUILD_TESTS=${BUILD_TESTS:-$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")}
+BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")}
+
+USE_CCACHE=${USE_CCACHE:-$(choose_bool_option "Use ccache for C++ builds? (y/n)" "YES")}
 
 if [[ "$USE_CCACHE" == "YES" ]]; then
-    CCACHE_MAXSIZE=$(select_version "
+    CCACHE_MAXSIZE_MESSAGE="
 Select the ccache max cache size.
 The default value is 5G. The default suffix is G. Use 0 for no limit.
 Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
-" "5G")
+"
+    CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-$(select_version "$CCACHE_MAXSIZE_MESSAGE" "5G")}
 
 fi
 
-BUILD_RMM="YES"
-BUILD_CUDF="YES"
-BUILD_CUML=$(choose_bool_option "Build cuML C++ and Cython? (Y/N)" "NO")
-BUILD_CUGRAPH=$(choose_bool_option "Build cuGraph C++ and Cython? (Y/N)" "NO")
-BUILD_RAFT=$(choose_bool_option "Build raft C++ and Cython? (Y/N)" "NO")
-BUILD_CUSPATIAL=$(choose_bool_option "Build cuSpatial C++ and Cython? (Y/N)" "NO")
+BUILD_RMM=${BUILD_RMM:-"YES"}
+BUILD_CUDF=${BUILD_CUDF:-"YES"}
+BUILD_CUML=${BUILD_CUML:-$(choose_bool_option "Build cuML C++ and Cython? (y/n)" "NO")}
+BUILD_CUGRAPH=${BUILD_CUGRAPH:-$(choose_bool_option "Build cuGraph C++ and Cython? (y/n)" "NO")}
+BUILD_RAFT=${BUILD_RAFT:-$(choose_bool_option "Build raft C++ and Cython? (y/n)" "NO")}
+BUILD_CUSPATIAL=${BUILD_CUSPATIAL:-$(choose_bool_option "Build cuSpatial C++ and Cython? (y/n)" "NO")}
 
 if [[ "$BUILD_CUML" == "NO" && "$BUILD_CUGRAPH" == "NO" && "$BUILD_CUSPATIAL" == "NO" ]]; then
-    BUILD_CUDF=$(choose_bool_option "Build cuDF C++ and Cython? (Y/N)" "YES")
+    BUILD_CUDF=${BUILD_CUDF:-$(choose_bool_option "Build cuDF C++ and Cython? (y/n)" "YES")}
 fi
 
 if [[ "$BUILD_CUDF" == "NO" ]]; then
-    BUILD_RMM=$(choose_bool_option "Build rmm C++ and Cython? (Y/N)" "YES")
+    BUILD_RMM=${BUILD_RMM:-$(choose_bool_option "Build rmm C++ and Cython? (y/n)" "YES")}
 fi
 
 compose_env_file() {
@@ -100,7 +111,7 @@ RAPIDS_HOME=$RAPIDS_HOME
 COMPOSE_HOME=$COMPOSE_HOME
 
 # Build arguments
-GCC_VERSION=$vGCC
+GCC_VERSION=$GCC_VERSION
 CUDA_VERSION=$CUDA_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
 LINUX_VERSION=ubuntu18.04
@@ -141,6 +152,9 @@ PARALLEL_LEVEL=$PARALLEL_LEVEL
 # The default value is 5G. The default suffix is G. Use 0 for no limit.
 # Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
 CCACHE_MAXSIZE=$CCACHE_MAXSIZE
+
+# Set to YES to use the fish shell in the container (https://fishshell.com/)
+USE_FISH_SHELL=${USE_FISH_SHELL:-NO}
 "
 }
 
