@@ -374,7 +374,7 @@ export -f build-rapids-raft-cpp;
 build-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libcuml";
-    configure-cpp "$CUML_HOME/cpp" $@;
+    configure-cpp "$CUML_HOME/cpp" $@ -DBUILD_GTEST=ON;
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
