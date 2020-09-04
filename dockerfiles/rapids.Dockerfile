@@ -89,23 +89,6 @@ ENV CXX="/usr/bin/g++-$CXX_VERSION"
 
 ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
-
-ARG PTVSD_LOG_DIR=/var/log/ptvsd
-ENV PTVSD_LOG_DIR="$PTVSD_LOG_DIR"
-
-ARG RAPIDS_HOME
-ARG COMPOSE_HOME
-ENV RAPIDS_HOME="$RAPIDS_HOME"
-ENV COMPOSE_HOME="$COMPOSE_HOME"
-ENV CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_$CUDA_SHORT_VERSION"
-ENV RMM_HOME="$RAPIDS_HOME/rmm"
-ENV CUDF_HOME="$RAPIDS_HOME/cudf"
-ENV CUML_HOME="$RAPIDS_HOME/cuml"
-ENV RAFT_HOME="$RAPIDS_HOME/raft"
-ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
-ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
-ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
-
 # Install CMake
 RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
     "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
@@ -128,8 +111,25 @@ RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
- && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu \
- && mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
+ && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu
+
+ARG PTVSD_LOG_DIR=/var/log/ptvsd
+ENV PTVSD_LOG_DIR="$PTVSD_LOG_DIR"
+
+ARG RAPIDS_HOME
+ARG COMPOSE_HOME
+ENV RAPIDS_HOME="$RAPIDS_HOME"
+ENV COMPOSE_HOME="$COMPOSE_HOME"
+ENV CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_$CUDA_SHORT_VERSION"
+ENV RMM_HOME="$RAPIDS_HOME/rmm"
+ENV CUDF_HOME="$RAPIDS_HOME/cudf"
+ENV CUML_HOME="$RAPIDS_HOME/cuml"
+ENV RAFT_HOME="$RAPIDS_HOME/raft"
+ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
+ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
+ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
+
+RUN mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
              "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
