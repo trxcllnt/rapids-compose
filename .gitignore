@@ -8,7 +8,6 @@
 **/etc/settings/.ipython/*
 **/etc/settings/.local/share/*
 
-
 **/etc/rapids/log/*
 **/etc/rapids/include/*
 **/etc/rapids/.vscode/*
@@ -28,3 +27,5 @@
 !etc/settings/.local/share/.keepDir
 !etc/settings/.config/fish
 !etc/settings/.config/fish/config.fish
+!etc/settings/.config/NVIDIA Corporation
+!etc/settings/.config/NVIDIA Corporation/NVIDIA Nsight Systems.ini

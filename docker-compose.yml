@@ -11,7 +11,6 @@ x-service-settings: &service_settings
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "${PYTHON_VERSION:-3.7}"
       GCC_VERSION: "${GCC_VERSION:-7}"
-      CXX_VERSION: "${CXX_VERSION:-7}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       CUDA_VERSION: "${CUDA_VERSION:-10.1}"
@@ -20,6 +19,26 @@ x-service-settings: &service_settings
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
       USE_FISH_SHELL: "${USE_FISH_SHELL:-}"
+  tty: true
+  environment:
+    TERM: "${TERM}"
+    # LC_ALL: C
+    # Use the host's X11 display
+    DISPLAY: "${DISPLAY:-}"
+    XAUTHORITY: "${XAUTHORITY:-}"
+    XDG_RUNTIME_DIR: "${XDG_RUNTIME_DIR:-/run/user/$_UID}"
+    XDG_SESSION_TYPE: "${XDG_SESSION_TYPE:-}"
+    DBUS_SESSION_BUS_ADDRESS: "${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$_UID/bus}"
+    QT_AUTO_SCREEN_SCALE_FACTOR: 0
+    NVIDIA_DRIVER_CAPABILITIES: all
+  cap_add:
+    - SYS_ADMIN
+    - SYS_PTRACE
+  security_opt:
+    - apparmor=unconfined
+    - seccomp="${COMPOSE_HOME:-$PWD/compose}/etc/settings/docker-seccomp-with-perf.json"
+  depends_on:
+    - apt-cacher-ng
 
 services:
 
@@ -28,13 +47,7 @@ services:
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-10.1}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile
-    tty: true
-    environment:
-      - TERM=xterm-256color
-      - NVIDIA_DRIVER_CAPABILITIES=all
-    cap_add:
-      - SYS_PTRACE
+      dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile"
     volumes:
       - &rmm "${RAPIDS_HOME:-$PWD}/rmm:${RAPIDS_HOME:-$PWD}/rmm"
       - &cudf "${RAPIDS_HOME:-$PWD}/cudf:${RAPIDS_HOME:-$PWD}/cudf"
@@ -48,24 +61,20 @@ services:
       - &dot_config "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.config:${RAPIDS_HOME:-$PWD}/.config"
       - &dot_ipython "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.ipython:${RAPIDS_HOME:-$PWD}/.ipython"
       - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.eternal_bash_history"
-      - "/etc/localtime:/etc/localtime"
-      - "/etc/timezone:/etc/timezone"
-    depends_on:
-      - apt-cacher-ng
+      - &etc_localtime "/etc/localtime:/etc/localtime"
+      - &etc_timezone "/etc/timezone:/etc/timezone"
+      - &etc_fonts "/etc/fonts:/etc/fonts:ro"
+      - &x11_socket "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - &usr_share_fonts "/usr/share/fonts:/usr/share/fonts:ro"
+      - &dbus_system_bus_socket "/run/dbus/system_bus_socket:/run/dbus/system_bus_socket"
+      - &xdg_runtime_dir "${XDG_RUNTIME_DIR:-/run/user/$_UID}:${XDG_RUNTIME_DIR:-/run/user/$_UID}"
 
   notebooks:
     <<: *service_settings
     image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-10.1}
     build:
       <<: *build_settings
-      dockerfile: ${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile
-    tty: true
-    environment:
-      - TERM=xterm-256color
-      - NVIDIA_DRIVER_CAPABILITIES=all
-    ports:
-      - "5678:5678"
-      - "8888:8888"
+      dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile"
     volumes:
       - *rmm
       - *cudf
@@ -79,13 +88,16 @@ services:
       - *dot_config
       - *dot_ipython
       - *bash_history
+      - *etc_localtime
+      - *etc_timezone
+      - *etc_fonts
+      - *x11_socket
+      - *usr_share_fonts
+      - *xdg_runtime_dir
+      - *dbus_system_bus_socket
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
       - &notebooks_contrib "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
-      - "/etc/localtime:/etc/localtime"
-      - "/etc/timezone:/etc/timezone"
-    depends_on:
-      - apt-cacher-ng
 
   apt-cacher-ng:
     restart: always

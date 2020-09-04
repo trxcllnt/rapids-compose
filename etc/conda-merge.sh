@@ -16,7 +16,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- cmake>=3.17.0,<3.18
+- cmake>=3.17,<3.18
 - cmake_setuptools
 - python=${PYTHON_VERSION}
 - pip:

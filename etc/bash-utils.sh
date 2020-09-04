@@ -1128,12 +1128,12 @@ export -f lint-python;
 
 set-gcc-version() {
     V="${1:-}";
-    if [[ $V != "5" && $V != "7" && $V != "8" ]]; then
+    if [[ $V != "7" && $V != "8" && $V != "9" ]]; then
         while true; do
-            read -p "Please select GCC version 5, 7, or 8: " V </dev/tty
+            read -p "Please select GCC version 7, 8, or 9: " V </dev/tty
             case $V in
-                [578]* ) break;;
-                * ) >&2 echo "Invalid GCC version, please select 5, 7, or 8";;
+                [789]* ) break;;
+                * ) >&2 echo "Invalid GCC version, please select 7, 8, or 9";;
             esac
         done
     fi
