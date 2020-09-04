@@ -101,6 +101,7 @@ cat << EOF
         "recommendations": [
             "twxs.cmake",
             "ms-python.python",
+            "ms-python.vscode-pylance",
             "ms-vscode.cpptools",
             "xaver.clang-format",
             "cschlosser.doxdocgen",
@@ -133,6 +134,8 @@ cat << EOF
         "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
 
+        "python.languageServer": "Pylance",
+        "python.condaPath": "$COMPOSE_HOME/etc/conda/bin/conda",
         // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
