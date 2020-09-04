@@ -4,6 +4,9 @@
 **/etc/conda
 **/etc/.ccache
 **/etc/.bash_aliases
+**/etc/settings/.config/*
+**/etc/settings/.local/share/*
+
 
 **/etc/rapids/log/*
 **/etc/rapids/include/*
@@ -15,13 +18,11 @@
 **/etc/notebooks/.jupyter/*
 **/etc/notebooks/notebooks*.yml
 
-**/etc/local/share/
-**/etc/config/fish/*
-
 !etc/rapids/log/.keepDir
 !etc/rapids/include/.keepDir
 !etc/rapids/.vscode/.keepDir
 !etc/notebooks/sandbox/.keepDir
 !etc/notebooks/.jupyter/.keepDir
-!etc/local/share/.keepDir
-!etc/config/fish/config.fish
+!etc/settings/.local/share/.keepDir
+!etc/settings/.config/fish
+!etc/settings/.config/fish/config.fish
