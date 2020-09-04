@@ -28,6 +28,13 @@ if [ "$FRESH_CONDA_ENV" = "1" ]; then
         "$CONDA_HOME/envs/notebooks/share/jupyter/lab/schemas/@jupyterlab/apputils-extension/themes.json"
 fi
 
+# Symlink each project's notebooks folder into the home dir
+# TODO: add notebooks for clx, cusignal, cuxfilter, and xgboost?
+mkdir -p "$RAPIDS_HOME/notebooks/core"
+for PROJ in cudf cugraph cuml cuspatial; do
+    make-symlink "$RAPIDS_HOME/$PROJ/notebooks" "$RAPIDS_HOME/notebooks/core/$PROJ"
+done
+
 cd "$RAPIDS_HOME/notebooks"
 
 RUN_CMD="$(echo $(eval "echo $@"))"

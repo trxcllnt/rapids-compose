@@ -1429,7 +1429,7 @@ find-project-home() {
     $RAFT_HOME
     $CUGRAPH_HOME
     $CUSPATIAL_HOME
-    $NOTEBOOKS_EXTENDED_HOME";
+    $NOTEBOOKS_CONTRIB_HOME";
     CURDIR="$(realpath ${1:-$PWD})"
     for PROJECT_HOME in $PROJECT_HOMES; do
         if [ -n "$(echo "$CURDIR" | grep "$PROJECT_HOME" - || echo "")" ]; then

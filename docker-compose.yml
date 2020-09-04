@@ -79,9 +79,8 @@ services:
       - *colornvccrc
       - *bash_history
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
-      - &notebooks_core "${RAPIDS_HOME:-$PWD}/notebooks:${RAPIDS_HOME:-$PWD}/notebooks/core"
+      - &notebooks_contrib "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
-      - &notebooks_extended "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
       - "/etc/localtime:/etc/localtime"
       - "/etc/timezone:/etc/timezone"
     depends_on:
