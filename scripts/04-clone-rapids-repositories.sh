@@ -65,11 +65,11 @@ clone_repo() {
 
 fork_repo() {
     REPO="$1"
-    if [[ `which hub` == "" ]]; then
+    if [[ "$(which hub)" == "" ]]; then
         # Install github cli if it isn't installed
         ask_before_install "Github CLI not detected. Install Github CLI (y/n)?" "install_github_cli"
     fi
-    if [[ `which hub` != "" ]]; then
+    if [[ "$(which hub)" != "" ]]; then
         echo "Forking rapidsai/$REPO to $GITHUB_USER/$REPO";
         # Clone the rapidsai fork first
         clone_repo "$REPO";
