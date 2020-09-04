@@ -343,7 +343,6 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     D_CMAKE_ARGS=$(update-environment-variables $@);
-    D_CMAKE_ARGS="$D_CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
     (
         cd "$CUDF_HOME/java";
