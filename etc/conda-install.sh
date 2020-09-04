@@ -10,11 +10,6 @@ if [ "$ENV_NAME" = "" ]; then
     exit 1
 fi
 
-# If old conda dir (not prefixed with cuda version), remove it and make a new prefixed one
-if [ -d "$COMPOSE_HOME/etc/conda/bin" ]; then
-    rm -rf "$COMPOSE_HOME/etc/conda";
-fi
-
 # If necessary install conda, then create or update the conda env
 
 mkdir -p "$CONDA_HOME"
