@@ -343,7 +343,6 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     D_CMAKE_ARGS=$(update-environment-variables $@);
-    D_CMAKE_ARGS="$D_CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
     (
         cd "$CUDF_HOME/java";
@@ -353,8 +352,8 @@ build-cudf-java() {
         mvn package \
             ${D_CMAKE_ARGS} \
             -Dmaven.test.skip=true \
-            -Dcmake.export.compile.commands=ON \
-            -Dnative.build.path="$CUDF_JNI_ROOT"
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -Dnative.build.path="$CUDF_JNI_ROOT" 
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
@@ -365,7 +364,7 @@ export -f build-cudf-java;
 build-rapids-raft-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libraft";
-    configure-cpp "$RAFT_HOME/cpp" $@;
+    configure-cpp "$RAFT_HOME/cpp" $@ -DBUILD_GTEST=ON;
     print-heading "Building libraft";
     build-cpp "$RAFT_HOME/cpp" "all";
 }
@@ -375,7 +374,7 @@ export -f build-rapids-raft-cpp;
 build-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libcuml";
-    configure-cpp "$CUML_HOME/cpp" $@;
+    configure-cpp "$CUML_HOME/cpp" $@ -DBUILD_GTEST=ON;
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
@@ -907,6 +906,7 @@ configure-cpp() {
             -D CONDA_BUILD=0
             -D CMAKE_CXX11_ABI=ON
             -D ARROW_USE_CCACHE=ON
+            -D CMAKE_CUDA_ARCHITECTURES=false
             -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
             -D BUILD_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_RAFT_TESTS=${BUILD_TESTS:-OFF}
@@ -1292,24 +1292,26 @@ fix-nvcc-clangd-compile-commands() {
         GPU_GENCODE_COMPUTE="-gencode=arch=([^\-])* ";
         GPU_ARCH_SM="-gencode=arch=compute_.*,code=sm_";
 
-        # 1. Remove the second compiler invocation following the `&&`
-        # 2. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 3. Remove unsupported -gencode options
-        # 4. Remove unsupported --expt-extended-lambda option
-        # 5. Remove unsupported --expt-relaxed-constexpr option
-        # 6. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 7. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 8. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 9. Add flags to disable certain warnings for intellisense
-        # 10. Replace -Wno-error=deprecated-declarations
-        # 11. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 12. Remove -forward-unknown-to-host-compiler
-        # 13. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 14. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 15. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 16. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 17. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 1. Replace `-isystem=` with `-I`
+        # 2. Remove the second compiler invocation following the `&&`
+        # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
+        # 4. Remove unsupported -gencode options
+        # 5. Remove unsupported --expt-extended-lambda option
+        # 6. Remove unsupported --expt-relaxed-constexpr option
+        # 7. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 8. Change `-x cu` to `-x cuda`, plus other clangd cuda options
+        # 9. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 10. Add flags to disable certain warnings for intellisense
+        # 11. Replace -Wno-error=deprecated-declarations
+        # 12. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 13. Remove -forward-unknown-to-host-compiler
+        # 14. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 15. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 16. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 17. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 18. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
+        | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
         | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
@@ -1426,8 +1428,7 @@ find-project-home() {
     $RAFT_HOME
     $CUGRAPH_HOME
     $CUSPATIAL_HOME
-    $NOTEBOOKS_HOME
-    $NOTEBOOKS_EXTENDED_HOME";
+    $NOTEBOOKS_CONTRIB_HOME";
     CURDIR="$(realpath ${1:-$PWD})"
     for PROJECT_HOME in $PROJECT_HOMES; do
         if [ -n "$(echo "$CURDIR" | grep "$PROJECT_HOME" - || echo "")" ]; then

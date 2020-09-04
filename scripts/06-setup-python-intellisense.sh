@@ -29,8 +29,8 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
         "$RAPIDS_HOME/cugraph/python",
         "$RAPIDS_HOME/cuspatial/python/cuspatial",
     ],
-    "python.jediEnabled": true,
-    "python.languageServer": "Jedi",
+    "python.languageServer": "Pylance",
+    "python.condaPath": "$COMPOSE_HOME/etc/conda/bin/conda",
     "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python"
 }
 EOF
@@ -85,6 +85,7 @@ for CODE in code code-insiders; do
     if [ "$(which $CODE)" != "" ]; then
         install_vscode_extensions "$CODE" \
             "ms-python.python" \
+            "ms-python.vscode-pylance" \
             "guyskk.language-cython";
     fi
 done

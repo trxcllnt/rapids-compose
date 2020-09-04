@@ -23,7 +23,7 @@ ask_before_install() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-11"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-12"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
     release=$(lsb_release -cs)
     echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
@@ -81,14 +81,17 @@ if [ -n "$APT_DEPS" ]; then
     APT_DEPS=""
 fi;
 
-# Install clangd-11 if not installed
+# Install clangd-12 if not installed
 if [ -z "$(which clangd)" ]; then
     ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
 fi
 
 # Install vscode if not installed
 if [ -z "$(which code)" ]; then
-    ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
+    # Only prompt to install vscode if vscode-insiders isn't installed either
+    if [ -z "$(which code-insiders)" ]; then
+        ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
+    fi
 fi
 
 # Install docker-ce if not installed
@@ -115,7 +118,8 @@ if [ -n "$APT_DEPS" ]; then
     sudo apt install -y $APT_DEPS
 
     if [ -n "$INSTALLED_CLANGD" ]; then
-        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-11 100
+        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
+        sudo update-alternatives --set clangd /usr/bin/clangd-12
     fi
 
     if [ -n "$INSTALLED_DOCKER" ]; then
