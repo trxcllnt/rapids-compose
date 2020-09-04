@@ -135,7 +135,7 @@ dc:
 
 init:
 	export CODE_REPOS="rmm raft cudf cuml cugraph cuspatial" && \
-	export ALL_REPOS="$$CODE_REPOS notebooks notebooks-contrib" && \
+	export ALL_REPOS="$$CODE_REPOS notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
 						raft/python \
 						cuml/python \
