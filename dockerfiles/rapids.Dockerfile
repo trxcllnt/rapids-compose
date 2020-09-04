@@ -18,6 +18,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt update -y --fix-missing && apt upgrade -y \
  && apt install -y software-properties-common \
  && add-apt-repository -y ppa:git-core/ppa \
+ # Needed to install gcc-7 and 8 in Ubuntu 16.04
+ && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
  && apt update -y \
  && apt install -y \
     jq ed git vim nano sudo curl wget entr \

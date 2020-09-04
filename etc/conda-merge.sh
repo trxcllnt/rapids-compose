@@ -55,6 +55,7 @@ conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > mer
 
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
+  | grep -v -P '^(.*?)\-(.*?)(rapids-build-env|rapids-notebook-env|rapids-doc-env)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|cuspatial|nvstrings)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml

@@ -240,3 +240,6 @@ normal user account.
 
 
 ## Wishlist
+
+## Acknowledgements
+Inspired by container development patterns from @MillerHooks
