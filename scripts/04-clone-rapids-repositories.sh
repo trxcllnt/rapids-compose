@@ -135,13 +135,7 @@ clone_or_fork_repo() {
     cd - >/dev/null 2>&1
 }
 
-remove_post_checkout_hook() {
-    REPO="$1"
-    if [ -f "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl" ]; then
-        rm "$RAPIDS_HOME/$REPO/.git/hooks/git-utimes.pl" || true;
-        rm "$RAPIDS_HOME/$REPO/.git/hooks/post-checkout" || true;
-    fi
-}
+CLONED_SOMETHING="NO"
 
 for REPO in $ALL_REPOS; do
     # Clone if doesn't exist
@@ -151,6 +145,11 @@ for REPO in $ALL_REPOS; do
             read_git_remote_url_ssh_preference;
         fi
         clone_or_fork_repo $REPO
+        CLONED_SOMETHING="YES"
     fi
-    remove_post_checkout_hook $REPO
 done
+
+if [[ "$CLONED_SOMETHING" == "YES" ]]; then
+    bash -i "$COMPOSE_HOME/scripts/git-checkout-same-branch.sh"
+    bash -i "$COMPOSE_HOME/scripts/pull-rapids-repositories.sh"
+fi
