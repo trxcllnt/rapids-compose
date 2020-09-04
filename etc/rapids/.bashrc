@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
 shopt -s histappend;
+
+# Infinite bash history
+export HISTSIZE=-1
+export HISTFILESIZE=-1
 export HISTCONTROL=ignoreboth;
-export HISTSIZE=INFINITE;
-export HISTFILESIZE=10000000;
+# flush commands to .bash_history immediately
+export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+# Change the file location because certain bash sessions truncate .bash_history file upon close.
+# http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
+export HISTFILE="$RAPIDS_HOME/.eternal_bash_history"
 
 export CCACHE_NOHASHDIR=;
 export CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";

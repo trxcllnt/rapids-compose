@@ -9,7 +9,7 @@ x-service-settings: &service_settings
       UID: ${_UID:-1000}
       GID: ${_GID:-1000}
       BUILD_TESTS: "OFF"
-      PYTHON_VERSION: "3.7"
+      PYTHON_VERSION: "${PYTHON_VERSION:-3.7}"
       GCC_VERSION: "${GCC_VERSION:-7}"
       CXX_VERSION: "${CXX_VERSION:-7}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
@@ -19,6 +19,7 @@ x-service-settings: &service_settings
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
+      USE_FISH_SHELL: "${USE_FISH_SHELL:-}"
 
 services:
 
@@ -42,11 +43,10 @@ services:
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
-      - &ptvsd_logs "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/log:/var/log/ptvsd"
-      - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
-      - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
-      - &colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
-      - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.bash_history"
+      # - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
+      - &dot_local "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.local:${RAPIDS_HOME:-$PWD}/.local"
+      - &dot_config "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.config:${RAPIDS_HOME:-$PWD}/.config"
+      - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.eternal_bash_history"
       - "/etc/localtime:/etc/localtime"
       - "/etc/timezone:/etc/timezone"
     depends_on:
@@ -66,7 +66,6 @@ services:
       - "5678:5678"
       - "8888:8888"
     volumes:
-      - *ptvsd_logs
       - *rmm
       - *cudf
       - *cuml
@@ -74,9 +73,9 @@ services:
       - *compose
       - *cugraph
       - *cuspatial
-      - *bashrc
-      - *colornvcc
-      - *colornvccrc
+      # - *bashrc
+      - *dot_local
+      - *dot_config
       - *bash_history
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
       - &notebooks_contrib "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
