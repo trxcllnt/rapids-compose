@@ -1,4 +1,4 @@
-ARG CUDA_VERSION=10.0
+ARG CUDA_VERSION=10.1
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
@@ -7,9 +7,9 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG CUDA_SHORT_VERSION
 
-ARG GCC_VERSION=5
+ARG GCC_VERSION=7
 ENV GCC_VERSION=${GCC_VERSION}
-ARG CXX_VERSION=5
+ARG CXX_VERSION=7
 ENV CXX_VERSION=${CXX_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -28,7 +28,6 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
-    gcc-5 g++-5 \
     gcc-7 g++-7 \
     gcc-8 g++-8 \
     ninja-build \
@@ -40,9 +39,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     apt-transport-https \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
- && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 0 \
- && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 0 \
  && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 0 \
