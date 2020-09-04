@@ -93,10 +93,6 @@ cat << EOF
             "path": "cuspatial/python/cuspatial"
         },
         {
-            "name": "notebooks",
-            "path": "notebooks"
-        },
-        {
             "name": "notebooks-contrib",
             "path": "notebooks-contrib"
         }
@@ -105,6 +101,7 @@ cat << EOF
         "recommendations": [
             "twxs.cmake",
             "ms-python.python",
+            "ms-python.vscode-pylance",
             "ms-vscode.cpptools",
             "xaver.clang-format",
             "cschlosser.doxdocgen",
@@ -137,6 +134,8 @@ cat << EOF
         "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
 
+        "python.languageServer": "Pylance",
+        "python.condaPath": "$COMPOSE_HOME/etc/conda/bin/conda",
         // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
@@ -197,6 +196,8 @@ cat << EOF
             "**/etc/llvm/**": true,
             "**/etc/conda/**": true,
             "**/etc/.ccache/**": true,
+            "**/rmm/**/*.so": true,
+            "**/rmm/**/*.cpp": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,
             "**/cuml/**/*.so": true,
@@ -223,6 +224,8 @@ cat << EOF
             "**/.clangd/**": true,
             "**/build/lib": true,
             "**/build/include": true,
+            "**/rmm/**/*.so": true,
+            "**/rmm/**/*.cpp": true,
             "**/cudf/**/*.so": true,
             "**/cudf/**/*.cpp": true,
             "**/cuml/**/*.so": true,

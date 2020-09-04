@@ -11,6 +11,7 @@ mkdir -p "$CUSPATIAL_HOME/cpp/build"
 mkdir -p "$CONDA_PREFIX/include/libcudf"
 mkdir -p "$CUDF_HOME/java/src/main/native/build"
 
+make-symlink "$CONDA_HOME/bin" "$COMPOSE_HOME/etc/conda/bin"
 make-symlink "$CONDA_HOME/envs" "$COMPOSE_HOME/etc/conda/envs"
 
 export RMM_INCLUDE="$RMM_HOME/include"
@@ -38,9 +39,9 @@ export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_
 # 
 # ```shell
 # CUDF_ROOT="$HOME/cudf/cpp/build/debug"
-# CUDF_ROOT_ABS="$HOME/cudf/cpp/build/cuda-10.0/some-git-branch/debug"
+# CUDF_ROOT_ABS="$HOME/cudf/cpp/build/cuda-10.1/some-git-branch/debug"
 # 
-## Symlink `build/cuda-10.0/some-git-branch/debug` to -> `build/debug`
+## Symlink `build/cuda-10.1/some-git-branch/debug` to -> `build/debug`
 # ln -n -s $CUDF_ROOT_ABS $CUDF_ROOT
 # ```
 ###

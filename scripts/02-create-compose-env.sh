@@ -48,7 +48,7 @@ fi
 
 GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 
-CURRENT_CUDA_VERSION="10.0"
+CURRENT_CUDA_VERSION="10.1"
 if [[ `which nvcc` != "" ]]; then
     CURRENT_CUDA_VERSION="$(nvcc --version | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
 fi
@@ -58,9 +58,9 @@ Configure RAPIDS environment \`.env\` file
 ###
 ";
 
-vGCC=$(select_version "Please enter your desired GCC version (5/7/8)" "5")
-CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.0/10.1/10.2)" "$CURRENT_CUDA_VERSION")
-PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.6/3.7)" "3.7")
+vGCC=$(select_version "Please enter your desired GCC version (7/8)" "7")
+CUDA_VERSION=$(select_version "Please enter your desired CUDA version (10.1/10.2/11.0)" "$CURRENT_CUDA_VERSION")
+PYTHON_VERSION=$(select_version "Please enter your desired Python version (3.7/3.8)" "3.7")
 CMAKE_BUILD_TYPE=$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")
 PARALLEL_LEVEL=$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")
 NVIDIA_VISIBLE_DEVICES=$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")

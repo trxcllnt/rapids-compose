@@ -19,6 +19,7 @@ echo "export CONDA_DEFAULT_ENV=notebooks \
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the dask and nvdashboard jupyterlab extensions
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install dask-labextension jupyterlab-nvdashboard
     # Set Jupyter Dark as the default theme in the extension settings. Doing it
     # this way allows it to be overridden by ~/.jupyter/lab/user-settings, which
@@ -26,6 +27,13 @@ if [ "$FRESH_CONDA_ENV" = "1" ]; then
     sed -i 's/"default": "JupyterLab Light"/"default": "JupyterLab Dark"/g' \
         "$CONDA_HOME/envs/notebooks/share/jupyter/lab/schemas/@jupyterlab/apputils-extension/themes.json"
 fi
+
+# Symlink each project's notebooks folder into the home dir
+# TODO: add notebooks for clx, cusignal, cuxfilter, and xgboost?
+mkdir -p "$RAPIDS_HOME/notebooks/core"
+for PROJ in cudf cugraph cuml cuspatial; do
+    make-symlink "$RAPIDS_HOME/$PROJ/notebooks" "$RAPIDS_HOME/notebooks/core/$PROJ"
+done
 
 cd "$RAPIDS_HOME/notebooks"
 

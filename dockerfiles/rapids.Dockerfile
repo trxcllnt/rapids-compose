@@ -1,4 +1,4 @@
-ARG CUDA_VERSION=10.0
+ARG CUDA_VERSION=10.1
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
@@ -7,9 +7,9 @@ FROM nvidia/cuda:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG CUDA_SHORT_VERSION
 
-ARG GCC_VERSION=5
+ARG GCC_VERSION=7
 ENV GCC_VERSION=${GCC_VERSION}
-ARG CXX_VERSION=5
+ARG CXX_VERSION=7
 ENV CXX_VERSION=${CXX_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -18,6 +18,8 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt update -y --fix-missing && apt upgrade -y \
  && apt install -y software-properties-common \
  && add-apt-repository -y ppa:git-core/ppa \
+ # Needed to install gcc-7 and 8 in Ubuntu 16.04
+ && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
  && apt update -y \
  && apt install -y \
     jq ed git vim nano sudo curl wget entr \
@@ -26,7 +28,6 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     apt-utils \
-    gcc-5 g++-5 \
     gcc-7 g++-7 \
     gcc-8 g++-8 \
     ninja-build \
@@ -38,9 +39,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
     apt-transport-https \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 0 \
- && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 0 \
- && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 0 \
  && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 0 \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 0 \
@@ -81,8 +80,7 @@ ENV CUML_HOME="$RAPIDS_HOME/cuml"
 ENV RAFT_HOME="$RAPIDS_HOME/raft"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
-ENV NOTEBOOKS_HOME="$RAPIDS_HOME/notebooks"
-ENV NOTEBOOKS_EXTENDED_HOME="$RAPIDS_HOME/notebooks-contrib"
+ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
 
 # RUN curl -s -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}.tar.gz -o ccache-${CCACHE_VERSION}.tar.gz \
 #  && tar -xvzf ccache-${CCACHE_VERSION}.tar.gz && cd ccache-${CCACHE_VERSION} \
