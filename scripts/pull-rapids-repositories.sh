@@ -7,7 +7,7 @@ cd $(dirname "$(realpath "$0")")/../../
 BASE_DIR="$(pwd)"
 
 CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
-ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks notebooks-contrib}"
+ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
     cd "$BASE_DIR/$REPO";
