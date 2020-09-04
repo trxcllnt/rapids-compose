@@ -11,7 +11,7 @@ GID := $(or ${GID.${PLATFORM}}, 1000)
 # superfluous entering/exiting directory messages
 MAKE_Q := $(MAKE) --no-print-directory
 
-DEFAULT_CUDA_VERSION := 10.0
+DEFAULT_CUDA_VERSION := 10.1
 DEFAULT_PYTHON_VERSION := 3.7
 DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)

@@ -343,7 +343,6 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     D_CMAKE_ARGS=$(update-environment-variables $@);
-    D_CMAKE_ARGS="$D_CMAKE_ARGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
     D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
     (
         cd "$CUDF_HOME/java";
@@ -353,8 +352,8 @@ build-cudf-java() {
         mvn package \
             ${D_CMAKE_ARGS} \
             -Dmaven.test.skip=true \
-            -Dcmake.export.compile.commands=ON \
-            -Dnative.build.path="$CUDF_JNI_ROOT"
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -Dnative.build.path="$CUDF_JNI_ROOT" 
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
@@ -375,7 +374,7 @@ export -f build-rapids-raft-cpp;
 build-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libcuml";
-    configure-cpp "$CUML_HOME/cpp" $@;
+    configure-cpp "$CUML_HOME/cpp" $@ -DBUILD_GTEST=ON;
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
@@ -1429,8 +1428,7 @@ find-project-home() {
     $RAFT_HOME
     $CUGRAPH_HOME
     $CUSPATIAL_HOME
-    $NOTEBOOKS_HOME
-    $NOTEBOOKS_EXTENDED_HOME";
+    $NOTEBOOKS_CONTRIB_HOME";
     CURDIR="$(realpath ${1:-$PWD})"
     for PROJECT_HOME in $PROJECT_HOMES; do
         if [ -n "$(echo "$CURDIR" | grep "$PROJECT_HOME" - || echo "")" ]; then
