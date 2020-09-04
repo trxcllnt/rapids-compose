@@ -46,6 +46,7 @@ services:
       # - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
       - &dot_local "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.local:${RAPIDS_HOME:-$PWD}/.local"
       - &dot_config "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.config:${RAPIDS_HOME:-$PWD}/.config"
+      - &dot_ipython "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.ipython:${RAPIDS_HOME:-$PWD}/.ipython"
       - &bash_history "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_history:${RAPIDS_HOME:-$PWD}/.eternal_bash_history"
       - "/etc/localtime:/etc/localtime"
       - "/etc/timezone:/etc/timezone"
@@ -76,6 +77,7 @@ services:
       # - *bashrc
       - *dot_local
       - *dot_config
+      - *dot_ipython
       - *bash_history
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
       - &notebooks_contrib "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
