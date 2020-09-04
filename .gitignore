@@ -5,6 +5,7 @@
 **/etc/.ccache
 **/etc/.bash_aliases
 **/etc/settings/.config/*
+**/etc/settings/.ipython/*
 **/etc/settings/.local/share/*
 
 
@@ -23,6 +24,7 @@
 !etc/rapids/.vscode/.keepDir
 !etc/notebooks/sandbox/.keepDir
 !etc/notebooks/.jupyter/.keepDir
+!etc/settings/.ipython/.keepDir
 !etc/settings/.local/share/.keepDir
 !etc/settings/.config/fish
 !etc/settings/.config/fish/config.fish
