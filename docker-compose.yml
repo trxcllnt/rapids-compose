@@ -75,9 +75,6 @@ services:
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile"
-    # ports:
-    #   - "5678:5678"
-    #   - "8888:8888"
     volumes:
       - *rmm
       - *cudf
