@@ -88,7 +88,10 @@ fi
 
 # Install vscode if not installed
 if [ -z "$(which code)" ]; then
-    ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
+    # Only prompt to install vscode if vscode-insiders isn't installed either
+    if [ -z "$(which code-insiders)" ]; then
+        ask_before_install "VSCode not found. Install VSCode (y/n)?" "install_vscode"
+    fi
 fi
 
 # Install docker-ce if not installed
