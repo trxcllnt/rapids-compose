@@ -10,8 +10,7 @@ ARG CUDA_SHORT_VERSION
 
 ARG GCC_VERSION=7
 ENV GCC_VERSION=${GCC_VERSION}
-ARG CXX_VERSION=7
-ENV CXX_VERSION=${CXX_VERSION}
+ENV CXX_VERSION=${GCC_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
@@ -36,6 +35,7 @@ fi' \
     graphviz \
     gcc-7 g++-7 \
     gcc-8 g++-8 \
+    gcc-9 g++-9 \
     ninja-build \
     # doxygen graphviz \
     # libboost-all-dev \

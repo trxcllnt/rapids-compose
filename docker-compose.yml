@@ -11,7 +11,6 @@ x-service-settings: &service_settings
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "${PYTHON_VERSION:-3.7}"
       GCC_VERSION: "${GCC_VERSION:-7}"
-      CXX_VERSION: "${CXX_VERSION:-7}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       CUDA_VERSION: "${CUDA_VERSION:-10.1}"
