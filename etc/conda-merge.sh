@@ -26,30 +26,28 @@ EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
 
-cat "$RMM_HOME/conda/environments/rmm_dev_cuda10.0.yml" \
-  | sed -r "s/cudatoolkit=10.0/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.0!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > rmm.yml
+find-env-file-version() {
+    ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
+    for YML in $ENVS_DIR/${1}_dev_cuda*.yml; do
+        YML="${YML#$ENVS_DIR/$1}"
+        YML="${YML#_dev_cuda}"
+        echo "${YML%*.yml}"
+        break;
+    done
+}
 
-cat "$CUDF_HOME/conda/environments/cudf_dev_cuda10.2.yml" \
-  | sed -r "s/cudatoolkit=10.2/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.2!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > cudf.yml
+replace-env-cuda-toolkit-version() {
+    VER=$(find-env-file-version $1)
+    cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda$VER.yml" \
+  | sed -r "s/cudatoolkit=$VER/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
+  | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g"
+}
 
-cat "$CUML_HOME/conda/environments/cuml_dev_cuda10.2.yml" \
-  | sed -r "s/cudatoolkit=10.2/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.2!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > cuml.yml
-
-cat "$CUGRAPH_HOME/conda/environments/cugraph_dev_cuda10.2.yml" \
-  | sed -r "s/cudatoolkit=10.2/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.2!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > cugraph.yml
-
-cat "$CUSPATIAL_HOME/conda/environments/cuspatial_dev_cuda10.2.yml" \
-  | sed -r "s/cudatoolkit=10.2/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda10.2!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  > cuspatial.yml
+echo -e "$(replace-env-cuda-toolkit-version rmm)"       > rmm.yml
+echo -e "$(replace-env-cuda-toolkit-version cudf)"      > cudf.yml
+echo -e "$(replace-env-cuda-toolkit-version cuml)"      > cuml.yml
+echo -e "$(replace-env-cuda-toolkit-version cugraph)"   > cugraph.yml
+echo -e "$(replace-env-cuda-toolkit-version cuspatial)" > cuspatial.yml
 
 conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > merged.yml
 
