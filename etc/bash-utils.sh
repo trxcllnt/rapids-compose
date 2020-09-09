@@ -908,6 +908,7 @@ configure-cpp() {
             -D ARROW_USE_CCACHE=ON
             -D CMAKE_CUDA_ARCHITECTURES=false
             -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -D CUDAToolkit_ROOT=${CUDA_HOME}
             -D BUILD_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_RAFT_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
