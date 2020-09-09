@@ -8,7 +8,7 @@ APT_DEPS=""
 NEEDS_REBOOT=""
 INSTALLED_CLANGD=""
 INSTALLED_DOCKER=""
-INSTALLED_NVIDIA_DOCKER2=""
+INSTALLED_NVIDIA_CONTAINER_RUNTIME=""
 
 ask_before_install() {
     while true; do
@@ -58,9 +58,9 @@ install_docker_compose() {
         -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
 }
 
-install_nvidia_docker_2() {
-    INSTALLED_NVIDIA_DOCKER2=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }nvidia-docker2"
+install_nvidia_container_toolkit() {
+    INSTALLED_NVIDIA_CONTAINER_RUNTIME=1
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }nvidia-container-toolkit"
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
     curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
     curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
@@ -112,11 +112,11 @@ if [ -z "$(which docker-compose)" ]; then
     ask_before_install "docker-compose not found. Install docker-compose (y/n)?" "install_docker_compose"
 fi
 
-# Install nvidia-docker2 if not installed
+# Install nvidia-container-toolkit if not installed
 if [ ! -f "/etc/apt/sources.list.d/nvidia-docker.list" ]; then
-    ask_before_install "nvidia-docker2 not found. Install nvidia-docker2 (y/n)?" "install_nvidia_docker_2"
-elif [ -n "$(apt policy nvidia-docker2 2> /dev/null | grep -i 'Installed: (none)')" ]; then
-    ask_before_install "nvidia-docker2 not found. Install nvidia-docker2 (y/n)?" "install_nvidia_docker_2"
+    ask_before_install "nvidia-container-toolkit not found. Install nvidia-container-toolkit (y/n)?" "install_nvidia_container_toolkit"
+elif [ -n "$(apt policy nvidia-container-toolkit 2> /dev/null | grep -i 'Installed: (none)')" ]; then
+    ask_before_install "nvidia-container-toolkit not found. Install nvidia-container-toolkit (y/n)?" "install_nvidia_container_toolkit"
 fi
 
 if [ -n "$APT_DEPS" ]; then
@@ -134,7 +134,7 @@ if [ -n "$APT_DEPS" ]; then
         sudo usermod -aG docker $USER
     fi
 
-    if [ -n "$INSTALLED_NVIDIA_DOCKER2" ]; then
+    if [ -n "$INSTALLED_NVIDIA_CONTAINER_RUNTIME" ]; then
         echo '{
     "default-runtime": "nvidia",
     "runtimes": {
@@ -147,4 +147,4 @@ if [ -n "$APT_DEPS" ]; then
     fi
 fi
 
-export NEEDS_REBOOT
+export NEEDS_REBOOT;

@@ -143,14 +143,14 @@ init:
 						cudf/python/cudf \
 						cudf/python/dask_cudf \
 						cuspatial/python/cuspatial" && \
-	touch ./etc/rapids/.bash_history && \
-	bash -i ./scripts/01-install-dependencies.sh && \
-	bash -i ./scripts/02-create-compose-env.sh && \
-	bash -i ./scripts/03-create-vscode-workspace.sh && \
-	bash -i ./scripts/04-clone-rapids-repositories.sh && \
-	bash -i ./scripts/05-setup-c++-intellisense.sh && \
-	bash -i ./scripts/06-setup-python-intellisense.sh && \
-	[ -n "$$NEEDS_REBOOT" ] && echo "Installed new dependencies, please reboot to continue." \
+	touch ./etc/rapids/.bash_history;
+	source ./scripts/01-install-dependencies.sh;
+	bash -i ./scripts/02-create-compose-env.sh;
+	bash -i ./scripts/03-create-vscode-workspace.sh;
+	bash -i ./scripts/04-clone-rapids-repositories.sh;
+	bash -i ./scripts/05-setup-c++-intellisense.sh;
+	bash -i ./scripts/06-setup-python-intellisense.sh;
+	[ -n "$$NEEDS_REBOOT" ] && echo "Installed docker, please reboot to continue." \
 	                || true && echo "RAPIDS workspace init success!"
 
 # Run a docker container that prints the build context size and top ten largest folders
