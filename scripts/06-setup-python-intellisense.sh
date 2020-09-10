@@ -85,7 +85,6 @@ for CODE in code code-insiders; do
     if [ "$(which $CODE)" != "" ]; then
         install_vscode_extensions "$CODE" \
             "ms-python.python" \
-            "ms-python.vscode-pylance" \
             "guyskk.language-cython";
     fi
 done
