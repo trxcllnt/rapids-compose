@@ -114,9 +114,6 @@ RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
  # https://denibertovic.com/posts/handling-permissions-with-docker-volumes/
  && curl -s -L https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/local/sbin/gosu && chmod +x /usr/local/sbin/gosu
 
-ARG PTVSD_LOG_DIR=/var/log/ptvsd
-ENV PTVSD_LOG_DIR="$PTVSD_LOG_DIR"
-
 ARG RAPIDS_HOME
 ARG COMPOSE_HOME
 ENV RAPIDS_HOME="$RAPIDS_HOME"
@@ -130,7 +127,7 @@ ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
 ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
 
-RUN mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
+RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
              "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
@@ -144,7 +141,7 @@ RUN mkdir -p /var/log "$PTVSD_LOG_DIR" "$RAPIDS_HOME" "$CONDA_HOME" \
  && echo rapids:rapids | chpasswd \
  && chmod 0777 /tmp \
  && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
- && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" "$PTVSD_LOG_DIR" \
+ && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && bash -c "echo -e '#!/bin/bash -e\n\
 exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
