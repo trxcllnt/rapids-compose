@@ -2,7 +2,6 @@ version: "3.6"
 
 x-service-settings: &service_settings
   env_file: .env
-  network_mode: host
   build: &build_settings
     context: ..
     args:
@@ -109,3 +108,7 @@ services:
 
 volumes:
   apt-cache:
+
+networks:
+  default:
+    driver: bridge

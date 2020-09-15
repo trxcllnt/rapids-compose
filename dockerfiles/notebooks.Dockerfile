@@ -14,4 +14,4 @@ RUN apt update -y --fix-missing && apt upgrade -y \
 exec \"$COMPOSE_HOME/etc/notebooks/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh && chown ${_UID}:${_GID} /entrypoint.sh && chmod +x /entrypoint.sh
 
-CMD ["jupyter-lab", "--ip=0.0.0.0", "--no-browser", "--NotebookApp.token=''"]
+CMD ["jupyter-lab", "--ip=$(cat /etc/hosts | tail -n1 | cut -d$'\t' -f1)", "--no-browser", "--NotebookApp.token=''"]
