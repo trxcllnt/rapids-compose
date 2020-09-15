@@ -1001,7 +1001,7 @@ build-cpp() {
         set -Eeo pipefail;
         cd "$(find-cpp-home $1)";
         BUILD_DIR_PATH="$(find-cpp-build-home $1)"
-        time cmake --build "$BUILD_DIR_PATH" -- $BUILD_TARGETS;
+        time cmake --build "$BUILD_DIR_PATH" -- -j${PARALLEL_LEVEL} $BUILD_TARGETS;
         [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json)" || true ]];
     )
 }
