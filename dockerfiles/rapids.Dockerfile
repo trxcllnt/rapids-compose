@@ -143,7 +143,7 @@ RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
  && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && bash -c "echo -e '#!/bin/bash -e\n\
-exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
+exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
  && touch "$RAPIDS_HOME/.bashrc" && touch "$RAPIDS_HOME/.bash_history" \
  && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
