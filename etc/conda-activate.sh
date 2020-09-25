@@ -5,7 +5,6 @@ set -Ee
 mkdir -p "$RMM_HOME/build"
 mkdir -p "$CUDF_HOME/cpp/build"
 mkdir -p "$CUML_HOME/cpp/build"
-mkdir -p "$RAFT_HOME/cpp/build"
 mkdir -p "$CUGRAPH_HOME/cpp/build"
 mkdir -p "$CUSPATIAL_HOME/cpp/build"
 mkdir -p "$CONDA_PREFIX/include/libcudf"
@@ -19,7 +18,6 @@ export CUDF_INCLUDE="$CUDF_HOME/cpp/include"
 export CUDF_TEST_INCLUDE="$CUDF_HOME/cpp"
 export NVSTRINGS_INCLUDE="$CUDF_HOME/cpp/include"
 export CUML_INCLUDE="$CUML_HOME/cpp/include"
-export RAFT_INCLUDE="$RAFT_HOME/cpp/include"
 export CUGRAPH_INCLUDE="$CUGRAPH_HOME/cpp/include"
 export CUSPATIAL_INCLUDE="$CUSPATIAL_HOME/cpp/include"
 export COMPOSE_INCLUDE="$COMPOSE_HOME/etc/rapids/include"
@@ -29,7 +27,6 @@ export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
 export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
 export NVSTRINGS_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
 export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
-export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
 export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
 export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_HOME)"
@@ -50,7 +47,6 @@ export RMM_ROOT="$RMM_HOME/build/$(basename "$RMM_ROOT_ABS")"
 export CUDF_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
 export NVSTRINGS_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
 export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
-export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
 export CUSPATIAL_ROOT="$CUSPATIAL_HOME/cpp/build/$(basename "$CUSPATIAL_ROOT_ABS")"
 export CUDF_JNI_ROOT="$CUDF_HOME/java/src/main/native/build/$(basename "$CUDF_JNI_ROOT_ABS")"
@@ -79,7 +75,6 @@ $CUDF_HOME/python/nvstrings:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
 $CUML_HOME/python:\
-$RAFT_HOME/python:\
 $CUGRAPH_HOME/python:\
 $CUSPATIAL_HOME/python/cuspatial"
 
@@ -104,14 +99,12 @@ $RMM_ROOT:\
 $NVSTRINGS_ROOT:\
 $CUDF_ROOT:\
 $CUML_ROOT:\
-$RAFT_ROOT:\
 $CUGRAPH_ROOT:\
 $CUSPATIAL_ROOT"
 
 make-symlink "$RMM_ROOT_ABS" "$RMM_ROOT"
 make-symlink "$CUDF_ROOT_ABS" "$CUDF_ROOT"
 make-symlink "$CUML_ROOT_ABS" "$CUML_ROOT"
-make-symlink "$RAFT_ROOT_ABS" "$RAFT_ROOT"
 make-symlink "$CUGRAPH_ROOT_ABS" "$CUGRAPH_ROOT"
 make-symlink "$CUSPATIAL_ROOT_ABS" "$CUSPATIAL_ROOT"
 make-symlink "$CUDF_JNI_ROOT_ABS" "$CUDF_JNI_ROOT"
@@ -128,7 +121,6 @@ make-symlink "$CUDF_ROOT/include/libcxx" "$CONDA_PREFIX/include/libcudf/libcxx"
 make-symlink "$CUDF_ROOT/include/libcudacxx" "$CONDA_PREFIX/include/libcudf/libcudacxx"
 make-symlink "$NVSTRINGS_INCLUDE/nvstrings" "$CONDA_PREFIX/include/nvstrings"
 make-symlink "$CUML_INCLUDE" "$CONDA_PREFIX/include/cuml"
-make-symlink "$RAFT_INCLUDE" "$CONDA_PREFIX/include/raft"
 make-symlink "$CUGRAPH_INCLUDE" "$CONDA_PREFIX/include/cugraph"
 make-symlink "$CUSPATIAL_INCLUDE" "$CONDA_PREFIX/include/cuspatial"
 
