@@ -181,13 +181,6 @@ should-build-cuml() {
 
 export -f should-build-cuml;
 
-should-build-rapids-raft() {
-    update-environment-variables $@ >/dev/null;
-    [ "$BUILD_RAFT" == "YES" ] && echo true || echo false;
-}
-
-export -f should-build-rapids-raft;
-
 should-build-cugraph() {
     update-environment-variables $@ >/dev/null;
     [ "$BUILD_CUGRAPH" == "YES" ] && echo true || echo false;
@@ -209,18 +202,15 @@ build-rapids() {
 Building RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@), \
-raft: $(should-build-rapids-raft $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then build-rmm-cpp $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-cpp $@ || exit 1; fi;
-        if [ $(should-build-rapids-raft) == true ]; then build-rapids-raft-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-cpp $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-cpp $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-cpp $@ || exit 1; fi;
         if [ $(should-build-rmm) == true ]; then build-rmm-python $@ || exit 1; fi;
-        if [ $(should-build-rapids-raft) == true ]; then build-rapids-raft-python $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-python $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
@@ -237,7 +227,6 @@ clean-rapids() {
 Cleaning RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@), \
-raft: $(should-build-rapids-raft $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
@@ -251,13 +240,11 @@ cuSpatial: $(should-build-cuspatial $@)";
 
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-cpp $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-cpp $@; fi"
-        run-in-background "if [ \$(should-build-rapids-raft) == true ]; then clean-rapids-raft-cpp $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-cpp $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-cpp $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@; fi"
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-python $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-python $@; fi"
-        run-in-background "if [ \$(should-build-rapids-raft) == true ]; then clean-rapids-raft-python $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-python $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-python $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-python $@; fi"
@@ -279,13 +266,11 @@ lint-rapids() {
 Linting RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
 cuDF: $(should-build-cudf $@), \
-raft: $(should-build-rapids-raft $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then lint-rmm-cpp $@ && lint-rmm-python $@ || exit 1; fi
         if [ $(should-build-cudf) == true ]; then lint-cudf-cpp $@ && lint-cudf-python $@ || exit 1; fi
-        if [ $(should-build-rapids-raft) == true ]; then lint-rapids-raft-cpp $@ && lint-rapids-raft-python $@ || exit 1; fi
         if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
         if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
         if [ $(should-build-cuspatial) ]; then lint-cuspatial-cpp $@ && lint-cuspatial-python $@ || exit 1; fi
@@ -361,16 +346,6 @@ build-cudf-java() {
 
 export -f build-cudf-java;
 
-build-rapids-raft-cpp() {
-    update-environment-variables $@ >/dev/null;
-    print-heading "Configuring libraft";
-    configure-cpp "$RAFT_HOME/cpp" $@ -DBUILD_GTEST=ON;
-    print-heading "Building libraft";
-    build-cpp "$RAFT_HOME/cpp" "all";
-}
-
-export -f build-rapids-raft-cpp;
-
 build-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libcuml";
@@ -434,14 +409,6 @@ build-cudf-python() {
 
 export -f build-cudf-python;
 
-build-rapids-raft-python() {
-    update-environment-variables $@ >/dev/null;
-    print-heading "Building raft";
-    build-python "$RAFT_HOME/python" --inplace;
-}
-
-export -f build-rapids-raft-python;
-
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuml";
@@ -503,14 +470,6 @@ clean-cudf-java() {
 
 export -f clean-cudf-java;
 
-clean-rapids-raft-cpp() {
-    update-environment-variables $@ >/dev/null;
-    print-heading "Cleaning libraft";
-    rm -rf "$RAFT_ROOT_ABS";
-}
-
-export -f clean-rapids-raft-cpp;
-
 clean-cuml-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning libcuml";
@@ -565,21 +524,6 @@ clean-cudf-python() {
 }
 
 export -f clean-cudf-python;
-
-clean-rapids-raft-python() {
-    update-environment-variables $@ >/dev/null;
-    print-heading "Cleaning raft";
-    rm -rf "$RAFT_HOME/python/dist" \
-           "$RAFT_HOME/python/build" \
-           "$RAFT_HOME/python/.hypothesis" \
-           "$RAFT_HOME/python/.pytest_cache";
-    find "$RAFT_HOME" -type f -name '*.pyc' -delete;
-    find "$RAFT_HOME" -type d -name '__pycache__' -delete;
-    find "$RAFT_HOME/python/raft" -type f -name '*.so' -delete;
-    find "$RAFT_HOME/python/raft" -type f -name '*.cpp' -delete;
-}
-
-export -f clean-rapids-raft-python;
 
 clean-cuml-python() {
     update-environment-variables $@ >/dev/null;
@@ -648,14 +592,6 @@ docs-cudf-cpp() {
 
 export -f docs-cudf-cpp;
 
-docs-rapids-raft-cpp() {
-    ARGS="$(update-environment-variables $@)";
-    print-heading "Generating docs for libraft";
-    docs-cpp "$RAFT_HOME" "doc" "$RAFT_ROOT_ABS/html" $ARGS;
-}
-
-export -f docs-rapids-raft-cpp;
-
 docs-cuml-cpp() {
     ARGS="$(update-environment-variables $@)";
     print-heading "Generating docs for libcuml";
@@ -696,14 +632,6 @@ docs-cudf-python() {
 
 export -f docs-cudf-python;
 
-docs-rapids-raft-python() {
-    ARGS="$(update-environment-variables $@)";
-    print-heading "Generating docs for raft";
-    docs-python "$RAFT_HOME/docs" "html" $ARGS;
-}
-
-export -f docs-rapids-raft-python;
-
 docs-cuml-python() {
     ARGS="$(update-environment-variables $@)";
     print-heading "Generating docs for cuml";
@@ -740,12 +668,6 @@ lint-cudf-cpp() {
 
 export -f lint-cudf-cpp;
 
-lint-rapids-raft-cpp() {
-    print-heading "Linting libraft" && lint-cpp "$RAFT_HOME";
-}
-
-export -f lint-rapids-raft-cpp;
-
 lint-cuml-cpp() {
     print-heading "Linting libcuml" && lint-cpp "$CUML_HOME";
 }
@@ -775,12 +697,6 @@ lint-cudf-python() {
 }
 
 export -f lint-cudf-python;
-
-lint-rapids-raft-python() {
-    print-heading "Linting raft" && lint-python "$RAFT_HOME" --flake8;
-}
-
-export -f lint-rapids-raft-python;
 
 lint-cuml-python() {
     print-heading "Linting cuml" && lint-python "$CUML_HOME" --flake8;
@@ -824,12 +740,6 @@ test-cudf-java() {
 
 export -f test-cudf-java;
 
-test-rapids-raft-cpp() {
-    cd "$(find-cpp-build-home $RAFT_HOME)" && ./test_raft;
-}
-
-export -f test-rapids-raft-cpp;
-
 test-cuml-cpp() {
     test-cpp "$(find-cpp-build-home $CUML_HOME)" $@;
 }
@@ -865,12 +775,6 @@ test-dask-cudf-python() {
 }
 
 export -f test-dask-cudf-python;
-
-test-rapids-raft-python() {
-    test-python "$RAFT_HOME/python" $@;
-}
-
-export -f test-rapids-raft-python;
 
 test-cuml-python() {
     test-python "$CUML_HOME/python" $@;
@@ -983,7 +887,6 @@ configure-cpp() {
         CFLAGS="$CMAKE_C_FLAGS"                                              \
         CXXFLAGS="$CMAKE_CXX_FLAGS"                                          \
         CUDAFLAGS="$CMAKE_CUDA_FLAGS"                                        \
-        RAFT_PATH="$RAFT_HOME" RAFT_INCLUDE_DIR="$RAFT_INCLUDE"              \
         cmake -G"$CMAKE_GENERATOR" ${D_CMAKE_ARGS} "$PROJECT_CPP_HOME"       \
                 -D CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -ptx <SOURCE> -o <ASSEMBLY_SOURCE>'      \
                 -D CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>' \
@@ -1022,8 +925,6 @@ build-python() {
         fi;
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         time env CFLAGS="$CFLAGS_" \
-             RAFT_PATH="$RAFT_HOME" \
-             RAFT_INCLUDE_DIR="$RAFT_INCLUDE" \
              CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$CFLAGS_" \
              python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
@@ -1166,37 +1067,42 @@ set-gcc-version() {
 export -f set-gcc-version;
 
 test-cpp() {
-    update-environment-variables;
-    CTESTS="";
-    GTESTS="";
-    set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
-    ###
-    # Parse the test names from the input args. Assume all arguments up to
-    # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
-    # and all arguments after are ctest arguments. Strip `--` (if found)
-    # from the args list before passing the args to ctest. Example:
-    #
-    # $ test-cudf-cpp TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
-    # $ test-cudf-cpp gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
-    ###
-    while [[ "$#" -gt 0 ]]; do
-        case "$1" in
-            --) shift; break;;
-            -*) break;;
-            *) NAMES=${1:-""};
-               for NAME in ${NAMES//,/ }; do
-                   NAME="${NAME#gtests/}";
-                   CTESTS="${CTESTS:+$CTESTS|}$NAME";
-                   GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
-               done;;
-        esac; shift;
-    done
-    for x in "1"; do
-        ninja -j$PARALLEL_LEVEL $GTESTS || break;
-        ctest --force-new-ctest-process \
-              --output-on-failure \
-              ${CTESTS:+-R $CTESTS} $* || break;
-    done;
+    (
+        update-environment-variables;
+        CTESTS="";
+        GTESTS="";
+        set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
+        ###
+        # Parse the test names from the input args. Assume all arguments up to
+        # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
+        # and all arguments after are ctest arguments. Strip `--` (if found)
+        # from the args list before passing the args to ctest. Example:
+        #
+        # $ test-cudf-cpp TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
+        # $ test-cudf-cpp gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
+        ###
+        while [[ "$#" -gt 0 ]]; do
+            case "$1" in
+                --) shift; break;;
+                -*) break;;
+                *) NAMES=${1:-""};
+                for NAME in ${NAMES//,/ }; do
+                    NAME="${NAME#gtests/}";
+                    CTESTS="${CTESTS:+$CTESTS|}$NAME";
+                    GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
+                done;;
+            esac; shift;
+        done
+        for x in "1"; do
+            ninja -j$PARALLEL_LEVEL $GTESTS || break;
+            set -x;
+            ctest --force-new-ctest-process \
+                --output-on-failure \
+                ${CTESTS:+-R $CTESTS} $* || break;
+            set +x;
+        done;
+        set +x;
+    )
 }
 
 test-python() {
@@ -1293,29 +1199,38 @@ fix-nvcc-clangd-compile-commands() {
         GPU_GENCODE_COMPUTE="-gencode=arch=([^\-])* ";
         GPU_ARCH_SM="-gencode=arch=compute_.*,code=sm_";
 
+        GPU_GENCODE_COMPUTE_2="-gencode arch=([^\-])* ";
+        GPU_ARCH_SM_2="-gencode arch=compute_.*,code=sm_";
+
         # 1. Replace `-isystem=` with `-I`
         # 2. Remove the second compiler invocation following the `&&`
         # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 4. Remove unsupported -gencode options
-        # 5. Remove unsupported --expt-extended-lambda option
-        # 6. Remove unsupported --expt-relaxed-constexpr option
-        # 7. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 8. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 9. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 10. Add flags to disable certain warnings for intellisense
-        # 11. Replace -Wno-error=deprecated-declarations
-        # 12. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 13. Remove -forward-unknown-to-host-compiler
-        # 14. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 15. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 16. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 17. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 18. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 4. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
+        # 5. Remove unsupported -gencode options
+        # 6. Remove unsupported -gencode options
+        # 7. Remove unsupported --expt-extended-lambda option
+        # 8. Remove unsupported --expt-relaxed-constexpr option
+        # 9. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 10. Change `-x cu` to `-x cuda`, plus other clangd cuda options
+        # 11. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 12. Add flags to disable certain warnings for intellisense
+        # 13. Replace -Wno-error=deprecated-declarations
+        # 14. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 15. Remove -forward-unknown-to-host-compiler
+        # 16. Remove `--diag_suppress=*`
+        # 17. Remove `-ccbin /usr/bin/g++-8`
+        # 18. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 19. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 20. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 21. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 22. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
+        | sed -r "s/$GPU_ARCH_SM_2/--cuda-gpu-arch=sm_/g"      \
         | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
+        | sed -r "s/$GPU_GENCODE_COMPUTE_2//g"                 \
         | sed -r "s/ --expt-extended-lambda/ /g"               \
         | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
         | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
@@ -1326,6 +1241,8 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
         | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
+        | sed -r "s/--diag_suppress=([^\-])* //g"              \
+        | sed -r "s/-ccbin ([^\ ])*//g"                        \
         | sed -r "s/-Xcompiler=/-Xcompiler /g"                 \
         | sed -r "s/-Xcompiler/-Xarch_host/g"                  \
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
@@ -1426,7 +1343,6 @@ find-project-home() {
     $RMM_HOME
     $CUDF_HOME
     $CUML_HOME
-    $RAFT_HOME
     $CUGRAPH_HOME
     $CUSPATIAL_HOME
     $NOTEBOOKS_CONTRIB_HOME";
@@ -1494,7 +1410,6 @@ update-environment-variables() {
     build_rmm=
     build_cudf=
     build_cuml=
-    build_raft=
     build_cugraph=
     build_cuspatial=
     while [[ "$#" -gt 0 ]]; do
@@ -1506,7 +1421,6 @@ update-environment-variables() {
             --rmm) build_rmm="${build_rmm:-YES}";;
             --cudf) build_cudf="${build_cudf:-YES}";;
             --cuml) build_cuml="${build_cuml:-YES}";;
-            --rapids-raft) build_raft="${build_raft:-YES}";;
             --cugraph) build_cugraph="${build_cugraph:-YES}";;
             --cuspatial) build_cuspatial="${build_cuspatial:-YES}";;
             *) args="${args:+$args }$1";;
@@ -1515,7 +1429,6 @@ update-environment-variables() {
     export BUILD_RMM="${build_rmm:-$BUILD_RMM}"
     export BUILD_CUDF="${build_cudf:-$BUILD_CUDF}"
     export BUILD_CUML="${build_cuml:-$BUILD_CUML}"
-    export BUILD_RAFT="${build_raft:-$BUILD_RAFT}"
     export BUILD_CUGRAPH="${build_cugraph:-$BUILD_CUGRAPH}"
     export BUILD_CUSPATIAL="${build_cuspatial:-$BUILD_CUSPATIAL}"
     export BUILD_TESTS="${tests:-$BUILD_TESTS}";
@@ -1526,7 +1439,6 @@ update-environment-variables() {
     export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
     export NVSTRINGS_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
     export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
-    export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 
