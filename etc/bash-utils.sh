@@ -1166,37 +1166,42 @@ set-gcc-version() {
 export -f set-gcc-version;
 
 test-cpp() {
-    update-environment-variables;
-    CTESTS="";
-    GTESTS="";
-    set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
-    ###
-    # Parse the test names from the input args. Assume all arguments up to
-    # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
-    # and all arguments after are ctest arguments. Strip `--` (if found)
-    # from the args list before passing the args to ctest. Example:
-    #
-    # $ test-cudf-cpp TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
-    # $ test-cudf-cpp gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
-    ###
-    while [[ "$#" -gt 0 ]]; do
-        case "$1" in
-            --) shift; break;;
-            -*) break;;
-            *) NAMES=${1:-""};
-               for NAME in ${NAMES//,/ }; do
-                   NAME="${NAME#gtests/}";
-                   CTESTS="${CTESTS:+$CTESTS|}$NAME";
-                   GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
-               done;;
-        esac; shift;
-    done
-    for x in "1"; do
-        ninja -j$PARALLEL_LEVEL $GTESTS || break;
-        ctest --force-new-ctest-process \
-              --output-on-failure \
-              ${CTESTS:+-R $CTESTS} $* || break;
-    done;
+    (
+        update-environment-variables;
+        CTESTS="";
+        GTESTS="";
+        set -x; cd "$1"; { set +x; } 2>/dev/null; shift;
+        ###
+        # Parse the test names from the input args. Assume all arguments up to
+        # a double-dash (`--`) or dash-prefixed (`-*`) argument are test names,
+        # and all arguments after are ctest arguments. Strip `--` (if found)
+        # from the args list before passing the args to ctest. Example:
+        #
+        # $ test-cudf-cpp TEST_1,TEST_2 gtests/TEST_3 -- --verbose --parallel
+        # $ test-cudf-cpp gtests/TEST_1 gtests/TEST_2 gtests/TEST_3 --verbose --parallel
+        ###
+        while [[ "$#" -gt 0 ]]; do
+            case "$1" in
+                --) shift; break;;
+                -*) break;;
+                *) NAMES=${1:-""};
+                for NAME in ${NAMES//,/ }; do
+                    NAME="${NAME#gtests/}";
+                    CTESTS="${CTESTS:+$CTESTS|}$NAME";
+                    GTESTS="${GTESTS:+$GTESTS }gtests/$NAME";
+                done;;
+            esac; shift;
+        done
+        for x in "1"; do
+            ninja -j$PARALLEL_LEVEL $GTESTS || break;
+            set -x;
+            ctest --force-new-ctest-process \
+                --output-on-failure \
+                ${CTESTS:+-R $CTESTS} $* || break;
+            set +x;
+        done;
+        set +x;
+    )
 }
 
 test-python() {
