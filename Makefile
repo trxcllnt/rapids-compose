@@ -182,9 +182,9 @@ dc.dind: dind
 		-v "$$COMPOSE_HOME:$$COMPOSE_HOME" \
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
+		-v "$$RAPIDS_HOME/cuml:$$RAPIDS_HOME/cuml" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/cuspatial:$$RAPIDS_HOME/cuspatial" \
-		-v "$$RAPIDS_HOME/notebooks:$$RAPIDS_HOME/notebooks" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
 		-v /var/run/docker.sock:/var/run/docker.sock \
 		-v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
