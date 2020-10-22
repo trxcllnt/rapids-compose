@@ -93,6 +93,7 @@ BUILD_RMM=${BUILD_RMM:-"YES"}
 BUILD_CUDF=${BUILD_CUDF:-"YES"}
 BUILD_CUML=${BUILD_CUML:-$(choose_bool_option "Build cuML C++ and Cython? (y/n)" "NO")}
 BUILD_CUGRAPH=${BUILD_CUGRAPH:-$(choose_bool_option "Build cuGraph C++ and Cython? (y/n)" "NO")}
+BUILD_RAFT=${BUILD_RAFT:-$(choose_bool_option "Build raft C++ and Cython? (y/n)" "NO")}
 BUILD_CUSPATIAL=${BUILD_CUSPATIAL:-$(choose_bool_option "Build cuSpatial C++ and Cython? (y/n)" "NO")}
 
 if [[ "$BUILD_CUML" == "NO" && "$BUILD_CUGRAPH" == "NO" && "$BUILD_CUSPATIAL" == "NO" ]]; then
@@ -134,6 +135,8 @@ BUILD_CUDF=$BUILD_CUDF
 BUILD_CUML=$BUILD_CUML
 # Whether to build cuGraph C++ and Cython (implies BUILD_CUDF=YES)
 BUILD_CUGRAPH=$BUILD_CUGRAPH
+# Whether to build raft C++ and Cython
+BUILD_RAFT=$BUILD_RAFT
 # Whether to build cuSpatial C++ and Cython (implies BUILD_CUDF=YES)
 BUILD_CUSPATIAL=$BUILD_CUSPATIAL
 # Whether to disable rmm C++ deprecation warnings

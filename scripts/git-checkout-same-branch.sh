@@ -6,7 +6,7 @@ cd $(dirname "$(realpath "$0")")/../../
 
 BASE_DIR="$(pwd)"
 
-CODE_REPOS="${CODE_REPOS:-rmm cudf cuml cugraph cuspatial}"
+CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
 ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks-contrib}"
 
 COMMON_BRANCHES=""
