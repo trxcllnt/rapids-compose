@@ -339,7 +339,7 @@ build-cudf-java() {
             ${D_CMAKE_ARGS} \
             -Dmaven.test.skip=true \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-            -DCUDF_CPP_BUILD_DIR="$CUDF_HOME/$CUDF_CPP_BUILD_DIR" \
+            -DCUDF_CPP_BUILD_DIR="$CUDF_CPP_BUILD_DIR" \
             -Dnative.build.path="$CUDF_JNI_ROOT" 
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
