@@ -842,7 +842,8 @@ configure-cpp() {
             -D ARROW_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D ARROW_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow.so
             -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
-            -D CUDAToolkit_ROOT=${CUDA_HOME}";
+            -D CUDAToolkit_ROOT=${CUDA_HOME}
+            -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include";
 
         CMAKE_GENERATOR="Ninja";
         CMAKE_C_FLAGS="-fdiagnostics-color=always"
