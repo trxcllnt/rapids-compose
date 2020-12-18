@@ -18,10 +18,10 @@ channels:
 dependencies:
 - cmake>=3.18,<3.19
 - cmake_setuptools
+- pytest-xdist
 - python=${PYTHON_VERSION}
 - pip:
   - ptvsd
-  - pytest-xdist
 EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
