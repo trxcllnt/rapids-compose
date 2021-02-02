@@ -806,7 +806,6 @@ configure-cpp() {
             -D CONDA_BUILD=0
             -D CMAKE_CXX11_ABI=ON
             -D ARROW_USE_CCACHE=ON
-            -D CMAKE_CUDA_ARCHITECTURES=false
             -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
             -D BUILD_TESTS=${BUILD_TESTS:-OFF}
             -D BUILD_RAFT_TESTS=${BUILD_TESTS:-OFF}
