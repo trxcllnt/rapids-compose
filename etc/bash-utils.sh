@@ -327,7 +327,7 @@ export -f build-cudf-cpp;
 
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
-    CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $1)"
+    CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
     D_CMAKE_ARGS=$(update-environment-variables $@);
     D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
     (
@@ -340,6 +340,8 @@ build-cudf-java() {
             -Dmaven.test.skip=true \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCUDF_CPP_BUILD_DIR="$CUDF_CPP_BUILD_DIR" \
+            -DCUDAToolkit_ROOT="$CUDA_HOME" \
+            -DCUDAToolkit_INCLUDE_DIR="$CUDA_HOME/include" \
             -Dnative.build.path="$CUDF_JNI_ROOT" 
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
