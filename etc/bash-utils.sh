@@ -311,16 +311,7 @@ build-cudf-cpp() {
 
     print-heading "Building libcudf";
 
-    [ "$BUILD_TESTS" != "ON" ] && \
-        BUILD_TARGETS="cudf" || \
-        BUILD_TARGETS="cudf build_tests_cudf";
-
-    # build-cpp "$CUDF_HOME/cpp" "cudf" $@;
-    build-cpp "$CUDF_HOME/cpp" "$BUILD_TARGETS";
-
-    if [ "$BUILD_BENCHMARKS" == "ON" ]; then
-        build-cpp "$CUDF_HOME/cpp" "benchmarks/all" || true;
-    fi
+    build-cpp "$CUDF_HOME/cpp" "all";
 }
 
 export -f build-cudf-cpp;
@@ -810,7 +801,8 @@ configure-cpp() {
         mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";
 
         D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D GPU_ARCHS=${GPU_ARCHS:-}
+            -D GPU_ARCHS=${CMAKE_CUDA_ARCHITECTURES:-}
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
             -D CONDA_BUILD=0
             -D CMAKE_CXX11_ABI=ON
             -D ARROW_USE_CCACHE=ON
@@ -845,7 +837,8 @@ configure-cpp() {
             -D ARROW_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow.so
             -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
             -D CUDAToolkit_ROOT=${CUDA_HOME}
-            -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include";
+            -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include
+            -D CPM_rmm_SOURCE=${RMM_HOME}";
 
         CMAKE_GENERATOR="Ninja";
         CMAKE_C_FLAGS="-fdiagnostics-color=always"
@@ -1193,6 +1186,7 @@ fix-nvcc-clangd-compile-commands() {
             -D__CUDACC_VER_MINOR__=$CUDA_VERSION_MINOR"));
         CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
         ALLOWED_WARNINGS=$(echo $(echo '
+            -Werror=sign-compare
             -Wno-unknown-pragmas
             -Wno-c++17-extensions
             -Wno-unevaluated-expression'));
