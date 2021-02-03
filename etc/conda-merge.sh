@@ -43,13 +43,14 @@ replace-env-cuda-toolkit-version() {
   | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g"
 }
 
-echo -e "$(replace-env-cuda-toolkit-version rmm)"       > rmm.yml
-echo -e "$(replace-env-cuda-toolkit-version cudf)"      > cudf.yml
-echo -e "$(replace-env-cuda-toolkit-version cuml)"      > cuml.yml
-echo -e "$(replace-env-cuda-toolkit-version cugraph)"   > cugraph.yml
-echo -e "$(replace-env-cuda-toolkit-version cuspatial)" > cuspatial.yml
-
-conda-merge rmm.yml cudf.yml cuml.yml cugraph.yml cuspatial.yml rapids.yml > merged.yml
+YMLS=()
+if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-cuda-toolkit-version rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
+if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-cuda-toolkit-version cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
+if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-cuda-toolkit-version cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
+if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-cuda-toolkit-version cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
+if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-cuda-toolkit-version cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
+YMLS+=(rapids.yml)
+conda-merge ${YMLS[@]} > merged.yml
 
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
