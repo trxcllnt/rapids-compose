@@ -802,7 +802,6 @@ configure-cpp() {
 
         D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D GPU_ARCHS=${CMAKE_CUDA_ARCHITECTURES:-}
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
             -D CONDA_BUILD=0
             -D CMAKE_CXX11_ABI=ON
             -D ARROW_USE_CCACHE=ON
@@ -851,7 +850,10 @@ configure-cpp() {
             CMAKE_CUDA_FLAGS="${CMAKE_CUDA_FLAGS} -Xcompiler=-Wno-deprecated-declarations"
         fi;
 
-        if [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
+        if [ "$PROJECT_HOME" == "$CUDF_HOME" ]; then
+            D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
+        elif [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D LIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
