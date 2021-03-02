@@ -280,9 +280,10 @@ cuSpatial: $(should-build-cuspatial $@)";
 export -f lint-rapids;
 
 build-rmm-cpp() {
-    update-environment-variables $@ >/dev/null;
+    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
-    configure-cpp "$RMM_HOME" $@;
+    configure-cpp "$RMM_HOME" "$config_args";
     print-heading "Building librmm";
     build-cpp "$RMM_HOME" "all";
 }
@@ -290,10 +291,11 @@ build-rmm-cpp() {
 export -f build-rmm-cpp;
 
 build-cudf-cpp() {
-    update-environment-variables $@ >/dev/null;
+    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
-
-    configure-cpp "$CUDF_HOME/cpp" $@;
+    configure-cpp "$CUDF_HOME/cpp" "$config_args";
 
     if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
         print-heading "Building libnvstrings";
@@ -319,15 +321,15 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
-    D_CMAKE_ARGS=$(update-environment-variables $@);
-    D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"))
+    config_args=$(update-environment-variables $@);
+    config_args=$(echo $(echo "$config_args"));
     (
         cd "$CUDF_HOME/java";
         mkdir -p "$CUDF_JNI_ROOT_ABS";
         print-heading "Building libcudfjni";
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         mvn package \
-            ${D_CMAKE_ARGS} \
+            ${config_args} \
             -Dmaven.test.skip=true \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCUDF_CPP_BUILD_DIR="$CUDF_CPP_BUILD_DIR" \
@@ -342,9 +344,12 @@ build-cudf-java() {
 export -f build-cudf-java;
 
 build-cuml-cpp() {
-    update-environment-variables $@ >/dev/null;
+    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
+    config_args="-D BUILD_GTEST=ON ${config_args}"
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuml";
-    configure-cpp "$CUML_HOME/cpp" $@ -DBUILD_GTEST=ON;
+    configure-cpp "$CUML_HOME/cpp" "$config_args";
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
@@ -352,9 +357,11 @@ build-cuml-cpp() {
 export -f build-cuml-cpp;
 
 build-cugraph-cpp() {
-    update-environment-variables $@ >/dev/null;
+    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
-    configure-cpp "$CUGRAPH_HOME/cpp" $@;
+    configure-cpp "$CUGRAPH_HOME/cpp" "$config_args";
     print-heading "Building libcugraph";
     build-cpp "$CUGRAPH_HOME/cpp" "all";
 }
@@ -362,9 +369,11 @@ build-cugraph-cpp() {
 export -f build-cugraph-cpp;
 
 build-cuspatial-cpp() {
-    update-environment-variables $@ >/dev/null;
+    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
-    configure-cpp "$CUSPATIAL_HOME/cpp" $@;
+    configure-cpp "$CUSPATIAL_HOME/cpp" "$config_args";
     print-heading "Building libcuspatial";
     build-cpp "$CUSPATIAL_HOME/cpp" "all";
 }
@@ -836,7 +845,11 @@ configure-cpp() {
             -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
             -D CUDAToolkit_ROOT=${CUDA_HOME}
             -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include
-            -D CPM_rmm_SOURCE=${RMM_HOME}";
+            -D CPM_rmm_SOURCE=$(find-cpp-build-home ${RMM_HOME})
+            -D CPM_cudf_SOURCE=$(find-cpp-build-home ${CUDF_HOME})
+            -D CPM_cuml_SOURCE=$(find-cpp-build-home ${CUML_HOME})
+            -D CPM_cugraph_SOURCE=$(find-cpp-build-home ${CUGRAPH_HOME})
+            -D CPM_cuspatial_SOURCE=$(find-cpp-build-home ${CUSPATIAL_HOME})";
 
         CMAKE_GENERATOR="Ninja";
         CMAKE_C_FLAGS="-fdiagnostics-color=always"
@@ -850,7 +863,10 @@ configure-cpp() {
             CMAKE_CUDA_FLAGS="${CMAKE_CUDA_FLAGS} -Xcompiler=-Wno-deprecated-declarations"
         fi;
 
-        if [ "$PROJECT_HOME" == "$CUDF_HOME" ]; then
+        if [ "$PROJECT_HOME" == "$RMM_HOME" ]; then
+            D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
+        elif [ "$PROJECT_HOME" == "$CUDF_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
             -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
         elif [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
@@ -869,15 +885,13 @@ configure-cpp() {
             -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
         elif [ "$PROJECT_HOME" == "$CUSPATIAL_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
             -D GDAL_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libgdal.so
             -D GDAL_INCLUDE_DIR=${CONDA_HOME}/envs/rapids/include";
         fi;
 
         # Create or remove ccache compiler symlinks
         set-gcc-version $GCC_VERSION;
-
-        # CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE and CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE are
-        # missing in CMake 3.17.0, but still used when -G"Unix Makefiles" is specified...?
 
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         JOBS=$PARALLEL_LEVEL                                                 \
@@ -886,10 +900,13 @@ configure-cpp() {
         CFLAGS="$CMAKE_C_FLAGS"                                              \
         CXXFLAGS="$CMAKE_CXX_FLAGS"                                          \
         CUDAFLAGS="$CMAKE_CUDA_FLAGS"                                        \
-        cmake -G"$CMAKE_GENERATOR" ${D_CMAKE_ARGS} "$PROJECT_CPP_HOME"       \
-                -D CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -ptx <SOURCE> -o <ASSEMBLY_SOURCE>'      \
-                -D CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE='<CMAKE_CUDA_COMPILER> <DEFINES> <FLAGS> -E <SOURCE> > <PREPROCESSED_SOURCE>' \
-        && fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$BUILD_DIR" \
+        cmake -B "$BUILD_DIR"                                                \
+              -S "$PROJECT_CPP_HOME"                                         \
+              -G "$CMAKE_GENERATOR"                                          \
+              ${D_CMAKE_ARGS}                                                \
+        && fix-nvcc-clangd-compile-commands                                  \
+            "$PROJECT_CPP_HOME"                                              \
+            "$PROJECT_CPP_BUILD_DIR"                                         \
         ;
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
     )
@@ -901,10 +918,8 @@ build-cpp() {
     BUILD_TARGETS="${2:-all}";
     (
         set -Eeo pipefail;
-        cd "$(find-cpp-home $1)";
-        BUILD_DIR_PATH="$(find-cpp-build-home $1)"
-        time cmake --build "$BUILD_DIR_PATH" -- -j${PARALLEL_LEVEL} $BUILD_TARGETS;
-        [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json)" || true ]];
+        time cmake --build "$(find-cpp-build-home $1)" -- -j${PARALLEL_LEVEL} $BUILD_TARGETS;
+        [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json $1)" || true ]];
     )
 }
 
@@ -1202,35 +1217,42 @@ fix-nvcc-clangd-compile-commands() {
         GPU_GENCODE_COMPUTE_2="-gencode arch=([^\-])* ";
         GPU_ARCH_SM_2="-gencode arch=compute_.*,code=sm_";
 
+        GPU_GENCODE_COMPUTE_3="--generate-code=arch=([^\-])* ";
+        GPU_ARCH_SM_3="--generate-code=arch=compute_.*,code=\[(.*?)\]";
+
         # 1. Replace `-isystem=` with `-I`
         # 2. Remove the second compiler invocation following the `&&`
         # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
         # 4. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 5. Remove unsupported -gencode options
+        # 5. Transform --generate-code=arch=compute_X,code=[sm_Y] to --cuda-gpu-arch=sm_Y
         # 6. Remove unsupported -gencode options
-        # 7. Remove unsupported --expt-extended-lambda option
-        # 8. Remove unsupported --expt-relaxed-constexpr option
-        # 9. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 10. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 11. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 12. Add flags to disable certain warnings for intellisense
-        # 13. Replace -Wno-error=deprecated-declarations
-        # 14. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 15. Remove -forward-unknown-to-host-compiler
-        # 16. Remove `--diag_suppress=*`
-        # 17. Remove `-ccbin /usr/bin/g++-8`
-        # 18. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 19. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 20. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 21. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 22. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 7. Remove unsupported -gencode options
+        # 8. Remove unsupported --generate-code options
+        # 9. Remove unsupported --expt-extended-lambda option
+        # 10. Remove unsupported --expt-relaxed-constexpr option
+        # 11. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 12. Change `-x cu` to `-x cuda`, plus other clangd cuda options
+        # 13. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 14. Add flags to disable certain warnings for intellisense
+        # 15. Replace -Wno-error=deprecated-declarations
+        # 16. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 17. Remove -forward-unknown-to-host-compiler
+        # 18. Remove `--diag_suppress=*`
+        # 19. Remove `-ccbin /usr/bin/g++-8`
+        # 20. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 21. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 22. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 23. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 24. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
         | sed -r "s/$GPU_ARCH_SM_2/--cuda-gpu-arch=sm_/g"      \
+        | sed -r "s/$GPU_ARCH_SM_3/--cuda-gpu-arch=\1/g"       \
         | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
         | sed -r "s/$GPU_GENCODE_COMPUTE_2//g"                 \
+        | sed -r "s/$GPU_GENCODE_COMPUTE_3//g"                 \
         | sed -r "s/ --expt-extended-lambda/ /g"               \
         | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
         | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
