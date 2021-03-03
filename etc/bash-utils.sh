@@ -280,7 +280,7 @@ cuSpatial: $(should-build-cuspatial $@)";
 export -f lint-rapids;
 
 build-rmm-cpp() {
-    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(update-environment-variables $@);
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
     configure-cpp "$RMM_HOME" "$config_args";
@@ -291,7 +291,7 @@ build-rmm-cpp() {
 export -f build-rmm-cpp;
 
 build-cudf-cpp() {
-    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
@@ -344,7 +344,7 @@ build-cudf-java() {
 export -f build-cudf-java;
 
 build-cuml-cpp() {
-    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args="-D BUILD_GTEST=ON ${config_args}"
     config_args=$(echo $(echo "$config_args"));
@@ -357,7 +357,7 @@ build-cuml-cpp() {
 export -f build-cuml-cpp;
 
 build-cugraph-cpp() {
-    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
@@ -369,7 +369,7 @@ build-cugraph-cpp() {
 export -f build-cugraph-cpp;
 
 build-cuspatial-cpp() {
-    config_args=$(update-environment-variables $@ >/dev/null);
+    config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
