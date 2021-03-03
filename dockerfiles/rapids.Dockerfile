@@ -36,6 +36,7 @@ fi' \
     gcc-7 g++-7 \
     gcc-8 g++-8 \
     gcc-9 g++-9 \
+    gcc-10 g++-10 \
     ninja-build \
     python3 python3-pip \
     # for building cudf-java
@@ -65,12 +66,23 @@ fi' \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 0 \
- && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 0 \
- && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 0 \
- && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 0 \
- && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} \
- && update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION}
+# Remove any existing gcc and g++ alternatives
+RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all gcc >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all g++ >/dev/null 2>&1 || true \
+ && update-alternatives --remove-all gcov >/dev/null 2>&1 || true \
+ # Install alternatives for gcc/g++/cc/c++/gcov
+ && for x in 7 8 9 10; do \
+    update-alternatives \
+    --install /usr/bin/gcc gcc /usr/bin/gcc-${x} ${x}0 \
+    --slave /usr/bin/cc cc /usr/bin/gcc-${x} \
+    --slave /usr/bin/g++ g++ /usr/bin/g++-${x} \
+    --slave /usr/bin/c++ c++ /usr/bin/g++-${x} \
+    --slave /usr/bin/gcov gcov /usr/bin/gcov-${x}; \
+ done \
+ # Set gcc-${GCC_VERSION} as the default gcc
+ && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
 
 ARG UID=1000
 ARG GID=1000

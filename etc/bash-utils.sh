@@ -1044,13 +1044,14 @@ export -f lint-python;
 
 set-gcc-version() {
     V="${1:-}";
-    if [[ $V != "7" && $V != "8" && $V != "9" ]]; then
+    if [[ $V != "7" && $V != "8" && $V != "9" && $V != "10" ]]; then
         while true; do
-            read -p "Please select GCC version 7, 8, or 9: " V </dev/tty
-            case $V in
-                [789]* ) break;;
-                * ) >&2 echo "Invalid GCC version, please select 7, 8, or 9";;
-            esac
+            read -p "Please select GCC version 7, 8, 9, or 10: " V </dev/tty
+            if [[ $V != "7" && $V != "8" && $V != "9" && $V != "10" ]]; then
+                >&2 echo "Invalid GCC version, please select 7, 8, 9, or 10";
+            else
+                break;
+            fi
         done
     fi
     echo "Using gcc-$V and g++-$V"
@@ -1060,7 +1061,6 @@ set-gcc-version() {
     export CC="/usr/local/bin/gcc-$GCC_VERSION"
     export CXX="/usr/local/bin/g++-$CXX_VERSION"
     echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
-    echo "rapids" | sudo -S update-alternatives --set g++ /usr/bin/g++-${CXX_VERSION} >/dev/null 2>&1;
     # Create or remove ccache compiler symlinks
     if [ "$USE_CCACHE" == "YES" ]; then
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
