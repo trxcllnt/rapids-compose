@@ -59,7 +59,7 @@ install_github_cli() {
 
 clone_repo() {
     REPO="$1"
-    git clone -c checkout.defaultRemote=upstream -j $(nproc) \
+    git clone --no-tags -c checkout.defaultRemote=upstream -j $(nproc) \
         --recurse-submodules https://github.com/rapidsai/$REPO.git
 }
 

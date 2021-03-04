@@ -15,7 +15,7 @@ echo "Determining available branches."
 for REPO in $CODE_REPOS; do
     echo "$REPO ..."
     cd "$BASE_DIR/$REPO";
-    git fetch upstream;
+    git fetch --no-tags upstream;
     REMOTE_BRANCHES="";
     for x in $(git branch -r | grep upstream); do
         REMOTE_BRANCHES="${REMOTE_BRANCHES:+$REMOTE_BRANCHES\n}${x#upstream/}";
