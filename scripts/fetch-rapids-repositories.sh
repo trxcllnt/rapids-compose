@@ -11,6 +11,6 @@ ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
     cd "$BASE_DIR/$REPO";
-    git fetch upstream && git fetch origin;
+    git fetch --no-tags upstream && git fetch --no-tags origin;
     cd - >/dev/null 2>&1;
 done

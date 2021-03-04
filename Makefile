@@ -16,7 +16,6 @@ DEFAULT_PYTHON_VERSION := 3.7
 DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 DEFAULT_RAPIDS_VERSION := $(shell RES="" \
- && [ -z "$$RES" ] && RES=$$(cd ../cudf 2>/dev/null && git describe --abbrev=0 --tags) || true \
  && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
  && echo $${RES:-"latest"})
 
