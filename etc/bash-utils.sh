@@ -1218,38 +1218,41 @@ fix-nvcc-clangd-compile-commands() {
         GPU_ARCH_SM_2="-gencode arch=compute_.*,code=sm_";
 
         GPU_GENCODE_COMPUTE_3="--generate-code=arch=([^\-])* ";
-        GPU_ARCH_SM_3="--generate-code=arch=compute_.*,code=\[(.*?)\]";
+        GPU_ARCH_SM_3="--generate-code=arch=compute_.*,code=\[compute_.*,(.*?)\]";
+        GPU_ARCH_SM_4="--generate-code=arch=compute_.*,code=\[(.*?)\]";
 
         # 1. Replace `-isystem=` with `-I`
         # 2. Remove the second compiler invocation following the `&&`
         # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
         # 4. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 5. Transform --generate-code=arch=compute_X,code=[sm_Y] to --cuda-gpu-arch=sm_Y
-        # 6. Remove unsupported -gencode options
+        # 5. Transform --generate-code=arch=compute_X,code=[compute_X,sm_Y] to --cuda-gpu-arch=sm_Y
+        # 6. Transform --generate-code=arch=compute_X,code=[sm_Y] to --cuda-gpu-arch=sm_Y
         # 7. Remove unsupported -gencode options
-        # 8. Remove unsupported --generate-code options
-        # 9. Remove unsupported --expt-extended-lambda option
-        # 10. Remove unsupported --expt-relaxed-constexpr option
-        # 11. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 12. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 13. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 14. Add flags to disable certain warnings for intellisense
-        # 15. Replace -Wno-error=deprecated-declarations
-        # 16. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 17. Remove -forward-unknown-to-host-compiler
-        # 18. Remove `--diag_suppress=*`
-        # 19. Remove `-ccbin /usr/bin/g++-8`
-        # 20. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 21. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 22. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 23. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 24. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 8. Remove unsupported -gencode options
+        # 9. Remove unsupported --generate-code options
+        # 10. Remove unsupported --expt-extended-lambda option
+        # 11. Remove unsupported --expt-relaxed-constexpr option
+        # 12. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
+        # 13. Change `-x cu` to `-x cuda`, plus other clangd cuda options
+        # 14. Add `-I$CUDA_HOME/include` to nvcc invocations
+        # 15. Add flags to disable certain warnings for intellisense
+        # 16. Replace -Wno-error=deprecated-declarations
+        # 17. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 18. Remove -forward-unknown-to-host-compiler
+        # 19. Remove `--diag_suppress=*`
+        # 20. Remove `-ccbin /usr/bin/g++-8`
+        # 21. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 22. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 23. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 24. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 25. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
         | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
         | sed -r "s/$GPU_ARCH_SM_2/--cuda-gpu-arch=sm_/g"      \
         | sed -r "s/$GPU_ARCH_SM_3/--cuda-gpu-arch=\1/g"       \
+        | sed -r "s/$GPU_ARCH_SM_4/--cuda-gpu-arch=\1/g"       \
         | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
         | sed -r "s/$GPU_GENCODE_COMPUTE_2//g"                 \
         | sed -r "s/$GPU_GENCODE_COMPUTE_3//g"                 \
