@@ -1193,13 +1193,7 @@ fix-nvcc-clangd-compile-commands() {
         CUDA_VERSION_MAJOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2);
         CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
 
-        CLANG_NVCC_OPTIONS="-I$CUDA_HOME/include";
-        CLANG_CUDA_OPTIONS=$(echo $(echo "
-            -nocudalib
-            -nodefaultlibs
-            --no-cuda-version-check
-            -D__CUDACC_VER_MAJOR__=$CUDA_VERSION_MAJOR
-            -D__CUDACC_VER_MINOR__=$CUDA_VERSION_MINOR"));
+        CLANG_CUDA_OPTIONS="--cuda-path=$(realpath -m $CUDA_HOME)";
         CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
         ALLOWED_WARNINGS=$(echo $(echo '
             -Werror=sign-compare
@@ -1234,18 +1228,17 @@ fix-nvcc-clangd-compile-commands() {
         # 11. Remove unsupported --expt-relaxed-constexpr option
         # 12. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
         # 13. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 14. Add `-I$CUDA_HOME/include` to nvcc invocations
-        # 15. Add flags to disable certain warnings for intellisense
-        # 16. Replace -Wno-error=deprecated-declarations
-        # 17. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 18. Remove -forward-unknown-to-host-compiler
-        # 19. Remove `--diag_suppress=*`
-        # 20. Remove `-ccbin /usr/bin/g++-8`
-        # 21. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 22. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 23. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 24. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 25. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 14. Add flags to disable certain warnings for intellisense
+        # 15. Replace -Wno-error=deprecated-declarations
+        # 16. Remove -Wno-unevaluated-expression=cross-execution-space-call
+        # 17. Remove -forward-unknown-to-host-compiler
+        # 18. Remove `--diag_suppress=*`
+        # 29. Remove `-ccbin /usr/bin/g++-8`
+        # 20. Rewrite `-Xcompiler=` to `-Xcompiler `
+        # 21. Rewrite `-Xcompiler` to `-Xarch_host`
+        # 22. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 23. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 24. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
         cat "$CC_JSON"                                         \
         | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
@@ -1260,7 +1253,6 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
         | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
-        | sed -r "s!nvcc !nvcc $CLANG_NVCC_OPTIONS !g"         \
         | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
         | sed -r "s/$REPLACE_DIAGNOSTIC_COLORS/g"              \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
