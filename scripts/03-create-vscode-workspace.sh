@@ -115,6 +115,9 @@ cat << EOF
         "C_Cpp.configurationWarnings": "Disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "C_Cpp.vcpkg.enabled": false,
+        
+        // doxdocgen doxygen style
+        "doxdocgen.generic.returnTemplate": "@return ",
 
         // Configure the xaver.clang-format plugin to use the conda-installed clang-format
         "clang-format.fallbackStyle": "Google",
