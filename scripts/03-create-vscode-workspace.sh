@@ -122,6 +122,7 @@ cat << EOF
         // Configure the xaver.clang-format plugin to use the conda-installed clang-format
         "clang-format.fallbackStyle": "Google",
         "clang-format.executable": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/clang-format",
+        "[c]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
 
