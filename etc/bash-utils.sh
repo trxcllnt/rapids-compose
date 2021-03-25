@@ -845,6 +845,11 @@ configure-cpp() {
             -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
             -D CUDAToolkit_ROOT=${CUDA_HOME}
             -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include
+            -D rmm_ROOT=${RMM_ROOT} -D RMM_ROOT=${RMM_ROOT}
+            -D cudf_ROOT=${CUDF_ROOT} -D CUDF_ROOT=${CUDF_ROOT}
+            -D cuml_ROOT=${CUML_ROOT} -D CUML_ROOT=${CUML_ROOT}
+            -D cugraph_ROOT=${CUGRAPH_ROOT} -D CUGRAPH_ROOT=${CUGRAPH_ROOT}
+            -D cuspatial_ROOT=${CUSPATIAL_ROOT} -D CUSPATIAL_ROOT=${CUSPATIAL_ROOT}
             -D CPM_rmm_SOURCE=$(find-cpp-build-home ${RMM_HOME})
             -D CPM_cudf_SOURCE=$(find-cpp-build-home ${CUDF_HOME})
             -D CPM_cuml_SOURCE=$(find-cpp-build-home ${CUML_HOME})
