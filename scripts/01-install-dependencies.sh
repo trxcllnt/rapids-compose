@@ -23,7 +23,7 @@ ask_before_install() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-12"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-13"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
     release=$(lsb_release -cs)
     echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
