@@ -60,7 +60,7 @@ install_docker_compose() {
 
 install_nvidia_container_toolkit() {
     INSTALLED_NVIDIA_CONTAINER_RUNTIME=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }nvidia-container-toolkit"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }nvidia-container-toolkit nvidia-container-runtime"
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
     curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
     curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
