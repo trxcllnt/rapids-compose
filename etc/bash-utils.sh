@@ -195,6 +195,24 @@ should-build-cuspatial() {
 
 export -f should-build-cuspatial;
 
+configure-rapids() {
+    (
+        set -Eeo pipefail
+        print-heading "\
+Configuring RAPIDS projects: \
+RMM: $(should-build-rmm $@), \
+cuDF: $(should-build-cudf $@), \
+cuML: $(should-build-cuml $@), \
+cuGraph: $(should-build-cugraph $@), \
+cuSpatial: $(should-build-cuspatial $@)";
+        if [ $(should-build-rmm) == true ]; then configure-rmm-cpp $@ || exit 1; fi;
+        if [ $(should-build-cudf) == true ]; then configure-cudf-cpp $@ || exit 1; fi;
+        if [ $(should-build-cuml) == true ]; then configure-cuml-cpp $@ || exit 1; fi;
+        if [ $(should-build-cugraph) == true ]; then configure-cugraph-cpp $@ || exit 1; fi;
+        if [ $(should-build-cuspatial) == true ]; then configure-cuspatial-cpp $@ || exit 1; fi;
+    )
+}
+
 build-rapids() {
     (
         set -Eeo pipefail
@@ -279,23 +297,35 @@ cuSpatial: $(should-build-cuspatial $@)";
 
 export -f lint-rapids;
 
-build-rmm-cpp() {
+configure-rmm-cpp() {
     config_args=$(update-environment-variables $@);
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
     configure-cpp "$RMM_HOME" "$config_args";
+}
+
+export -f configure-rmm-cpp;
+
+build-rmm-cpp() {
+    configure-rmm-cpp "$@";
     print-heading "Building librmm";
     build-cpp "$RMM_HOME" "all";
 }
 
 export -f build-rmm-cpp;
 
-build-cudf-cpp() {
+configure-cudf-cpp() {
     config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
     configure-cpp "$CUDF_HOME/cpp" "$config_args";
+}
+
+export -f configure-cudf-cpp;
+
+build-cudf-cpp() {
+    configure-cudf-cpp "$@"
 
     if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
         print-heading "Building libnvstrings";
@@ -343,37 +373,55 @@ build-cudf-java() {
 
 export -f build-cudf-java;
 
-build-cuml-cpp() {
+configure-cuml-cpp() {
     config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args="-D BUILD_GTEST=ON ${config_args}"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuml";
     configure-cpp "$CUML_HOME/cpp" "$config_args";
+}
+
+export -f configure-cuml-cpp;
+
+build-cuml-cpp() {
+    configure-cuml-cpp "$@"
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
 
 export -f build-cuml-cpp;
 
-build-cugraph-cpp() {
+configure-cugraph-cpp() {
     config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
     configure-cpp "$CUGRAPH_HOME/cpp" "$config_args";
+}
+
+export -f configure-cugraph-cpp;
+
+build-cugraph-cpp() {
+    configure-cugraph-cpp "$@";
     print-heading "Building libcugraph";
     build-cpp "$CUGRAPH_HOME/cpp" "all";
 }
 
 export -f build-cugraph-cpp;
 
-build-cuspatial-cpp() {
+configure-cuspatial-cpp() {
     config_args=$(update-environment-variables $@);
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
     configure-cpp "$CUSPATIAL_HOME/cpp" "$config_args";
+}
+
+export -f configure-cuspatial-cpp;
+
+build-cuspatial-cpp() {
+    configure-cuspatial-cpp "$@"
     print-heading "Building libcuspatial";
     build-cpp "$CUSPATIAL_HOME/cpp" "all";
 }
