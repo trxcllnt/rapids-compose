@@ -298,7 +298,8 @@ cuSpatial: $(should-build-cuspatial $@)";
 export -f lint-rapids;
 
 configure-rmm-cpp() {
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
     configure-cpp "$RMM_HOME" "$config_args";
@@ -315,7 +316,8 @@ build-rmm-cpp() {
 export -f build-rmm-cpp;
 
 configure-cudf-cpp() {
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
@@ -351,7 +353,8 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args=$(echo $(echo "$config_args"));
     (
         cd "$CUDF_HOME/java";
@@ -374,7 +377,8 @@ build-cudf-java() {
 export -f build-cudf-java;
 
 configure-cuml-cpp() {
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args="-D BUILD_GTEST=ON ${config_args}"
     config_args=$(echo $(echo "$config_args"));
@@ -393,7 +397,8 @@ build-cuml-cpp() {
 export -f build-cuml-cpp;
 
 configure-cugraph-cpp() {
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
@@ -411,7 +416,8 @@ build-cugraph-cpp() {
 export -f build-cugraph-cpp;
 
 configure-cuspatial-cpp() {
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
@@ -1311,22 +1317,10 @@ create-cpp-launch-json() {
     "configurations": [
         {
             "name": "$PROJECT_NAME",
-            "type": "cppdbg",
+            "type": "cuda-gdb",
             "request": "launch",
-            "stopAtEntry": false,
-            "externalConsole": false,
-            "cwd": "$PWD",
-            "envFile": "\${workspaceFolder:compose}/.env",
-            "MIMode": "gdb", "miDebuggerPath": "/usr/local/cuda/bin/cuda-gdb",
-            "program": "$TESTS_DIR/\${input:TEST_NAME}",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "environment": []
+            "gdb": "$(realpath -m $CUDA_HOME)/bin/cuda-gdb",
+            "program": "$TESTS_DIR/\${input:TEST_NAME}"
         },
     ],
     "inputs": [
