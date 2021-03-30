@@ -1241,87 +1241,35 @@ fix-nvcc-clangd-compile-commands() {
         CC_JSON_LINK="$1/compile_commands.json";
         CC_JSON_CLANGD="$2/compile_commands.clangd.json";
 
-        # todo: should define `-D__CUDACC__` here?
-
-        CUDA_VERSION_MAJOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2);
-        CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
-
-        CLANG_CUDA_OPTIONS="--cuda-path=$(realpath -m $CUDA_HOME)";
-        CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
-        ALLOWED_WARNINGS=$(echo $(echo '
-            -Werror=sign-compare
-            -Wno-unknown-pragmas
-            -Wno-c++17-extensions
-            -Wno-unevaluated-expression'));
-
-        REPLACE_DIAGNOSTIC_COLORS="-Xcompiler=-fdiagnostics-color=always/"
-        REPLACE_CROSS_EXECUTION_SPACE_CALL="-Wno-unevaluated-expression=cross-execution-space-call/";
-        REPLACE_DEPRECATED_DECL_WARNINGS=",-Wno-error=deprecated-declarations/ -Wno-deprecated-declarations";
-
-        GPU_GENCODE_COMPUTE="-gencode=arch=([^\-])* ";
-        GPU_ARCH_SM="-gencode=arch=compute_.*,code=sm_";
-
-        GPU_GENCODE_COMPUTE_2="-gencode arch=([^\-])* ";
-        GPU_ARCH_SM_2="-gencode arch=compute_.*,code=sm_";
-
-        GPU_GENCODE_COMPUTE_3="--generate-code=arch=([^\-])* ";
-        GPU_ARCH_SM_3="--generate-code=arch=compute_.*,code=\[compute_.*,(.*?)\]";
-        GPU_ARCH_SM_4="--generate-code=arch=compute_.*,code=\[(.*?)\]";
 
         # 1. Replace `-isystem=` with `-I`
-        # 2. Remove the second compiler invocation following the `&&`
-        # 3. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 4. Transform -gencode arch=compute_X,sm_Y to --cuda-gpu-arch=sm_Y
-        # 5. Transform --generate-code=arch=compute_X,code=[compute_X,sm_Y] to --cuda-gpu-arch=sm_Y
-        # 6. Transform --generate-code=arch=compute_X,code=[sm_Y] to --cuda-gpu-arch=sm_Y
-        # 7. Remove unsupported -gencode options
-        # 8. Remove unsupported -gencode options
-        # 9. Remove unsupported --generate-code options
-        # 10. Remove unsupported --expt-extended-lambda option
-        # 11. Remove unsupported --expt-relaxed-constexpr option
-        # 12. Rewrite `-Wall,-Werror` to be `-Wall -Werror`
-        # 13. Change `-x cu` to `-x cuda`, plus other clangd cuda options
-        # 14. Add flags to disable certain warnings for intellisense
-        # 15. Replace -Wno-error=deprecated-declarations
-        # 16. Remove -Wno-unevaluated-expression=cross-execution-space-call
-        # 17. Remove -forward-unknown-to-host-compiler
-        # 18. Remove `--diag_suppress=*`
-        # 29. Remove `-ccbin /usr/bin/g++-8`
-        # 20. Rewrite `-Xcompiler=` to `-Xcompiler `
-        # 21. Rewrite `-Xcompiler` to `-Xarch_host`
-        # 22. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
-        # 23. Rewrite /usr/local/bin/g++ to /usr/bin/g++
-        # 24. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 2. Replace `-isystem ` with `-I`
+        # 3. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 4. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 5. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 6. Rewrite /usr/local/cuda/ to /usr/local/cuda-X.Y/
         cat "$CC_JSON"                                         \
-        | sed -r "s/-isystem=/-I/g"                            \
-        | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
-        | sed -r "s/$GPU_ARCH_SM/--cuda-gpu-arch=sm_/g"        \
-        | sed -r "s/$GPU_ARCH_SM_2/--cuda-gpu-arch=sm_/g"      \
-        | sed -r "s/$GPU_ARCH_SM_3/--cuda-gpu-arch=\1/g"       \
-        | sed -r "s/$GPU_ARCH_SM_4/--cuda-gpu-arch=\1/g"       \
-        | sed -r "s/$GPU_GENCODE_COMPUTE//g"                   \
-        | sed -r "s/$GPU_GENCODE_COMPUTE_2//g"                 \
-        | sed -r "s/$GPU_GENCODE_COMPUTE_3//g"                 \
-        | sed -r "s/ --expt-extended-lambda/ /g"               \
-        | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
-        | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
-        | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
-        | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
-        | sed -r "s/$REPLACE_DIAGNOSTIC_COLORS/g"              \
-        | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
-        | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
-        | sed -r "s/ -forward-unknown-to-host-compiler//g"     \
-        | sed -r "s/--diag_suppress=([^\-])* //g"              \
-        | sed -r "s/-ccbin ([^\ ])*//g"                        \
-        | sed -r "s/-Xcompiler=/-Xcompiler /g"                 \
-        | sed -r "s/-Xcompiler/-Xarch_host/g"                  \
+        | sed -r "s@-isystem=@-I@g"                            \
+        | sed -r "s@-isystem @-I@g"                            \
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
-        > "$CC_JSON_CLANGD"                                    ;
+        | sed -r "s@/$CUDA_HOME/@$(realpath -m $CUDA_HOME)/@g" \
+        > "$CC_JSON_CLANGD"                                        ;
+
+    echo "{
+    \"version\": 4,
+    \"configurations\": [
+        {
+            \"name\": \"$(basename `find-project-home $1`)\",
+            \"compileCommands\": \"\${workspaceFolder}/compile_commands.json\"
+        }
+    ]
+}
+" > "$1/.vscode/c_cpp_properties.json";
 
         # symlink compile_commands.json to the project root so clangd can find it
-        make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
+        rm -rf "$CC_JSON_LINK" && make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
     )
 }
 
