@@ -165,7 +165,7 @@ ENV NVCC="/usr/local/bin/nvcc"
 ENV CC="/usr/local/bin/gcc-$GCC_VERSION"
 ENV CXX="/usr/local/bin/g++-$CXX_VERSION"
 # avoid "OSError: library nvvm not found" error
-ENV CUDA_HOME="/usr/local/cuda-$CUDA_SHORT_VERSION"
+ENV CUDA_HOME="/usr/local/cuda"
 
 RUN pip3 install --no-cache-dir conda-merge==0.1.5
 
