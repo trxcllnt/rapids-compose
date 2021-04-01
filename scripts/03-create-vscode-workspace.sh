@@ -108,19 +108,27 @@ cat << EOF
         "task.autoDetect": "off",
         "typescript.tsc.autoDetect": "off",
 
-        "C_Cpp.loggingLevel": "Debug",
-        "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+        // "C_Cpp.loggingLevel": "Debug",
+        // "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+        // "C_Cpp.formatting": "Disabled",
+        // "C_Cpp.autocomplete": "Default",
+        // "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
+        // "C_Cpp.intelliSenseEngine": "Default",
+        // "C_Cpp.intelliSenseEngineFallback": "Disabled",
+        // "C_Cpp.configurationWarnings": "Enabled",
+        // "C_Cpp.enhancedColorization": "Enabled",
+        // "C_Cpp.intelliSenseCachePath": "$COMPOSE_HOME/etc/rapids/.vscode/vscode-cpptools",
+        // "C_Cpp.autoAddFileAssociations": false,
+        // "C_Cpp.vcpkg.enabled": false,
+
         "C_Cpp.formatting": "Disabled",
-        "C_Cpp.autocomplete": "Default",
-        "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
-        "C_Cpp.intelliSenseEngine": "Default",
-        "C_Cpp.intelliSenseEngineFallback": "Disabled",
-        "C_Cpp.configurationWarnings": "Enabled",
-        "C_Cpp.enhancedColorization": "Enabled",
-        "C_Cpp.intelliSenseCachePath": "$COMPOSE_HOME/etc/rapids/.vscode/vscode-cpptools",
+        "C_Cpp.autocomplete": "Disabled",
+        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.intelliSenseEngine": "Disabled",
+        "C_Cpp.configurationWarnings": "Disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "C_Cpp.vcpkg.enabled": false,
-        
+
         // doxdocgen doxygen style
         "doxdocgen.generic.returnTemplate": "@return ",
 
@@ -171,8 +179,10 @@ cat << EOF
         "files.insertFinalNewline": true,
         "files.trimFinalNewlines": true,
         "files.associations": {
-            "*.cu": "cuda-cpp",
-            "*.cuh": "cuda-cpp",
+            "*.cu": "cuda",
+            "*.cuh": "cuda",
+            // "*.cu": "cuda-cpp",
+            // "*.cuh": "cuda-cpp",
             "**/libcudacxx/include/**/*": "cpp"
         },
         "files.watcherExclude": {
