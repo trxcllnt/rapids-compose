@@ -108,6 +108,19 @@ cat << EOF
         "task.autoDetect": "off",
         "typescript.tsc.autoDetect": "off",
 
+        // "C_Cpp.loggingLevel": "Debug",
+        // "C_Cpp.default.intelliSenseMode": "linux-gcc-x64",
+        // "C_Cpp.formatting": "Disabled",
+        // "C_Cpp.autocomplete": "Default",
+        // "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
+        // "C_Cpp.intelliSenseEngine": "Default",
+        // "C_Cpp.intelliSenseEngineFallback": "Disabled",
+        // "C_Cpp.configurationWarnings": "Enabled",
+        // "C_Cpp.enhancedColorization": "Enabled",
+        // "C_Cpp.intelliSenseCachePath": "$COMPOSE_HOME/etc/rapids/.vscode/vscode-cpptools",
+        // "C_Cpp.autoAddFileAssociations": false,
+        // "C_Cpp.vcpkg.enabled": false,
+
         "C_Cpp.formatting": "Disabled",
         "C_Cpp.autocomplete": "Disabled",
         "C_Cpp.errorSquiggles": "Disabled",
@@ -115,7 +128,7 @@ cat << EOF
         "C_Cpp.configurationWarnings": "Disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "C_Cpp.vcpkg.enabled": false,
-        
+
         // doxdocgen doxygen style
         "doxdocgen.generic.returnTemplate": "@return ",
 
@@ -125,13 +138,13 @@ cat << EOF
         "[c]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
         "[cuda]": { "editor.defaultFormatter": "xaver.clang-format" },
+        "[cuda-cpp]": { "editor.defaultFormatter": "xaver.clang-format" },
 
         "python.languageServer": "Pylance",
         "python.condaPath": "$COMPOSE_HOME/etc/conda/bin/conda",
         // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
-        "clangd.syncFileEvents": true,
         "clangd.path": "/usr/bin/clangd",
         "clangd.semanticHighlighting": true,
         "clangd.trace": "$HOME/.vscode/clangd.log",
@@ -168,6 +181,8 @@ cat << EOF
         "files.associations": {
             "*.cu": "cuda",
             "*.cuh": "cuda",
+            // "*.cu": "cuda-cpp",
+            // "*.cuh": "cuda-cpp",
             "**/libcudacxx/include/**/*": "cpp"
         },
         "files.watcherExclude": {

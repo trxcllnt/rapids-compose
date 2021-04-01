@@ -195,6 +195,24 @@ should-build-cuspatial() {
 
 export -f should-build-cuspatial;
 
+configure-rapids() {
+    (
+        set -Eeo pipefail
+        print-heading "\
+Configuring RAPIDS projects: \
+RMM: $(should-build-rmm $@), \
+cuDF: $(should-build-cudf $@), \
+cuML: $(should-build-cuml $@), \
+cuGraph: $(should-build-cugraph $@), \
+cuSpatial: $(should-build-cuspatial $@)";
+        if [ $(should-build-rmm) == true ]; then configure-rmm-cpp $@ || exit 1; fi;
+        if [ $(should-build-cudf) == true ]; then configure-cudf-cpp $@ || exit 1; fi;
+        if [ $(should-build-cuml) == true ]; then configure-cuml-cpp $@ || exit 1; fi;
+        if [ $(should-build-cugraph) == true ]; then configure-cugraph-cpp $@ || exit 1; fi;
+        if [ $(should-build-cuspatial) == true ]; then configure-cuspatial-cpp $@ || exit 1; fi;
+    )
+}
+
 build-rapids() {
     (
         set -Eeo pipefail
@@ -279,23 +297,37 @@ cuSpatial: $(should-build-cuspatial $@)";
 
 export -f lint-rapids;
 
-build-rmm-cpp() {
-    config_args=$(update-environment-variables $@);
+configure-rmm-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
     configure-cpp "$RMM_HOME" "$config_args";
+}
+
+export -f configure-rmm-cpp;
+
+build-rmm-cpp() {
+    configure-rmm-cpp "$@";
     print-heading "Building librmm";
     build-cpp "$RMM_HOME" "all";
 }
 
 export -f build-rmm-cpp;
 
-build-cudf-cpp() {
-    config_args=$(update-environment-variables $@);
+configure-cudf-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
     configure-cpp "$CUDF_HOME/cpp" "$config_args";
+}
+
+export -f configure-cudf-cpp;
+
+build-cudf-cpp() {
+    configure-cudf-cpp "$@"
 
     if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
         print-heading "Building libnvstrings";
@@ -321,7 +353,8 @@ export -f build-cudf-cpp;
 build-cudf-java() {
     CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
     CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
-    config_args=$(update-environment-variables $@);
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args=$(echo $(echo "$config_args"));
     (
         cd "$CUDF_HOME/java";
@@ -343,37 +376,58 @@ build-cudf-java() {
 
 export -f build-cudf-java;
 
-build-cuml-cpp() {
-    config_args=$(update-environment-variables $@);
+configure-cuml-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args="-D BUILD_GTEST=ON ${config_args}"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuml";
     configure-cpp "$CUML_HOME/cpp" "$config_args";
+}
+
+export -f configure-cuml-cpp;
+
+build-cuml-cpp() {
+    configure-cuml-cpp "$@"
     print-heading "Building libcuml";
     build-cpp "$CUML_HOME/cpp" "all";
 }
 
 export -f build-cuml-cpp;
 
-build-cugraph-cpp() {
-    config_args=$(update-environment-variables $@);
+configure-cugraph-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
     configure-cpp "$CUGRAPH_HOME/cpp" "$config_args";
+}
+
+export -f configure-cugraph-cpp;
+
+build-cugraph-cpp() {
+    configure-cugraph-cpp "$@";
     print-heading "Building libcugraph";
     build-cpp "$CUGRAPH_HOME/cpp" "all";
 }
 
 export -f build-cugraph-cpp;
 
-build-cuspatial-cpp() {
-    config_args=$(update-environment-variables $@);
+configure-cuspatial-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
     config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
     configure-cpp "$CUSPATIAL_HOME/cpp" "$config_args";
+}
+
+export -f configure-cuspatial-cpp;
+
+build-cuspatial-cpp() {
+    configure-cuspatial-cpp "$@"
     print-heading "Building libcuspatial";
     build-cpp "$CUSPATIAL_HOME/cpp" "all";
 }
@@ -1192,6 +1246,34 @@ fix-nvcc-clangd-compile-commands() {
         CC_JSON="$2/compile_commands.json";
         CC_JSON_LINK="$1/compile_commands.json";
         CC_JSON_CLANGD="$2/compile_commands.clangd.json";
+        CC_JSON_MSCCPP="$2/compile_commands.msccpp.json";
+
+        # 1. Replace `-isystem=` with `-I`
+        # 2. Replace `-isystem ` with `-I`
+        # 3. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
+        # 4. Rewrite /usr/local/bin/g++ to /usr/bin/g++
+        # 5. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 6. Rewrite /usr/local/cuda/ to /usr/local/cuda-X.Y/
+        cat "$CC_JSON"                                         \
+        | sed -r "s@-isystem=@-I@g"                            \
+        | sed -r "s@-isystem @-I@g"                            \
+        | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
+        | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
+        | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
+        | sed -r "s@/$CUDA_HOME/@$(realpath -m $CUDA_HOME)/@g" \
+        > "$CC_JSON_MSCCPP"                                    ;
+
+    mkdir -p "$1/.vscode";
+    echo "{
+    \"version\": 4,
+    \"configurations\": [
+        {
+            \"name\": \"$(basename `find-project-home $1`)\",
+            \"compileCommands\": \"$CC_JSON_MSCCPP\"
+        }
+    ]
+}
+" > "$1/.vscode/c_cpp_properties.json";
 
         # todo: should define `-D__CUDACC__` here?
 
@@ -1272,7 +1354,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
         > "$CC_JSON_CLANGD"                                    ;
 
-        # symlink compile_commands.json to the project root so clangd can find it
+        # symlink compile_commands.clangd.json to the project root so clangd can find it
         make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
     )
 }
@@ -1315,22 +1397,10 @@ create-cpp-launch-json() {
     "configurations": [
         {
             "name": "$PROJECT_NAME",
-            "type": "cppdbg",
+            "type": "cuda-gdb",
             "request": "launch",
-            "stopAtEntry": false,
-            "externalConsole": false,
-            "cwd": "$PWD",
-            "envFile": "\${workspaceFolder:compose}/.env",
-            "MIMode": "gdb", "miDebuggerPath": "/usr/local/cuda/bin/cuda-gdb",
-            "program": "$TESTS_DIR/\${input:TEST_NAME}",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ],
-            "environment": []
+            "gdb": "$(realpath -m $CUDA_HOME)/bin/cuda-gdb",
+            "program": "$TESTS_DIR/\${input:TEST_NAME}"
         },
     ],
     "inputs": [
