@@ -1326,6 +1326,7 @@ fix-nvcc-clangd-compile-commands() {
         # 22. Rewrite /usr/local/bin/gcc to /usr/bin/gcc
         # 23. Rewrite /usr/local/bin/g++ to /usr/bin/g++
         # 24. Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc
+        # 25. Rewrite /usr/local/cuda to /usr/local/cuda-X.Y
         cat "$CC_JSON"                                         \
         | sed -r "s/-isystem=/-I/g"                            \
         | sed -r "s/ &&.*[^\$DEP_FILE]/\",/g"                  \
@@ -1352,6 +1353,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
+        | sed -r "s@$CUDA_HOME/@$(realpath -m $CUDA_HOME)/@g"  \
         > "$CC_JSON_CLANGD"                                    ;
 
         # symlink compile_commands.clangd.json to the project root so clangd can find it
