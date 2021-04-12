@@ -1,4 +1,4 @@
-ARG CUDA_VERSION=10.1
+ARG CUDA_VERSION=11.2
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu16.04
@@ -53,15 +53,16 @@ if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
     apt install -y fish; \
 fi' \
  && bash -c '\
-if [[ "$CUDA_SHORT_VERSION" == "10.1" ]]; then \
-    apt install -y cuda-nsight-systems-10-1 nsight-systems-2019.3.7  \
-                   cuda-nsight-compute-10-1 nsight-compute-2019.4.0; \
-elif [[ "$CUDA_SHORT_VERSION" == "10.2" ]]; then \
-    apt install -y cuda-nsight-systems-10-2 nsight-systems-2019.5.2  \
-                   cuda-nsight-compute-10-2 nsight-compute-2019.5.0; \
-elif [[ "$CUDA_SHORT_VERSION" == "11.0" ]]; then \
+if [[ "$CUDA_SHORT_VERSION" == "11.0" ]]; then \
     apt install -y cuda-nsight-systems-11-0 nsight-systems-2020.2.5  \
                    cuda-nsight-compute-11-0 nsight-compute-2020.1.2; \
+elif [[ "$CUDA_SHORT_VERSION" == "11.1" ]]; then \
+    apt install -y cuda-nsight-systems-11-1 nsight-systems-2020.2.5  \
+                   cuda-nsight-compute-11-1 nsight-compute-2020.2.1; \
+elif [[ "$CUDA_SHORT_VERSION" == "11.2" ]]; then \
+    apt install -y cuda-nsight-systems-11-1 nsight-systems-2020.2.5  \
+                   cuda-nsight-compute-11-1 nsight-compute-2020.3.0; \
+
 fi' \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
