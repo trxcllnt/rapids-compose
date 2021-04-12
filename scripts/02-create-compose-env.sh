@@ -48,7 +48,7 @@ fi
 
 GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 
-CURRENT_CUDA_VERSION="11.2"
+CURRENT_CUDA_VERSION="11.2.0"
 if [[ "$(which nvcc)" != "" ]]; then
     CURRENT_CUDA_VERSION="$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
 fi
