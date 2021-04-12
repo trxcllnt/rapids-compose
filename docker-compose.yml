@@ -44,7 +44,7 @@ services:
 
   rapids:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-11.2}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-11.2.0}
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile"
