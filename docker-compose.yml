@@ -55,7 +55,9 @@ services:
       - &compose "${COMPOSE_HOME:-$PWD/compose}:${COMPOSE_HOME:-$PWD/compose}"
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
-      # - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
+      - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
+      - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
+      - &dot_colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &dot_local "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.local:${RAPIDS_HOME:-$PWD}/.local"
       - &dot_config "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.config:${RAPIDS_HOME:-$PWD}/.config"
       - &dot_ipython "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.ipython:${RAPIDS_HOME:-$PWD}/.ipython"
@@ -81,7 +83,9 @@ services:
       - *compose
       - *cugraph
       - *cuspatial
-      # - *bashrc
+      - *bashrc
+      - *colornvcc
+      - *dot_colornvccrc
       - *dot_local
       - *dot_config
       - *dot_ipython

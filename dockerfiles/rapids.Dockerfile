@@ -201,10 +201,6 @@ ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
 WORKDIR $RAPIDS_HOME
 
-COPY compose/etc/rapids/colornvcc /usr/bin/nvcc
-COPY compose/etc/rapids/.bashrc "$RAPIDS_HOME/.bashrc"
-COPY compose/etc/settings/.colornvccrc "$RAPIDS_HOME/.colornvccrc"
-
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
 CMD ["bash"]
