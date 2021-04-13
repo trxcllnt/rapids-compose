@@ -1,16 +1,13 @@
 ARG CUDA_VERSION=11.2.0
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
-ARG LINUX_VERSION=ubuntu16.04
+ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG USE_FISH_SHELL
 ARG CUDA_SHORT_VERSION
 
-ARG GCC_VERSION=7
-ENV GCC_VERSION=${GCC_VERSION}
-ENV CXX_VERSION=${GCC_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
@@ -76,6 +73,10 @@ fi' \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ARG GCC_VERSION=9
+ENV GCC_VERSION=${GCC_VERSION}
+ENV CXX_VERSION=${GCC_VERSION}
+
 # Remove any existing gcc and g++ alternatives
 RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all c++ >/dev/null 2>&1 || true \
@@ -83,7 +84,7 @@ RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all g++ >/dev/null 2>&1 || true \
  && update-alternatives --remove-all gcov >/dev/null 2>&1 || true \
  # Install alternatives for gcc/g++/cc/c++/gcov
- && for x in 7 8 9 10; do \
+ && for x in 9 10; do \
     update-alternatives \
     --install /usr/bin/gcc gcc /usr/bin/gcc-${x} ${x}0 \
     --slave /usr/bin/cc cc /usr/bin/gcc-${x} \
@@ -100,14 +101,14 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
-ARG CMAKE_VERSION=3.17.0
+ARG CMAKE_VERSION=3.18.5
 ENV CMAKE_VERSION=${CMAKE_VERSION}
 
 ARG PYTHON_VERSION=3.7
 ENV PYTHON_VERSION="$PYTHON_VERSION"
 ENV CUDA_SHORT_VERSION="$CUDA_SHORT_VERSION"
-ENV CC="/usr/bin/gcc-$GCC_VERSION"
-ENV CXX="/usr/bin/g++-$CXX_VERSION"
+ENV CC="/usr/bin/gcc"
+ENV CXX="/usr/bin/g++"
 
 ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
@@ -164,7 +165,7 @@ RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
  && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && bash -c "echo -e '#!/bin/bash -e\n\
-exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
+exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
  && touch "$RAPIDS_HOME/.bashrc" && touch "$RAPIDS_HOME/.bash_history" \
  && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
@@ -172,8 +173,6 @@ exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV NVCC="/usr/local/bin/nvcc"
-ENV CC="/usr/local/bin/gcc-$GCC_VERSION"
-ENV CXX="/usr/local/bin/g++-$CXX_VERSION"
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
 
