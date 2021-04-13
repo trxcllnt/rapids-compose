@@ -15,54 +15,63 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
- && apt update -y --fix-missing && apt upgrade -y \
- && apt install -y \
+ && apt update \
+ && apt install --no-install-recommends -y \
     apt-utils apt-transport-https software-properties-common \
  && add-apt-repository -y ppa:git-core/ppa \
- # Needed to install gcc-7 and 8 in Ubuntu 16.04
+ # Needed to install compatible gcc 9/10 toolchains
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+ # CUDA toolkit version usable to install `cuda-nsight-compute` and `cuda-nsight-systems` packages
+ && NSIGHT_CUDA_VERSION=$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | sed "s/\./-/g") \
  && bash -c '\
 if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
     add-apt-repository -y ppa:fish-shell/release-3; \
 fi' \
- && apt update -y \
- && apt install -y \
+ && apt update \
+ && apt install --no-install-recommends -y \
     jq ed git vim nano sudo curl wget entr \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     graphviz \
-    gcc-7 g++-7 \
-    gcc-8 g++-8 \
     gcc-9 g++-9 \
     gcc-10 g++-10 \
     ninja-build \
+    build-essential \
     python3 python3-pip \
     # for building cudf-java
     maven openjdk-8-jdk \
-    # Needed for nsight-gui
+    # Install nsight-compute and nsight-systems
+    nsight-compute-2020.3.1 \
+    nsight-systems-2020.4.3 \
+    # Not sure what this is but it seems important
+    cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
+    # This provides the `nsight-sys` GUI
+    cuda-nsight-systems-${NSIGHT_CUDA_VERSION} \
+    # Needed by `nsight-sys` GUI
+    qt5-default \
+    libgl1-mesa-dev \
     ca-certificates \
-    libglib2.0-0 libsqlite3-0 \
-    xcb xkb-data openssh-client \
-    dbus fontconfig gnupg libfreetype6 \
-    libx11-xcb1 libxcb-glx0 libxcb-xkb1 \
-    libxcomposite1 libxi6 libxml2 libxrender1 \
+    libglib2.0-0 \
+    libsqlite3-0 \
+    xcb \
+    xkb-data \
+    openssh-client \
+    dbus \
+    fontconfig \
+    gnupg \
+    libfreetype6 \
+    libx11-xcb1 \
+    libxcb-glx0 \
+    libxcb-xkb1 \
+    libxcomposite1 \
+    libxi6 \
+    libxml2 \
+    libxrender1 \
  && bash -c '\
 if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
-    apt install -y fish; \
-fi' \
- && bash -c '\
-if [[ "$CUDA_SHORT_VERSION" == "11.0" ]]; then \
-    apt install -y cuda-nsight-systems-11-0 nsight-systems-2020.2.5  \
-                   cuda-nsight-compute-11-0 nsight-compute-2020.1.2; \
-elif [[ "$CUDA_SHORT_VERSION" == "11.1" ]]; then \
-    apt install -y cuda-nsight-systems-11-1 nsight-systems-2020.2.5  \
-                   cuda-nsight-compute-11-1 nsight-compute-2020.2.1; \
-elif [[ "$CUDA_SHORT_VERSION" == "11.2" ]]; then \
-    apt install -y cuda-nsight-systems-11-1 nsight-systems-2020.2.5  \
-                   cuda-nsight-compute-11-1 nsight-compute-2020.3.0; \
-
+    apt install --no-install-recommends -y fish; \
 fi' \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
