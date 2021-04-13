@@ -48,7 +48,7 @@ fi
 
 GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 
-CURRENT_CUDA_VERSION="10.1"
+CURRENT_CUDA_VERSION="11.2.0"
 if [[ "$(which nvcc)" != "" ]]; then
     CURRENT_CUDA_VERSION="$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
 fi
@@ -68,8 +68,8 @@ Would you like me to reuse your existing config? (y/n)" "YES")
     echo ""
 fi
 
-GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (7/8)" "7")}
-CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (10.1/10.2/11.0)" "$CURRENT_CUDA_VERSION")}
+GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (9/10)" "9")}
+CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (11.0/11.1/11.2.0)" "$CURRENT_CUDA_VERSION")}
 PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.7/3.8)" "3.7")}
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
 PARALLEL_LEVEL=${PARALLEL_LEVEL:-$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")}

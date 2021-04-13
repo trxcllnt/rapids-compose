@@ -1,70 +1,81 @@
-ARG CUDA_VERSION=10.1
+ARG CUDA_VERSION=11.2.0
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
-ARG LINUX_VERSION=ubuntu16.04
+ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG USE_FISH_SHELL
 ARG CUDA_SHORT_VERSION
 
-ARG GCC_VERSION=7
-ENV GCC_VERSION=${GCC_VERSION}
-ENV CXX_VERSION=${GCC_VERSION}
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
- && apt update -y --fix-missing && apt upgrade -y \
- && apt install -y \
+ && apt update \
+ && apt install --no-install-recommends -y \
     apt-utils apt-transport-https software-properties-common \
  && add-apt-repository -y ppa:git-core/ppa \
- # Needed to install gcc-7 and 8 in Ubuntu 16.04
+ # Needed to install compatible gcc 9/10 toolchains
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+ # CUDA toolkit version usable to install `cuda-nsight-compute` and `cuda-nsight-systems` packages
+ && NSIGHT_CUDA_VERSION=$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | sed "s/\./-/g") \
  && bash -c '\
 if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
     add-apt-repository -y ppa:fish-shell/release-3; \
 fi' \
- && apt update -y \
- && apt install -y \
+ && apt update \
+ && apt install --no-install-recommends -y \
     jq ed git vim nano sudo curl wget entr \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     # Need tzdata for the pyarrow<->ORC tests
     tzdata \
     graphviz \
-    gcc-7 g++-7 \
-    gcc-8 g++-8 \
     gcc-9 g++-9 \
     gcc-10 g++-10 \
     ninja-build \
+    build-essential \
     python3 python3-pip \
     # for building cudf-java
     maven openjdk-8-jdk \
-    # Needed for nsight-gui
+    # Install nsight-compute and nsight-systems
+    nsight-compute-2020.3.1 \
+    nsight-systems-2020.4.3 \
+    # Not sure what this is but it seems important
+    cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
+    # This provides the `nsight-sys` GUI
+    cuda-nsight-systems-${NSIGHT_CUDA_VERSION} \
+    # Needed by `nsight-sys` GUI
+    qt5-default \
+    libgl1-mesa-dev \
     ca-certificates \
-    libglib2.0-0 libsqlite3-0 \
-    xcb xkb-data openssh-client \
-    dbus fontconfig gnupg libfreetype6 \
-    libx11-xcb1 libxcb-glx0 libxcb-xkb1 \
-    libxcomposite1 libxi6 libxml2 libxrender1 \
+    libglib2.0-0 \
+    libsqlite3-0 \
+    xcb \
+    xkb-data \
+    openssh-client \
+    dbus \
+    fontconfig \
+    gnupg \
+    libfreetype6 \
+    libx11-xcb1 \
+    libxcb-glx0 \
+    libxcb-xkb1 \
+    libxcomposite1 \
+    libxi6 \
+    libxml2 \
+    libxrender1 \
  && bash -c '\
 if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
-    apt install -y fish; \
-fi' \
- && bash -c '\
-if [[ "$CUDA_SHORT_VERSION" == "10.1" ]]; then \
-    apt install -y cuda-nsight-systems-10-1 nsight-systems-2019.3.7  \
-                   cuda-nsight-compute-10-1 nsight-compute-2019.4.0; \
-elif [[ "$CUDA_SHORT_VERSION" == "10.2" ]]; then \
-    apt install -y cuda-nsight-systems-10-2 nsight-systems-2019.5.2  \
-                   cuda-nsight-compute-10-2 nsight-compute-2019.5.0; \
-elif [[ "$CUDA_SHORT_VERSION" == "11.0" ]]; then \
-    apt install -y cuda-nsight-systems-11-0 nsight-systems-2020.2.5  \
-                   cuda-nsight-compute-11-0 nsight-compute-2020.1.2; \
+    apt install --no-install-recommends -y fish; \
 fi' \
  && apt autoremove -y \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ARG GCC_VERSION=9
+ENV GCC_VERSION=${GCC_VERSION}
+ENV CXX_VERSION=${GCC_VERSION}
 
 # Remove any existing gcc and g++ alternatives
 RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
@@ -73,7 +84,7 @@ RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all g++ >/dev/null 2>&1 || true \
  && update-alternatives --remove-all gcov >/dev/null 2>&1 || true \
  # Install alternatives for gcc/g++/cc/c++/gcov
- && for x in 7 8 9 10; do \
+ && for x in 9 10; do \
     update-alternatives \
     --install /usr/bin/gcc gcc /usr/bin/gcc-${x} ${x}0 \
     --slave /usr/bin/cc cc /usr/bin/gcc-${x} \
@@ -90,14 +101,14 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
-ARG CMAKE_VERSION=3.17.0
+ARG CMAKE_VERSION=3.18.5
 ENV CMAKE_VERSION=${CMAKE_VERSION}
 
 ARG PYTHON_VERSION=3.7
 ENV PYTHON_VERSION="$PYTHON_VERSION"
 ENV CUDA_SHORT_VERSION="$CUDA_SHORT_VERSION"
-ENV CC="/usr/bin/gcc-$GCC_VERSION"
-ENV CXX="/usr/bin/g++-$CXX_VERSION"
+ENV CC="/usr/bin/gcc"
+ENV CXX="/usr/bin/g++"
 
 ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
@@ -154,7 +165,7 @@ RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
  && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && bash -c "echo -e '#!/bin/bash -e\n\
-exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
+exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
  && touch "$RAPIDS_HOME/.bashrc" && touch "$RAPIDS_HOME/.bash_history" \
  && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
@@ -162,8 +173,6 @@ exec \"$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV NVCC="/usr/local/bin/nvcc"
-ENV CC="/usr/local/bin/gcc-$GCC_VERSION"
-ENV CXX="/usr/local/bin/g++-$CXX_VERSION"
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
 
@@ -190,10 +199,6 @@ ARG FRESH_CONDA_ENV=0
 ENV FRESH_CONDA_ENV=$FRESH_CONDA_ENV
 
 WORKDIR $RAPIDS_HOME
-
-COPY compose/etc/rapids/colornvcc /usr/bin/nvcc
-COPY compose/etc/rapids/.bashrc "$RAPIDS_HOME/.bashrc"
-COPY compose/etc/settings/.colornvccrc "$RAPIDS_HOME/.colornvccrc"
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 
