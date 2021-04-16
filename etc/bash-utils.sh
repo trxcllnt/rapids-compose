@@ -1276,11 +1276,13 @@ fix-nvcc-clangd-compile-commands() {
 " > "$1/.vscode/c_cpp_properties.json";
 
         # todo: should define `-D__CUDACC__` here?
+        
 
         CUDA_VERSION_MAJOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2);
         CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
 
-        CLANG_CUDA_OPTIONS="--cuda-path=$(realpath -m $CUDA_HOME)";
+        CLANG_CUDA_OPTIONS="--cuda-path=$CUDA_HOME";
+        CLANG_CUDA_OPTIONS="$CLANG_CUDA_OPTIONS --cuda-path-ignore-env";
         CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
         ALLOWED_WARNINGS=$(echo $(echo '
             -Werror=sign-compare
@@ -1353,7 +1355,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"         \
         | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"     \
         | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g" \
-        | sed -r "s@$CUDA_HOME/@$(realpath -m $CUDA_HOME)/@g"  \
+        | sed -r "s@$CUDA_HOME@$(realpath -m $CUDA_HOME)@g"    \
         > "$CC_JSON_CLANGD"                                    ;
 
         # symlink compile_commands.clangd.json to the project root so clangd can find it
