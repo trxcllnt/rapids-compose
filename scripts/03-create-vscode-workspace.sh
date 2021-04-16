@@ -158,7 +158,6 @@ cat << EOF
             "--background-index=true",
             "--all-scopes-completion",
             "--header-insertion=iwyu",
-            "--suggest-missing-includes",
             "--completion-style=detailed",
             "--header-insertion-decorators"
         ],
