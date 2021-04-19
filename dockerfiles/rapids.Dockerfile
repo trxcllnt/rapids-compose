@@ -95,6 +95,14 @@ RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  # Set gcc-${GCC_VERSION} as the default gcc
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
 
+# Install sccache
+ARG SCCACHE_VERSION=v0.2.15
+RUN curl -s -L https://github.com/mozilla/sccache/releases/download/${SCCACHE_VERSION}/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl.tar.gz -o /tmp/sccache.tar.gz \
+ && tar -C /tmp -xvf /tmp/sccache.tar.gz \
+ && cp /tmp/sccache-${SCCACHE_VERSION}-x86_64-unknown-linux-musl/sccache /usr/local/bin/sccache \
+ && chmod +x /usr/local/bin/sccache \
+ && rm -rf /tmp/sccache*
+
 ARG UID=1000
 ARG GID=1000
 ENV _UID=${UID}
@@ -107,8 +115,6 @@ ENV CMAKE_VERSION=${CMAKE_VERSION}
 ARG PYTHON_VERSION=3.7
 ENV PYTHON_VERSION="$PYTHON_VERSION"
 ENV CUDA_SHORT_VERSION="$CUDA_SHORT_VERSION"
-ENV CC="/usr/bin/gcc"
-ENV CXX="/usr/bin/g++"
 
 ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
@@ -172,7 +178,6 @@ exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  && chmod +x /entrypoint.sh \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV NVCC="/usr/local/bin/nvcc"
 # avoid "OSError: library nvvm not found" error
 ENV CUDA_HOME="/usr/local/cuda"
 

@@ -77,16 +77,25 @@ NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which 
 BUILD_TESTS=${BUILD_TESTS:-$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")}
 BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")}
 
-USE_CCACHE=${USE_CCACHE:-$(choose_bool_option "Use ccache for C++ builds? (y/n)" "YES")}
+CACHE_TOOL="${CACHE_TOOL:-"invalid"}"
+while [[ "${CACHE_TOOL}" != "sccache" && "${CACHE_TOOL}" != "ccache" && "${CACHE_TOOL}" != "none" ]]; do
+    CACHE_TOOL=$(select_version "Select which cache tool you would like to use (sccache/ccache/none)" "sccache")
+done
 
-if [[ "$USE_CCACHE" == "YES" ]]; then
+if [[ "${CACHE_TOOL}" == "ccache" ]]; then
     CCACHE_MAXSIZE_MESSAGE="
 Select the ccache max cache size.
 The default value is 5G. The default suffix is G. Use 0 for no limit.
 Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
 "
     CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-$(select_version "$CCACHE_MAXSIZE_MESSAGE" "5G")}
-
+elif [[ "${CACHE_TOOL}" == "sccache" ]]; then
+    SCCACHE_SOURCE=${SCCACHE_SOURCE:-$(select_version "Please select sccache source (s3/local)" "s3")}
+    if [[ "${SCCACHE_SOURCE}" == "s3" ]]; then
+      SCCACHE_BUCKET=$(select_version "Please specify S3 bucket" "sccache")
+      SCCACHE_ACCESS_KEY=$(select_version "Please specify S3 acces key" "not_set")
+      SCCACHE_SECRET_KEY=$(select_version "Please specify S3 secret key" "not_set")
+    fi
 fi
 
 BUILD_RMM=${BUILD_RMM:-"YES"}
@@ -115,8 +124,6 @@ CUDA_VERSION=$CUDA_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
 LINUX_VERSION=ubuntu18.04
 
-# Whether to use ccache (https://ccache.dev/) to speed up gcc/nvcc build times
-USE_CCACHE=$USE_CCACHE
 # Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS
@@ -145,14 +152,42 @@ NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES
 # Select how many threads to use for parallel compilation (e.g. \`make -j\${PARALLEL_LEVEL}\`)
 PARALLEL_LEVEL=$PARALLEL_LEVEL
 
+# Set to YES to use the fish shell in the container (https://fishshell.com/)
+USE_FISH_SHELL=${USE_FISH_SHELL:-NO}
+
+# Which cache tool should be used (sccache/ccache/none)
+CACHE_TOOL=${CACHE_TOOL}
+"
+
+if [[ "${CACHE_TOOL}" == "ccache" ]]; then
+  echo "\
 # Select the ccache max cache size.
 # The default value is 5G. The default suffix is G. Use 0 for no limit.
 # Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
 CCACHE_MAXSIZE=$CCACHE_MAXSIZE
 
-# Set to YES to use the fish shell in the container (https://fishshell.com/)
-USE_FISH_SHELL=${USE_FISH_SHELL:-NO}
+# Ccache configuration
+CCACHE_NOHASHDIR=;
+CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";
+CCACHE_COMPILERCHECK="%compiler% --version";
 "
+elif [[ "${CACHE_TOOL}" = "sccache" ]]; then
+  echo "\
+# Sccache source type
+SCCACHE_SOURCE=${SCCACHE_SOURCE}
+"
+  if [[ "${SCCACHE_SOURCE}" == "s3" ]]; then
+    echo "\
+# Sccache S3 configuration
+#TODO: Remove
+SCCACHE_ENDPOINT=192.168.0.7:9000
+SCCACHE_BUCKET=${SCCACHE_BUCKET}
+AWS_ACCESS_KEY_ID=${SCCACHE_ACCESS_KEY}
+AWS_SECRET_ACCESS_KEY=${SCCACHE_SECRET_KEY}
+"
+  fi
+fi
+
 }
 
 if [ ! -f "$COMPOSE_HOME/.env" ]; then
