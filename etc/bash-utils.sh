@@ -148,7 +148,7 @@
 #
 ###
 # Commands to run the JUnit tests
-# 
+#
 # test-cudf-java        - (✝) Run cudf-java JUnit tests
 #
 ###
@@ -368,7 +368,7 @@ build-cudf-java() {
             -DCUDF_CPP_BUILD_DIR="$CUDF_CPP_BUILD_DIR" \
             -DCUDAToolkit_ROOT="$CUDA_HOME" \
             -DCUDAToolkit_INCLUDE_DIR="$CUDA_HOME/include" \
-            -Dnative.build.path="$CUDF_JNI_ROOT" 
+            -Dnative.build.path="$CUDF_JNI_ROOT"
         export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
@@ -1276,7 +1276,7 @@ fix-nvcc-clangd-compile-commands() {
 " > "$1/.vscode/c_cpp_properties.json";
 
         # todo: should define `-D__CUDACC__` here?
-        
+
 
         CUDA_VERSION_MAJOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 1-2);
         CUDA_VERSION_MINOR=$(echo $CUDA_SHORT_VERSION | tr -d '.' | cut -c 3);
@@ -1360,6 +1360,8 @@ fix-nvcc-clangd-compile-commands() {
 
         # symlink compile_commands.clangd.json to the project root so clangd can find it
         make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
+
+        mv "$CC_JSON" "$CC_JSON.orig";
     )
 }
 
