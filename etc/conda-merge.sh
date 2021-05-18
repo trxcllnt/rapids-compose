@@ -16,7 +16,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
-- cmake>=3.18,<3.19
+- cmake>=3.20
 - cmake_setuptools
 - pytest-xdist
 - python=${PYTHON_VERSION}
