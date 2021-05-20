@@ -2,6 +2,8 @@
 
 set -Ee
 
+rm -rf "$CONDA_PREFIX"/include/{rmm,cudf,libcudf,nvstrings,cuml,cugraph,cuspatial}
+
 mkdir -p "$RMM_HOME/build"
 mkdir -p "$CUDF_HOME/cpp/build"
 mkdir -p "$CUML_HOME/cpp/build"
@@ -33,11 +35,11 @@ export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_
 
 ###
 # Define the *_ROOT paths as the symlinks that point to the absolute build dirs. For example:
-# 
+#
 # ```shell
 # CUDF_ROOT="$HOME/cudf/cpp/build/debug"
 # CUDF_ROOT_ABS="$HOME/cudf/cpp/build/cuda-10.1/some-git-branch/debug"
-# 
+#
 ## Symlink `build/cuda-10.1/some-git-branch/debug` to -> `build/debug`
 # ln -n -s $CUDF_ROOT_ABS $CUDF_ROOT
 # ```
