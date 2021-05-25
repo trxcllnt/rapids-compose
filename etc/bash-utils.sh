@@ -930,6 +930,7 @@ configure-cpp() {
             -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
         elif [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
             -D LIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
