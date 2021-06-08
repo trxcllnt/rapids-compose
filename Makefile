@@ -133,9 +133,10 @@ dc:
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
-	export CODE_REPOS="rmm cudf cuml cugraph cuspatial" && \
+	export CODE_REPOS="rmm raft cudf cuml cugraph cuspatial" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
+						raft/python \
 						cuml/python \
 						cugraph/python \
 						cudf/python/cudf \
