@@ -77,7 +77,7 @@ dc.apt.cacher.up:
 
 dc.build: svc ?=
 dc.build: svc_args ?=
-dc.build: cmd_args ?= -f
+dc.build: cmd_args ?= --pull --force-rm
 dc.build: file ?= docker-compose.yml
 dc.build: dc.apt.cacher.up
 	@$(MAKE_Q) dc.dind cmd="build"
