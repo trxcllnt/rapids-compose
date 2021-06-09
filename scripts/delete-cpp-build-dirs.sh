@@ -7,6 +7,7 @@ cd $(dirname "$(realpath "$0")")/../../
 BASE_DIR="$(pwd)"
 
 CPP_BUILD_DIRS="rmm/build
+                raft/cpp/build
                 cudf/cpp/build
                 cuml/cpp/build
                 cugraph/cpp/build

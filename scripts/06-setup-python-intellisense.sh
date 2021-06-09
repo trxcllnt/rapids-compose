@@ -9,6 +9,7 @@ RAPIDS_HOME=$(realpath "$COMPOSE_HOME/../")
 cd "$RAPIDS_HOME"
 
 PYTHON_DIRS="${PYTHON_DIRS:-rmm/python
+                            raft/python \
                             cuml/python
                             cugraph/python
                             cudf/python/cudf
@@ -21,6 +22,7 @@ cat << EOF > "$COMPOSE_HOME/etc/rapids/.vscode/python-settings.json"
     "python.analysis.memory.keepLibraryLocalVariables": true,
     "python.autoComplete.extraPaths": [
         "$RAPIDS_HOME/rmm/python",
+        "$RAPIDS_HOME/raft/python",
         "$RAPIDS_HOME/cudf/python/cudf",
         "$RAPIDS_HOME/cudf/python/dask_cudf",
         "$RAPIDS_HOME/cuml/python",
