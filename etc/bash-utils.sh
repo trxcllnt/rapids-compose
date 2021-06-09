@@ -630,7 +630,9 @@ clean-raft-python() {
     rm -rf "$RAFT_HOME/python/dist" \
            "$RAFT_HOME/python/build" \
            "$RAFT_HOME/python/.hypothesis" \
-           "$RAFT_HOME/python/.pytest_cache";
+           "$RAFT_HOME/python/.pytest_cache" \
+           "$CUML_HOME/python/cuml/raft" \
+           "$CUGRAPH_HOME/python/cugraph/raft";
     find "$RAFT_HOME" -type f -name '*.pyc' -delete;
     find "$RAFT_HOME" -type d -name '__pycache__' -delete;
     find "$RAFT_HOME/python/raft" -type f -name '*.so' -delete;
@@ -647,7 +649,8 @@ clean-cuml-python() {
            "$CUML_HOME/python/cuml/raft" \
            "$CUML_HOME/python/.hypothesis" \
            "$CUML_HOME/python/.pytest_cache" \
-           "$CUML_HOME/python/_external_repositories";
+           "$CUML_HOME/python/_external_repositories" \
+           "$CUML_HOME/python/dask-worker-space";
     find "$CUML_HOME" -type f -name '*.pyc' -delete;
     find "$CUML_HOME" -type d -name '__pycache__' -delete;
     find "$CUML_HOME/python/cuml" -type f -name '*.so' -delete;
@@ -664,7 +667,8 @@ clean-cugraph-python() {
            "$CUGRAPH_HOME/python/.hypothesis" \
            "$CUGRAPH_HOME/python/cugraph/raft" \
            "$CUGRAPH_HOME/python/.pytest_cache" \
-           "$CUGRAPH_HOME/python/_external_repositories";
+           "$CUGRAPH_HOME/python/_external_repositories" \
+           "$CUGRAPH_HOME/python/dask-worker-space";
     find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
     find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
@@ -998,11 +1002,13 @@ configure-cpp() {
             -D rmm_ROOT=${RMM_ROOT} -D RMM_ROOT=${RMM_ROOT}
             -D cudf_ROOT=${CUDF_ROOT} -D CUDF_ROOT=${CUDF_ROOT}
             -D cuml_ROOT=${CUML_ROOT} -D CUML_ROOT=${CUML_ROOT}
+            -D raft_ROOT=${RAFT_ROOT} -D RAFT_ROOT=${RAFT_ROOT}
             -D cugraph_ROOT=${CUGRAPH_ROOT} -D CUGRAPH_ROOT=${CUGRAPH_ROOT}
             -D cuspatial_ROOT=${CUSPATIAL_ROOT} -D CUSPATIAL_ROOT=${CUSPATIAL_ROOT}
             -D CPM_rmm_SOURCE=$(find-cpp-build-home ${RMM_HOME})
             -D CPM_cudf_SOURCE=$(find-cpp-build-home ${CUDF_HOME})
             -D CPM_cuml_SOURCE=$(find-cpp-build-home ${CUML_HOME})
+            -D CPM_raft_SOURCE=$(find-cpp-build-home ${RAFT_HOME})
             -D CPM_cugraph_SOURCE=$(find-cpp-build-home ${CUGRAPH_HOME})
             -D CPM_cuspatial_SOURCE=$(find-cpp-build-home ${CUSPATIAL_HOME})";
 
