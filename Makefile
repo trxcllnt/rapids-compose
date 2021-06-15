@@ -186,7 +186,7 @@ dc.dind: dind
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/cuspatial:$$RAPIDS_HOME/cuspatial" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
-		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "$${DOCKER_HOST:-/var/run/docker.sock}:$${DOCKER_HOST:-/var/run/docker.sock}" \
 		-v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		-v "/usr/share/fonts:/usr/share/fonts:ro" \
 		-v "$${XDG_RUNTIME_DIR-/run/user/$$UID}:$${XDG_RUNTIME_DIR-/run/user/$$UID}" \
