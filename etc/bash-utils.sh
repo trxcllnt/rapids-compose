@@ -1602,6 +1602,7 @@ update-environment-variables() {
 
     export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
     export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
+    export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
     export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
