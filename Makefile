@@ -77,7 +77,7 @@ dc.apt.cacher.up:
 
 dc.build: svc ?=
 dc.build: svc_args ?=
-dc.build: cmd_args ?= -f
+dc.build: cmd_args ?= --pull --force-rm
 dc.build: file ?= docker-compose.yml
 dc.build: dc.apt.cacher.up
 	@$(MAKE_Q) dc.dind cmd="build"
@@ -133,9 +133,10 @@ dc:
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
-	export CODE_REPOS="rmm cudf cuml cugraph cuspatial" && \
+	export CODE_REPOS="rmm raft cudf cuml cugraph cuspatial" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
+						raft/python \
 						cuml/python \
 						cugraph/python \
 						cudf/python/cudf \
@@ -185,7 +186,7 @@ dc.dind: dind
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
 		-v "$$RAPIDS_HOME/cuspatial:$$RAPIDS_HOME/cuspatial" \
 		-v "$$RAPIDS_HOME/notebooks-contrib:$$RAPIDS_HOME/notebooks-contrib" \
-		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v "$${DOCKER_HOST:-/var/run/docker.sock}:$${DOCKER_HOST:-/var/run/docker.sock}" \
 		-v "/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		-v "/usr/share/fonts:/usr/share/fonts:ro" \
 		-v "$${XDG_RUNTIME_DIR-/run/user/$$UID}:$${XDG_RUNTIME_DIR-/run/user/$$UID}" \

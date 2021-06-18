@@ -23,7 +23,7 @@ ask_before_install() {
 
 install_clangd() {
     INSTALLED_CLANGD=1
-    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd-13"
+    APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
     release=$(lsb_release -cs)
     echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
@@ -89,7 +89,7 @@ if [ -n "$APT_DEPS" ]; then
     APT_DEPS=""
 fi;
 
-# Install clangd-12 if not installed
+# Install clangd if not installed
 if [ -z "$(which clangd)" ]; then
     ask_before_install "clangd not found. Install clangd (y/n)?" "install_clangd"
 fi
@@ -124,11 +124,6 @@ if [ -n "$APT_DEPS" ]; then
     echo "installing $APT_DEPS"
     sudo apt update || true
     sudo apt install -y $APT_DEPS
-
-    if [ -n "$INSTALLED_CLANGD" ]; then
-        sudo update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
-        sudo update-alternatives --set clangd /usr/bin/clangd-12
-    fi
 
     if [ -n "$INSTALLED_DOCKER" ]; then
         sudo usermod -aG docker $USER

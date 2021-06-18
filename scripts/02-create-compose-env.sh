@@ -91,6 +91,7 @@ fi
 
 BUILD_RMM=${BUILD_RMM:-"YES"}
 BUILD_CUDF=${BUILD_CUDF:-"YES"}
+BUILD_RAFT=${BUILD_RAFT:-$(choose_bool_option "Build raft C++ and Cython? (y/n)" "NO")}
 BUILD_CUML=${BUILD_CUML:-$(choose_bool_option "Build cuML C++ and Cython? (y/n)" "NO")}
 BUILD_CUGRAPH=${BUILD_CUGRAPH:-$(choose_bool_option "Build cuGraph C++ and Cython? (y/n)" "NO")}
 BUILD_CUSPATIAL=${BUILD_CUSPATIAL:-$(choose_bool_option "Build cuSpatial C++ and Cython? (y/n)" "NO")}
@@ -130,6 +131,8 @@ CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 BUILD_RMM=$BUILD_RMM
 # Whether to build cuDF C++ and Cython (implies BUILD_RMM=YES)
 BUILD_CUDF=$BUILD_CUDF
+# Whether to build raft C++ and Cython
+BUILD_RAFT=$BUILD_RAFT
 # Whether to build cuML C++ and Cython (implies BUILD_CUDF=YES)
 BUILD_CUML=$BUILD_CUML
 # Whether to build cuGraph C++ and Cython (implies BUILD_CUDF=YES)

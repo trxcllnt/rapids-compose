@@ -6,6 +6,7 @@ rm -rf "$CONDA_PREFIX"/include/{rmm,cudf,libcudf,cuml,cugraph,cuspatial}
 
 mkdir -p "$RMM_HOME/build"
 mkdir -p "$CUDF_HOME/cpp/build"
+mkdir -p "$RAFT_HOME/cpp/build"
 mkdir -p "$CUML_HOME/cpp/build"
 mkdir -p "$CUGRAPH_HOME/cpp/build"
 mkdir -p "$CUSPATIAL_HOME/cpp/build"
@@ -69,6 +70,7 @@ export PYTHONPATH="\
 $RMM_HOME/python:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
+$RAFT_HOME/python:\
 $CUML_HOME/python:\
 $CUGRAPH_HOME/python:\
 $CUSPATIAL_HOME/python/cuspatial"
@@ -92,12 +94,14 @@ $CONDA_HOME/lib:\
 $OLD_LD_LIBRARY_PATH:\
 $RMM_ROOT:\
 $CUDF_ROOT:\
+$RAFT_ROOT:\
 $CUML_ROOT:\
 $CUGRAPH_ROOT:\
 $CUSPATIAL_ROOT"
 
 make-symlink "$RMM_ROOT_ABS" "$RMM_ROOT"
 make-symlink "$CUDF_ROOT_ABS" "$CUDF_ROOT"
+make-symlink "$RAFT_ROOT_ABS" "$RAFT_ROOT"
 make-symlink "$CUML_ROOT_ABS" "$CUML_ROOT"
 make-symlink "$CUGRAPH_ROOT_ABS" "$CUGRAPH_ROOT"
 make-symlink "$CUSPATIAL_ROOT_ABS" "$CUSPATIAL_ROOT"
