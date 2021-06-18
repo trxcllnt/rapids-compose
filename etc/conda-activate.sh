@@ -132,7 +132,6 @@ make-symlink "$CUML_HOME/cpp/comms/std/include/cuML_comms.hpp" "$COMPOSE_HOME/et
 make-symlink "$RMM_LIBRARY" "$CONDA_PREFIX/lib/$(basename $RMM_LIBRARY)"
 make-symlink "$CUDF_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUDF_LIBRARY)"
 make-symlink "$NVTEXT_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVTEXT_LIBRARY)"
-make-symlink "$RAFT_INCLUDE" "$CONDA_PREFIX/include/raft"
 make-symlink "$CUML_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUML_LIBRARY)"
 make-symlink "$CUMLXX_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUMLXX_LIBRARY)"
 make-symlink "$CUMLCOMMS_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUMLCOMMS_LIBRARY)"
