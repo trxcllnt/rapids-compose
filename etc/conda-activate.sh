@@ -2,7 +2,7 @@
 
 set -Ee
 
-rm -rf "$CONDA_PREFIX"/include/{rmm,cudf,libcudf,nvstrings,cuml,cugraph,cuspatial}
+rm -rf "$CONDA_PREFIX"/include/{rmm,cudf,libcudf,cuml,cugraph,cuspatial}
 
 mkdir -p "$RMM_HOME/build"
 mkdir -p "$CUDF_HOME/cpp/build"
@@ -19,7 +19,6 @@ make-symlink "$CONDA_HOME/envs" "$COMPOSE_HOME/etc/conda/envs"
 export RMM_INCLUDE="$RMM_HOME/include"
 export CUDF_INCLUDE="$CUDF_HOME/cpp/include"
 export CUDF_TEST_INCLUDE="$CUDF_HOME/cpp"
-export NVSTRINGS_INCLUDE="$CUDF_HOME/cpp/include"
 export RAFT_INCLUDE="$RAFT_HOME/cpp/include"
 export CUML_INCLUDE="$CUML_HOME/cpp/include"
 export CUGRAPH_INCLUDE="$CUGRAPH_HOME/cpp/include"
@@ -29,7 +28,6 @@ export CUDF_JNI_INCLUDE="$CUDF_HOME/java/src/main/native/include"
 
 export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
 export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
-export NVSTRINGS_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
 export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
 export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
 export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
@@ -50,7 +48,6 @@ export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_
 
 export RMM_ROOT="$RMM_HOME/build/$(basename "$RMM_ROOT_ABS")"
 export CUDF_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
-export NVSTRINGS_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
 export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
 export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
@@ -61,8 +58,6 @@ export RMM_LIBRARY="$RMM_ROOT/librmm.so"
 export CUDF_LIBRARY="$CUDF_ROOT/libcudf.so"
 export CUDF_JNI_LIBRARY="$CUDF_JNI_ROOT/libcudfjni.so"
 export CUDFTESTUTIL_LIBRARY="$CUDF_ROOT/libcudftestutil.a"
-export NVSTRINGS_LIBRARY="$NVSTRINGS_ROOT/libNVStrings.so"
-export NVCATEGORY_LIBRARY="$NVSTRINGS_ROOT/libNVCategory.so"
 export NVTEXT_LIBRARY="$NVSTRINGS_ROOT/libNVText.so"
 export CUML_LIBRARY="$CUML_ROOT/libcuml.so"
 export CUMLXX_LIBRARY="$CUML_ROOT/libcuml++.so"
@@ -77,7 +72,6 @@ export LIBCUDF_KERNEL_CACHE_PATH="$(find-cpp-build-home $CUDF_HOME)/.jitify-cach
 
 export PYTHONPATH="\
 $RMM_HOME/python:\
-$CUDF_HOME/python/nvstrings:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
 $RAFT_HOME/python:\
@@ -103,7 +97,6 @@ $CONDA_HOME/envs/rapids/lib:\
 $CONDA_HOME/lib:\
 $OLD_LD_LIBRARY_PATH:\
 $RMM_ROOT:\
-$NVSTRINGS_ROOT:\
 $CUDF_ROOT:\
 $RAFT_ROOT:\
 $CUML_ROOT:\
@@ -128,7 +121,6 @@ make-symlink "$RMM_INCLUDE/rmm" "$CONDA_PREFIX/include/rmm"
 make-symlink "$CUDF_INCLUDE/cudf" "$CONDA_PREFIX/include/cudf"
 make-symlink "$CUDF_ROOT/include/libcxx" "$CONDA_PREFIX/include/libcudf/libcxx"
 make-symlink "$CUDF_ROOT/include/libcudacxx" "$CONDA_PREFIX/include/libcudf/libcudacxx"
-make-symlink "$NVSTRINGS_INCLUDE/nvstrings" "$CONDA_PREFIX/include/nvstrings"
 make-symlink "$RAFT_INCLUDE" "$CONDA_PREFIX/include/raft"
 make-symlink "$CUML_INCLUDE" "$CONDA_PREFIX/include/cuml"
 make-symlink "$CUGRAPH_INCLUDE" "$CONDA_PREFIX/include/cugraph"
@@ -139,8 +131,6 @@ make-symlink "$CUML_HOME/cpp/comms/std/include/cuML_comms.hpp" "$COMPOSE_HOME/et
 
 make-symlink "$RMM_LIBRARY" "$CONDA_PREFIX/lib/$(basename $RMM_LIBRARY)"
 make-symlink "$CUDF_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUDF_LIBRARY)"
-make-symlink "$NVSTRINGS_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVSTRINGS_LIBRARY)"
-make-symlink "$NVCATEGORY_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVCATEGORY_LIBRARY)"
 make-symlink "$NVTEXT_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVTEXT_LIBRARY)"
 make-symlink "$CUML_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUML_LIBRARY)"
 make-symlink "$CUMLXX_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUMLXX_LIBRARY)"

@@ -344,20 +344,6 @@ export -f configure-cudf-cpp;
 build-cudf-cpp() {
     configure-cudf-cpp "$@"
 
-    if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
-        print-heading "Building libnvstrings";
-
-        [ "$BUILD_TESTS" != "ON" ] && \
-            BUILD_TARGETS="nvstrings" || \
-            BUILD_TARGETS="nvstrings build_tests_nvstrings";
-
-        # temporary:
-        # build nvstrings cpp and python before building libcudf, since
-        # libcudf depends on libnvstrings having already been built
-        build-cpp "$CUDF_HOME/cpp" "$BUILD_TARGETS";
-        build-nvstrings-python $@;
-    fi
-
     print-heading "Building libcudf";
 
     build-cpp "$CUDF_HOME/cpp" "all";
@@ -467,23 +453,6 @@ build-rmm-python() {
 
 export -f build-rmm-python;
 
-build-nvstrings-python() {
-    nvstrings_py_dir="$CUDF_HOME/python/nvstrings";
-    if [[ -f "$nvstrings_py_dir/setup.py" ]]; then
-        update-environment-variables $@ >/dev/null;
-        print-heading "Building nvstrings";
-        cfile=$(find "$nvstrings_py_dir/build" -type f -name 'CMakeCache.txt' 2> /dev/null | head -n1);
-        [ -z "$(grep $CUDA_VERSION "$cfile" 2> /dev/null)" ] && rm -rf "$nvstrings_py_dir/build";
-
-        PARALLEL_LEVEL=1 \
-        build-python "$nvstrings_py_dir" \
-            --build-lib="$nvstrings_py_dir" \
-            --library-dir="$NVSTRINGS_ROOT" ;
-    fi
-}
-
-export -f build-nvstrings-python;
-
 build-cudf-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cudf";
@@ -536,15 +505,6 @@ clean-cudf-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning libcudf";
     rm -rf "$CUDF_ROOT_ABS";
-    if [[ -f "$CUDF_HOME/python/nvstrings/setup.py" ]]; then
-        rm -rf "$CUDF_HOME/python/nvstrings/dist" \
-               "$CUDF_HOME/python/nvstrings/build" \
-               "$CUDF_HOME/python/nvstrings/.hypothesis" \
-               "$CUDF_HOME/python/nvstrings/.pytest_cache";
-        find "$CUDF_HOME/python/nvstrings" -type f -name '*.so' -delete;
-        find "$CUDF_HOME/python/nvstrings" -type f -name '*.pyc' -delete;
-        find "$CUDF_HOME/python/nvstrings" -type d -name '__pycache__' -delete;
-    fi
 }
 
 export -f clean-cudf-cpp;
@@ -980,15 +940,12 @@ configure-cpp() {
             -D CUML_LIBRARY=${CUML_LIBRARY}
             -D CUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
             -D CUSPATIAL_LIBRARY=${CUSPATIAL_LIBRARY}
-            -D NVSTRINGS_LIBRARY=${NVSTRINGS_LIBRARY}
-            -D NVCATEGORY_LIBRARY=${NVCATEGORY_LIBRARY}
             -D NVTEXT_LIBRARY=${NVTEXT_LIBRARY}
             -D RMM_INCLUDE=${RMM_INCLUDE}
             -D CUDF_INCLUDE=${CUDF_INCLUDE}
             -D CUDF_TEST_INCLUDE=${CUDF_TEST_INCLUDE}
             -D CUML_INCLUDE_DIR=${CUML_INCLUDE}
             -D DLPACK_INCLUDE=${COMPOSE_INCLUDE}
-            -D NVSTRINGS_INCLUDE=${NVSTRINGS_INCLUDE}
             -D CUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
             -D CUSPATIAL_INCLUDE=${CUSPATIAL_INCLUDE}
             -D PARALLEL_LEVEL=${PARALLEL_LEVEL}
@@ -1645,7 +1602,6 @@ update-environment-variables() {
 
     export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
     export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
-    export NVSTRINGS_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
     export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
     export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
