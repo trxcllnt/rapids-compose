@@ -48,12 +48,23 @@ for PYDIR in $PYTHON_DIRS; do
             "type": "python",
             "request": "attach",
             "port": 5678,
-            "host": "localhost",
+            "host": "\${input:rapids_container_ip}",
             "pathMappings": [{
                 "localRoot": "\${workspaceFolder}",
                 "remoteRoot": "\${workspaceFolder}"
             }]
         }
+    ],
+    "inputs": [
+        {
+            "type": "command",
+            "id": "rapids_container_ip",
+            "command": "shellCommand.execute",
+            "args": {
+                "useFirstResult": true,
+                "command": "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1)"
+            }
+        },
     ]
 }
 EOF
