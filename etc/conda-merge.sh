@@ -14,7 +14,6 @@ channels:
 - nvidia
 - rapidsai-nightly
 - conda-forge
-- defaults
 dependencies:
 - cmake>=3.20
 - cmake_setuptools
@@ -72,7 +71,6 @@ channels:
 - rapidsai-nightly
 - numba
 - conda-forge
-- defaults
 dependencies:
 - bokeh
 - dask-labextension
