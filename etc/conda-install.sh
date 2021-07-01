@@ -20,6 +20,7 @@ if [[ "$(which conda)" == "" ]]; then
     chmod +x "$RAPIDS_HOME/miniconda.sh" && "$RAPIDS_HOME/miniconda.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/miniconda.sh"
     conda config --system --set always_yes yes
     conda config --system --set changeps1 False
+    conda config --system --remove channels defaults
 fi
 
 if [[ "$(which mamba)" == "" ]]; then
@@ -29,7 +30,7 @@ fi
 ####
 # Diff the conda environment.yml file created when the container was built
 # against the environment.yml that exists in the container's volume mount.
-# 
+#
 # - If there isn't an environment.yml in the volume mount, do `conda env create`
 # - If the environment.yml in the volume mount is different than the container's,
 #   do `conda env update --prune`.
