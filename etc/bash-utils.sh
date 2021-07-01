@@ -994,6 +994,7 @@ configure-cpp() {
             -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
         elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
             D_CMAKE_ARGS="$D_CMAKE_ARGS
+            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
             -D DETECT_CONDA_ENV=0
             -D WITH_UCX=ON
             -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
