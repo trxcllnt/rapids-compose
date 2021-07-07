@@ -127,7 +127,6 @@ make-symlink "$CUGRAPH_INCLUDE" "$CONDA_PREFIX/include/cugraph"
 make-symlink "$CUSPATIAL_INCLUDE" "$CONDA_PREFIX/include/cuspatial"
 
 make-symlink "$COMPOSE_HOME/etc/conda/envs/rapids/include/dlpack" "$COMPOSE_INCLUDE/dlpack"
-make-symlink "$CUML_HOME/cpp/comms/std/include/cuML_comms.hpp" "$COMPOSE_HOME/etc/conda/envs/rapids/include/cuML_comms.hpp"
 
 make-symlink "$RMM_LIBRARY" "$CONDA_PREFIX/lib/$(basename $RMM_LIBRARY)"
 make-symlink "$CUDF_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUDF_LIBRARY)"
