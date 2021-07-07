@@ -162,6 +162,7 @@ dind:
 	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker build -q \
+		--pull --force-rm \
 		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
 		--build-arg COMPOSE_HOME="$$COMPOSE_HOME" \
 		-t "$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" \
