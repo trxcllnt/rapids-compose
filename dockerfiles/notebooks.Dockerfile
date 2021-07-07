@@ -3,9 +3,6 @@ ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 FROM rapidsai/${RAPIDS_NAMESPACE}/rapids:cuda-${CUDA_VERSION:-11.2.0}
 
-ARG IPYTHON_VERSION=7.3.0
-ENV IPYTHON_VERSION=$IPYTHON_VERSION
-
 RUN apt update --fix-missing \
  && apt install -y --no-install-recommends \
     graphviz \

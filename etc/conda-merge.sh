@@ -69,22 +69,24 @@ channels:
 - rapidsai
 - nvidia
 - rapidsai-nightly
-- numba
+# - numba
 - conda-forge
 dependencies:
 - bokeh
 - dask-labextension
 - dask-ml
-- ipython=${IPYTHON_VERSION:-"7.3.0"}
+- ipython
+# - ipython=${IPYTHON_VERSION:-"7.3.0"}
 - ipywidgets
-- jupyterlab=1.0.9
+- jupyterlab
+# - jupyterlab=1.0.9
 - matplotlib
 - networkx
 - nodejs
 - scikit-learn
 - scipy
 - seaborn
-- tensorflow
+# - tensorflow
 - umap-learn
 - pip:
   - graphistry
