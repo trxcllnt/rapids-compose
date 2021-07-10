@@ -1010,8 +1010,22 @@ configure-cpp() {
             -D GDAL_INCLUDE_DIR=${CONDA_HOME}/envs/rapids/include";
         fi;
 
-        # Create or remove ccache compiler symlinks
         set-gcc-version $GCC_VERSION;
+
+        # Setup sccache if needed
+        if [ "${CACHE_TOOL}" = "sccache" ]; then
+            D_CMAKE_ARGS="${D_CMAKE_ARGS}
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+              -DCMAKE_CUDA_COMPILER_LAUNCHER=sccache"
+        fi
+        # Setup sccache if needed
+        if [ "${CACHE_TOOL}" = "ccache" ]; then
+            D_CMAKE_ARGS="${D_CMAKE_ARGS}
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+              -DCMAKE_CUDA_COMPILER_LAUNCHER=ccache"
+        fi
 
         export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
         JOBS=$PARALLEL_LEVEL                                                 \
@@ -1180,25 +1194,7 @@ set-gcc-version() {
     echo "Using gcc-$V and g++-$V"
     export GCC_VERSION="$V"
     export CXX_VERSION="$V"
-    export NVCC="/usr/local/bin/nvcc"
-    export CC="/usr/local/bin/gcc-$GCC_VERSION"
-    export CXX="/usr/local/bin/g++-$CXX_VERSION"
     echo "rapids" | sudo -S update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
-    # Create or remove ccache compiler symlinks
-    if [ "$USE_CCACHE" == "YES" ]; then
-        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++"                        >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
-    else
-        # echo "rapids" | sudo -S rm "/usr/local/bin/nvcc" || true                                       >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "/usr/bin/g++" "/usr/local/bin/g++"                           >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
-    fi
 }
 
 export -f set-gcc-version;
