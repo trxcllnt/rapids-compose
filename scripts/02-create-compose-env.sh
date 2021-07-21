@@ -77,6 +77,12 @@ NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which 
 BUILD_TESTS=${BUILD_TESTS:-$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")}
 BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")}
 
+if [[ "$CUDA_VERSION" != "11.2.0" ]]; then
+  CONDA_CUDA_TOOLKIT_VERSION="$CUDA_VERSION"
+else
+  CONDA_CUDA_TOOLKIT_VERSION="11.2"
+fi
+
 USE_CCACHE=${USE_CCACHE:-$(choose_bool_option "Use ccache for C++ builds? (y/n)" "YES")}
 
 if [[ "$USE_CCACHE" == "YES" ]]; then
@@ -113,6 +119,7 @@ COMPOSE_HOME=$COMPOSE_HOME
 # Build arguments
 GCC_VERSION=$GCC_VERSION
 CUDA_VERSION=$CUDA_VERSION
+CONDA_CUDA_TOOLKIT_VERSION=$CONDA_CUDA_TOOLKIT_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
 LINUX_VERSION=ubuntu18.04
 
