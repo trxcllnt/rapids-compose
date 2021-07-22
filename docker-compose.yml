@@ -39,6 +39,12 @@ x-service-settings: &service_settings
     - seccomp="${COMPOSE_HOME:-$PWD/compose}/etc/settings/docker-seccomp-with-perf.json"
   depends_on:
     - apt-cacher-ng
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - capabilities:
+            - gpu
 
 services:
 
