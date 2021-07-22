@@ -77,11 +77,7 @@ NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which 
 BUILD_TESTS=${BUILD_TESTS:-$(select_version "Select whether to configure to build RAPIDS tests (ON/OFF)" "ON")}
 BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-$(select_version "Select whether to configure to build RAPIDS benchmarks (ON/OFF)" "ON")}
 
-if [[ "$CUDA_VERSION" != "11.2.0" ]]; then
-  CONDA_CUDA_TOOLKIT_VERSION="$CUDA_VERSION"
-else
-  CONDA_CUDA_TOOLKIT_VERSION="11.2"
-fi
+CONDA_CUDA_TOOLKIT_VERSION=$(echo $CUDA_VERSION | cut -d'.' -f1,2)
 
 USE_CCACHE=${USE_CCACHE:-$(choose_bool_option "Use ccache for C++ builds? (y/n)" "YES")}
 
