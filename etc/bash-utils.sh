@@ -215,6 +215,7 @@ cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then configure-rmm-cpp $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then configure-cudf-cpp $@ || exit 1; fi;
+        if [ $(should-build-raft) == true ]; then configure-raft-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then configure-cuml-cpp $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then configure-cugraph-cpp $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then configure-cuspatial-cpp $@ || exit 1; fi;
@@ -275,7 +276,7 @@ cuSpatial: $(should-build-cuspatial $@)";
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@; fi"
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-python $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-python $@; fi"
-         run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-python $@; fi"
+        run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-python $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-python $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-python $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-python $@; fi"
@@ -377,10 +378,16 @@ build-cudf-java() {
 
 export -f build-cudf-java;
 
-build-raft-cpp() {
+configure-raft-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Configuring libraft";
     configure-cpp "$RAFT_HOME/cpp" $@ -DBUILD_GTEST=ON;
+}
+
+export -f configure-raft-cpp;
+
+build-raft-cpp() {
+    configure-raft-cpp "$@"
     print-heading "Building libraft";
     build-cpp "$RAFT_HOME/cpp" "all";
 }
@@ -1407,7 +1414,7 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s/ --expt-relaxed-constexpr/ /g"             \
         | sed -r "s/-Wall,-Werror/-Wall -Werror/g"             \
         | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"           \
-        | sed -r "s/-Werror/-Werror $ALLOWED_WARNINGS/g"       \
+        | sed -r "s/ -Werror/ -Werror $ALLOWED_WARNINGS/g"     \
         | sed -r "s/$REPLACE_DIAGNOSTIC_COLORS/g"              \
         | sed -r "s/$REPLACE_DEPRECATED_DECL_WARNINGS/g"       \
         | sed -r "s/$REPLACE_CROSS_EXECUTION_SPACE_CALL/g"     \
