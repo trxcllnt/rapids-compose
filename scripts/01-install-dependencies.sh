@@ -128,18 +128,6 @@ if [ -n "$APT_DEPS" ]; then
     if [ -n "$INSTALLED_DOCKER" ]; then
         sudo usermod -aG docker $USER
     fi
-
-    if [ -n "$INSTALLED_NVIDIA_CONTAINER_RUNTIME" ]; then
-        echo '{
-    "default-runtime": "nvidia",
-    "runtimes": {
-        "nvidia": {
-            "path": "nvidia-container-runtime",
-            "runtimeArgs": []
-        }
-    }
-}' | sudo tee /etc/docker/daemon.json
-    fi
 fi
 
 export NEEDS_REBOOT;
