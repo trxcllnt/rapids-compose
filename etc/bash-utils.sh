@@ -1473,11 +1473,19 @@ create-cpp-launch-json() {
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "$PROJECT_NAME",
+            "name": "$PROJECT_NAME cuda-gdb",
             "type": "cuda-gdb",
             "request": "launch",
             "gdb": "$(realpath -m $CUDA_HOME)/bin/cuda-gdb",
-            "program": "$TESTS_DIR/\${input:TEST_NAME}"
+            "program": "$TESTS_DIR/\${input:TEST_NAME}",
+            "cwd": "$TESTS_DIR/"
+        },
+        {
+            "name": "$PROJECT_NAME cppdbg",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "$TESTS_DIR/\${input:TEST_NAME}",
+            "cwd": "$TESTS_DIR/"
         },
     ],
     "inputs": [
