@@ -316,6 +316,8 @@ export -f lint-rapids;
 configure-rmm-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
+    config_args="-D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring librmm";
     configure-cpp "$RMM_HOME" "$config_args";
@@ -334,7 +336,9 @@ export -f build-rmm-cpp;
 configure-cudf-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT} $config_args"
+    config_args="-D rmm_ROOT=${RMM_ROOT}
+                 -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
     configure-cpp "$CUDF_HOME/cpp" "$config_args";
@@ -362,16 +366,23 @@ build-cudf-java() {
         cd "$CUDF_HOME/java";
         mkdir -p "$CUDF_JNI_ROOT_ABS";
         print-heading "Building libcudfjni";
-        export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
+
+        export CONDA_PREFIX_="$CONDA_PREFIX";
+        unset CONDA_PREFIX;
+
         mvn package \
             ${config_args} \
             -Dmaven.test.skip=true \
+            -DCMAKE_CXX11_ABI=ON \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DCUDF_CPP_BUILD_DIR="$CUDF_CPP_BUILD_DIR" \
             -DCUDAToolkit_ROOT="$CUDA_HOME" \
             -DCUDAToolkit_INCLUDE_DIR="$CUDA_HOME/include" \
             -Dnative.build.path="$CUDF_JNI_ROOT"
-        export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
+
+        export CONDA_PREFIX="$CONDA_PREFIX_";
+        unset CONDA_PREFIX_;
+
         fix-nvcc-clangd-compile-commands "$CUDF_JNI_HOME" "$CUDF_JNI_ROOT_ABS"
     )
 }
@@ -379,9 +390,15 @@ build-cudf-java() {
 export -f build-cudf-java;
 
 configure-raft-cpp() {
+    config_args="$@"
     update-environment-variables $@ >/dev/null;
+    config_args="-D DETECT_CONDA_ENV=OFF
+                 -D rmm_ROOT=${RMM_ROOT}
+                 -D DISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 $config_args"
+    config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libraft";
-    configure-cpp "$RAFT_HOME/cpp" $@ -DBUILD_GTEST=ON;
+    configure-cpp "$RAFT_HOME/cpp" "$config_args";
 }
 
 export -f configure-raft-cpp;
@@ -397,8 +414,16 @@ export -f build-raft-cpp;
 configure-cuml-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
-    config_args="-D BUILD_GTEST=ON ${config_args}"
+    config_args="-D DETECT_CONDA_ENV=OFF
+                 -D rmm_ROOT=${RMM_ROOT}
+                 -D raft_ROOT=${RAFT_ROOT}
+                 -D BUILD_CUML_MG_TESTS=OFF
+                 -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
+                 -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
+                 -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
+                 -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
+                 -D DISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuml";
     configure-cpp "$CUML_HOME/cpp" "$config_args";
@@ -417,7 +442,9 @@ export -f build-cuml-cpp;
 configure-cugraph-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
+    config_args="-D rmm_ROOT=${RMM_ROOT}
+                 -D raft_ROOT=${RAFT_ROOT}
+                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcugraph";
     configure-cpp "$CUGRAPH_HOME/cpp" "$config_args";
@@ -436,7 +463,10 @@ export -f build-cugraph-cpp;
 configure-cuspatial-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D CMAKE_PREFIX_PATH=${RMM_ROOT};${CUDF_ROOT} $config_args";
+    config_args="-D rmm_ROOT=${RMM_ROOT}
+                 -D cudf_ROOT=${CUDF_ROOT}
+                 -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcuspatial";
     configure-cpp "$CUSPATIAL_HOME/cpp" "$config_args";
@@ -923,120 +953,34 @@ configure-cpp() {
     (
         set -Eeo pipefail
         D_CMAKE_ARGS=$(update-environment-variables ${@:2});
+        D_CMAKE_ARGS=$(echo $(echo "$D_CMAKE_ARGS"));
 
-        PROJECT_CPP_HOME="$(find-cpp-home $1)";
-        PROJECT_HOME="$(find-project-home $PROJECT_CPP_HOME)";
-        PROJECT_CPP_BUILD_DIR="$(find-cpp-build-home $PROJECT_CPP_HOME)";
-        BUILD_DIR="$PROJECT_CPP_HOME/$(cpp-build-dir $PROJECT_CPP_HOME)";
-        mkdir -p "$BUILD_DIR" && cd "$BUILD_DIR";
-
-        D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D GPU_ARCHS=${CMAKE_CUDA_ARCHITECTURES:-}
-            -D CONDA_BUILD=0
-            -D CMAKE_CXX11_ABI=ON
-            -D ARROW_USE_CCACHE=OFF
-            -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
-            -D BUILD_TESTS=${BUILD_TESTS:-OFF}
-            -D BUILD_RAFT_TESTS=${BUILD_TESTS:-OFF}
-            -D BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
-            -D CMAKE_ENABLE_BENCHMARKS=${BUILD_BENCHMARKS:-OFF}
-            -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Release}
-            -D RMM_LIBRARY=${RMM_LIBRARY}
-            -D CUDF_LIBRARY=${CUDF_LIBRARY}
-            -D CUDFTESTUTIL_LIBRARY=${CUDFTESTUTIL_LIBRARY}
-            -D CUML_LIBRARY=${CUML_LIBRARY}
-            -D CUGRAPH_LIBRARY=${CUGRAPH_LIBRARY}
-            -D CUSPATIAL_LIBRARY=${CUSPATIAL_LIBRARY}
-            -D NVTEXT_LIBRARY=${NVTEXT_LIBRARY}
-            -D RMM_INCLUDE=${RMM_INCLUDE}
-            -D CUDF_INCLUDE=${CUDF_INCLUDE}
-            -D CUDF_TEST_INCLUDE=${CUDF_TEST_INCLUDE}
-            -D CUML_INCLUDE_DIR=${CUML_INCLUDE}
-            -D DLPACK_INCLUDE=${COMPOSE_INCLUDE}
-            -D CUGRAPH_INCLUDE=${CUGRAPH_INCLUDE}
-            -D CUSPATIAL_INCLUDE=${CUSPATIAL_INCLUDE}
-            -D PARALLEL_LEVEL=${PARALLEL_LEVEL}
-            -D CMAKE_INSTALL_PREFIX=${PROJECT_CPP_BUILD_DIR}
-            -D CMAKE_SYSTEM_PREFIX_PATH=${CONDA_HOME}/envs/rapids
-            -D ARROW_INCLUDE=${CONDA_HOME}/envs/rapids/include
-            -D ARROW_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow.so
-            -D ARROW_CUDA_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libarrow_cuda.so
-            -D CUDAToolkit_ROOT=${CUDA_HOME}
-            -D CUDAToolkit_INCLUDE_DIR=${CUDA_HOME}/include
-            -D rmm_ROOT=${RMM_ROOT} -D RMM_ROOT=${RMM_ROOT}
-            -D cudf_ROOT=${CUDF_ROOT} -D CUDF_ROOT=${CUDF_ROOT}
-            -D cuml_ROOT=${CUML_ROOT} -D CUML_ROOT=${CUML_ROOT}
-            -D raft_ROOT=${RAFT_ROOT} -D RAFT_ROOT=${RAFT_ROOT}
-            -D cugraph_ROOT=${CUGRAPH_ROOT} -D CUGRAPH_ROOT=${CUGRAPH_ROOT}
-            -D cuspatial_ROOT=${CUSPATIAL_ROOT} -D CUSPATIAL_ROOT=${CUSPATIAL_ROOT}
-            -D CPM_rmm_SOURCE=$(find-cpp-build-home ${RMM_HOME})
-            -D CPM_cudf_SOURCE=$(find-cpp-build-home ${CUDF_HOME})
-            -D CPM_cuml_SOURCE=$(find-cpp-build-home ${CUML_HOME})
-            -D CPM_raft_SOURCE=$(find-cpp-build-home ${RAFT_HOME})
-            -D CPM_cugraph_SOURCE=$(find-cpp-build-home ${CUGRAPH_HOME})
-            -D CPM_cuspatial_SOURCE=$(find-cpp-build-home ${CUSPATIAL_HOME})";
-
-        CMAKE_GENERATOR="Ninja";
-        CMAKE_C_FLAGS="-fdiagnostics-color=always"
-        CMAKE_CXX_FLAGS="-fdiagnostics-color=always"
-        CMAKE_CUDA_FLAGS="-Xcompiler=-fdiagnostics-color=always"
-
-        if [ "${DISABLE_DEPRECATION_WARNINGS:-OFF}" == "ON" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS -D DISABLE_DEPRECATION_WARNING=ON";
-            CMAKE_C_FLAGS="${CMAKE_C_FLAGS} -Wno-deprecated-declarations"
-            CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations"
-            CMAKE_CUDA_FLAGS="${CMAKE_CUDA_FLAGS} -Xcompiler=-Wno-deprecated-declarations"
-        fi;
-
-        if [ "$PROJECT_HOME" == "$RMM_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
-        elif [ "$PROJECT_HOME" == "$CUDF_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}";
-        elif [ "$PROJECT_HOME" == "$CUGRAPH_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
-            -D LIBCYPHERPARSER_INCLUDE=${CONDA_HOME}/envs/rapids/include
-            -D LIBCYPHERPARSER_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libcypher-parser.a";
-        elif [ "$PROJECT_HOME" == "$CUML_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
-            -D DETECT_CONDA_ENV=0
-            -D WITH_UCX=ON
-            -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
-            -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
-            -D BUILD_CUML_MG_TESTS=OFF
-            -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
-            -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
-            -D BLAS_LIBRARIES=${CONDA_HOME}/envs/rapids/lib/libblas.so";
-        elif [ "$PROJECT_HOME" == "$CUSPATIAL_HOME" ]; then
-            D_CMAKE_ARGS="$D_CMAKE_ARGS
-            -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-}
-            -D GDAL_LIBRARY=${CONDA_HOME}/envs/rapids/lib/libgdal.so
-            -D GDAL_INCLUDE_DIR=${CONDA_HOME}/envs/rapids/include";
-        fi;
+        SOURCE_DIR="$(find-cpp-home $1)";
+        BINARY_DIR="$SOURCE_DIR/$(cpp-build-dir $SOURCE_DIR)";
 
         # Create or remove ccache compiler symlinks
         set-gcc-version $GCC_VERSION;
 
-        export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        JOBS=$PARALLEL_LEVEL                                                 \
-        PARALLEL_LEVEL=$PARALLEL_LEVEL                                       \
-        CMAKE_GENERATOR="$CMAKE_GENERATOR"                                   \
-        CFLAGS="$CMAKE_C_FLAGS"                                              \
-        CXXFLAGS="$CMAKE_CXX_FLAGS"                                          \
-        CUDAFLAGS="$CMAKE_CUDA_FLAGS"                                        \
-        RAFT_PATH="$RAFT_HOME" RAFT_INCLUDE_DIR="$RAFT_INCLUDE"              \
-        cmake -B "$BUILD_DIR"                                                \
-              -S "$PROJECT_CPP_HOME"                                         \
-              -G "$CMAKE_GENERATOR"                                          \
-              ${D_CMAKE_ARGS}                                                \
-        && fix-nvcc-clangd-compile-commands                                  \
-            "$PROJECT_CPP_HOME"                                              \
-            "$PROJECT_CPP_BUILD_DIR"                                         \
-        ;
-        export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
+        mkdir -p "$BINARY_DIR";
+
+        export CONDA_PREFIX_="$CONDA_PREFIX";
+        unset CONDA_PREFIX;
+
+        cmake -G Ninja \
+              -S "$SOURCE_DIR" \
+              -B "$BINARY_DIR" \
+              -D BUILD_TESTS=$BUILD_TESTS \
+              -D BUILD_BENCHMARKS=$BUILD_BENCHMARKS \
+              -D CMAKE_PREFIX_PATH="$CONDA_PREFIX_" \
+              -D CMAKE_EXPORT_COMPILE_COMMANDS=TRUE \
+              -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+              -D CMAKE_CUDA_ARCHITECTURES="${CUDAARCHS:-}" \
+              ${D_CMAKE_ARGS};
+
+        fix-nvcc-clangd-compile-commands "$SOURCE_DIR" "$BINARY_DIR";
+
+        export CONDA_PREFIX="$CONDA_PREFIX_";
+        unset CONDA_PREFIX_;
     )
 }
 
@@ -1056,22 +1000,27 @@ export -f build-cpp;
 build-python() {
     (
         cd "$1";
+
         # Create or remove ccache compiler symlinks
         set-gcc-version $GCC_VERSION;
-        CFLAGS_="${CFLAGS:-}";
-        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-reorder";
-        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-unknown-pragmas";
-        CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-unused-variable";
-        if [ "${DISABLE_DEPRECATION_WARNINGS:-OFF}" == "ON" ]; then
-            CFLAGS_="${CFLAGS_:+$CFLAGS_ }-Wno-deprecated-declarations";
-        fi;
-        export CONDA_PREFIX_="$CONDA_PREFIX"; unset CONDA_PREFIX;
-        time env CFLAGS="$CFLAGS_" \
+
+        CYTHON_FLAGS="${CYTHON_FLAGS:-}";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-reorder";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unknown-pragmas";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unused-variable";
+
+        export CONDA_PREFIX_="$CONDA_PREFIX";
+        unset CONDA_PREFIX;
+
+        time env \
              RAFT_PATH="$RAFT_HOME" \
-             RAFT_INCLUDE_DIR="$RAFT_INCLUDE" \
-             CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$CFLAGS_" \
+             CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
+             CXXFLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }$CYTHON_FLAGS" \
              python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
-        export CONDA_PREFIX="$CONDA_PREFIX_"; unset CONDA_PREFIX_;
+
+        export CONDA_PREFIX="$CONDA_PREFIX_";
+        unset CONDA_PREFIX_;
+
         rm -rf ./*.egg-info ./.eggs;
     )
 }
@@ -1238,7 +1187,7 @@ test-cpp() {
             esac; shift;
         done
         for x in "1"; do
-            ninja -j$PARALLEL_LEVEL $GTESTS || break;
+            ninja -j${PARALLEL_LEVEL} $GTESTS || break;
             set -x;
             ctest --force-new-ctest-process \
                 --output-on-failure \
@@ -1304,6 +1253,11 @@ test-python() {
 export -f test-python;
 
 fix-nvcc-clangd-compile-commands() {
+    # fix-nvcc-clangd-compile-commands "$PROJECT_CPP_HOME" "$PROJECT_CPP_BUILD_DIR";
+    CPP_DIR=$(find-cpp-home "${1:-.}");
+    BUILD_DIR="$(cpp-build-dir $CPP_DIR)";
+    BUILD_DIR="${2:-$CPP_DIR/$BUILD_DIR}";
+
     (
         set -Eeo pipefail;
         ###
@@ -1314,10 +1268,19 @@ fix-nvcc-clangd-compile-commands() {
         # unsupported options, so `clangd` has an easier time producing
         # usable intellisense results.
         ###
-        CC_JSON="$2/compile_commands.json";
-        CC_JSON_LINK="$1/compile_commands.json";
-        CC_JSON_CLANGD="$2/compile_commands.clangd.json";
-        CC_JSON_MSCCPP="$2/compile_commands.msccpp.json";
+        CC_JSON="$BUILD_DIR/compile_commands.json";
+        CC_JSON_LINK="$CPP_DIR/compile_commands.json";
+        CC_JSON_CLANGD="$BUILD_DIR/compile_commands.clangd.json";
+        CC_JSON_MSCCPP="$BUILD_DIR/compile_commands.msccpp.json";
+
+        if [ ! -f "$CC_JSON" ] && [ -f "$CC_JSON.orig" ]; then
+            cp "$CC_JSON.orig" "$CC_JSON";
+        fi
+
+        if [ ! -f "$CC_JSON" ]; then
+            echo "File not found: $CC_JSON"
+            exit 1;
+        fi
 
         # 1. Replace `-isystem=` with `-I`
         # 2. Replace `-isystem ` with `-I`
@@ -1334,17 +1297,17 @@ fix-nvcc-clangd-compile-commands() {
         | sed -r "s@/$CUDA_HOME/@$(realpath -m $CUDA_HOME)/@g" \
         > "$CC_JSON_MSCCPP"                                    ;
 
-    mkdir -p "$1/.vscode";
+    mkdir -p "$CPP_DIR/.vscode";
     echo "{
     \"version\": 4,
     \"configurations\": [
         {
-            \"name\": \"$(basename `find-project-home $1`)\",
+            \"name\": \"$(basename `find-project-home $CPP_DIR`)\",
             \"compileCommands\": \"$CC_JSON_MSCCPP\"
         }
     ]
 }
-" > "$1/.vscode/c_cpp_properties.json";
+" > "$CPP_DIR/.vscode/c_cpp_properties.json";
 
         # todo: should define `-D__CUDACC__` here?
 
@@ -1614,6 +1577,20 @@ update-environment-variables() {
     export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
+
+    export CMAKE_C_FLAGS="${CFLAGS:-}"
+    export CMAKE_CXX_FLAGS="${CXXFLAGS:-}"
+    export CMAKE_CUDA_FLAGS="${CUDAFLAGS:-}"
+    export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-}}"
+
+    if [[ "${DISABLE_DEPRECATION_WARNINGS:-ON}" == "ON" ]]; then
+        export DISABLE_DEPRECATION_WARNINGS=ON
+        export CMAKE_C_FLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }-Wno-deprecated-declarations"
+        export CMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }-Wno-deprecated-declarations"
+        export CMAKE_CUDA_FLAGS="${CMAKE_CUDA_FLAGS:+$CMAKE_CUDA_FLAGS }-Xcompiler=-Wno-deprecated-declarations"
+    else
+        export DISABLE_DEPRECATION_WARNINGS=OFF
+    fi;
 
     REACTIVATE_ENV="";
 
