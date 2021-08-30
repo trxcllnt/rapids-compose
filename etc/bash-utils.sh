@@ -597,6 +597,8 @@ clean-rmm-python() {
            "$RMM_HOME/python/build";
     find "$RMM_HOME" -type f -name '*.pyc' -delete;
     find "$RMM_HOME" -type d -name '__pycache__' -delete;
+    find "$RMM_HOME/python" -type f -name '*.so' -delete;
+    find "$RMM_HOME/python" -type f -name '*.cpp' -delete;
 }
 
 export -f clean-rmm-python;
