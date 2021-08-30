@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+shopt -s globstar
+
 SHOULD_RUN_BLACK=$(echo " $@ " | grep " --black " || echo "")
 SHOULD_RUN_ISORT=$(echo " $@ " | grep " --isort " || echo "")
 SHOULD_RUN_FLAKE8=$(echo " $@ " | grep " --flake8 " || echo "")
