@@ -66,6 +66,18 @@ if [ ! -d "$CONDA_HOME/envs/$ENV_NAME" ]; then
     cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
 # otherwise if the environment.yml inside/outside are different, update the existing conda env
 elif [ -n "${CHANGED// }" ]; then
+    (
+        cd "$CONDA_HOME/envs/$ENV_NAME/include";
+        rm rmm                || true >/dev/null 2>&1;
+        rm cudf               || true >/dev/null 2>&1;
+        rm raft               || true >/dev/null 2>&1;
+        rm raft.hpp           || true >/dev/null 2>&1;
+        rm cuml               || true >/dev/null 2>&1;
+        rm cugraph            || true >/dev/null 2>&1;
+        rm cuspatial          || true >/dev/null 2>&1;
+        rm libcudf/libcxx     || true >/dev/null 2>&1;
+        rm libcudf/libcudacxx || true >/dev/null 2>&1;
+    )
     FRESH_CONDA_ENV=1
     CONDA_ENV_UPDATE_FAILED=0
     # print the diff to the console for debugging
