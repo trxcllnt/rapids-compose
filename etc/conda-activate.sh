@@ -76,7 +76,7 @@ $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
 $RAFT_HOME/python:\
 $CUML_HOME/python:\
-$CUGRAPH_HOME/python:\
+$CUGRAPH_HOME/python/cugraph:\
 $CUSPATIAL_HOME/python/cuspatial"
 
 export OLD_PATH="${OLD_PATH:-$PATH}"

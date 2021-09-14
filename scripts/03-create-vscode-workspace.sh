@@ -54,7 +54,7 @@ cat << EOF
         },
         {
             "name": "cugraph-python",
-            "path": "cugraph/python"
+            "path": "cugraph/python/cugraph"
         },
         {
             "name": "cuML",

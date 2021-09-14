@@ -517,7 +517,7 @@ export -f build-cuml-python;
 build-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cugraph";
-    build-python "$CUGRAPH_HOME/python" --inplace;
+    build-python "$CUGRAPH_HOME/python/cugraph" --inplace;
 }
 
 export -f build-cugraph-python;
