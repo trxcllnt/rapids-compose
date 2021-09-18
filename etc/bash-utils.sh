@@ -1588,10 +1588,10 @@ update-environment-variables() {
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 
-    export CMAKE_C_FLAGS="${CFLAGS:-}"
-    export CMAKE_CXX_FLAGS="${CXXFLAGS:-}"
-    export CMAKE_CUDA_FLAGS="${CUDAFLAGS:-}"
     export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-}}"
+    export CMAKE_C_FLAGS="${CFLAGS:+$CFLAGS }-fdiagnostics-color=always"
+    export CMAKE_CXX_FLAGS="${CXXFLAGS:+$CXXFLAGS }-fdiagnostics-color=always"
+    export CMAKE_CUDA_FLAGS="${CUDAFLAGS:+$CUDAFLAGS }-Xcompiler=-fdiagnostics-color=always"
 
     if [[ "${DISABLE_DEPRECATION_WARNINGS:-ON}" == "ON" ]]; then
         export DISABLE_DEPRECATION_WARNINGS=ON
