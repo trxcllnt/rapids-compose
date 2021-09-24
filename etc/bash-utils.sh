@@ -1150,8 +1150,7 @@ set-gcc-version() {
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
     else
-        # echo "rapids" | sudo -S rm "/usr/local/bin/nvcc" || true                                       >/dev/null 2>&1;
-        echo "rapids" | sudo -S ln -s -f "$CUDA_HOME/bin/nvcc" "/usr/local/bin/nvcc"                   >/dev/null 2>&1;
+        echo "rapids" | sudo -S ln -s -f "/usr/bin/nvcc" "/usr/local/bin/nvcc"                         >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/g++" "/usr/local/bin/g++"                           >/dev/null 2>&1;
         echo "rapids" | sudo -S ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
