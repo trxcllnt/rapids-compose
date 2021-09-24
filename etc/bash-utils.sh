@@ -916,7 +916,7 @@ test-rmm-python() {
 export -f test-rmm-python;
 
 test-cudf-python() {
-    test-python "$CUDF_HOME/python/cudf" $@;
+    test-python "$CUDF_HOME/python/cudf/cudf/tests" $@;
 }
 
 export -f test-cudf-python;
