@@ -48,11 +48,7 @@ install_docker() {
 }
 
 install_docker_compose() {
-    DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r ".tag_name" | tr -d 'v')
-    # If Github's API is rate-limiting our IP, use a known good docker-compose version
-    if [ "$DOCKER_COMPOSE_VERSION" = "null" ]; then
-        DOCKER_COMPOSE_VERSION="1.25.5"
-    fi
+    DOCKER_COMPOSE_VERSION="1.29.2"
     sudo curl \
         -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
         -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose

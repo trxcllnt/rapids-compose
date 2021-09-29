@@ -25,7 +25,7 @@ RUN set -x && \
     apk add --no-cache zlib libgcc bash jq && \
     # Install docker-compose.
     # https://docs.docker.com/compose/install/
-    DOCKER_COMPOSE_URL=https://github.com$(wget -q -O- https://github.com/docker/compose/releases/latest \
+    DOCKER_COMPOSE_URL=https://github.com$(wget -q -O- https://github.com/docker/compose/releases/tag/1.29.2 \
         | grep -Eo 'href="[^"]+docker-compose-Linux-x86_64' \
         | sed 's/^href="//' \
         | head -n1) && \
