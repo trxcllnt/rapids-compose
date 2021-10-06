@@ -418,6 +418,7 @@ configure-cuml-cpp() {
                  -D rmm_ROOT=${RMM_ROOT}
                  -D raft_ROOT=${RAFT_ROOT}
                  -D BUILD_CUML_MG_TESTS=OFF
+                 -D DISABLE_FORCE_CLONE_RAFT=ON
                  -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
