@@ -55,6 +55,7 @@ conda-merge ${YMLS[@]} > merged.yml
 cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rapids-build-env|rapids-notebook-env|rapids-doc-env|rapids-pytest-benchmark)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|dask-cudf|cugraph|cuspatial|cuxfilter)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(\.git\@[^(main|master)])(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml
 
@@ -90,7 +91,7 @@ dependencies:
 - umap-learn
 - pip:
   - graphistry
-  - git+https://github.com/jacobtomlinson/jupyterlab-nvdashboard.git
+  - git+https://github.com/rapidsai/jupyterlab-nvdashboard.git
 EOF
 
 conda-merge rapids.yml notebooks.yml > merged.yml && mv merged.yml notebooks.yml
