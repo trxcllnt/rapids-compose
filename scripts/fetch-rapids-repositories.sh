@@ -10,6 +10,7 @@ CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
 ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
+    echo "Fetching $REPO..."
     cd "$BASE_DIR/$REPO";
     git fetch --no-tags upstream && git fetch --no-tags origin;
     cd - >/dev/null 2>&1;
