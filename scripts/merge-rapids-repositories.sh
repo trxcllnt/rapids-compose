@@ -10,6 +10,7 @@ CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
 ALL_REPOS="${ALL_REPOS:-$CODE_REPOS notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
+    echo "Merging $REPO..."
     cd "$BASE_DIR/$REPO";
     BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)";
     while [ -z "$(git branch -r | grep upstream/$BRANCH_NAME)" ]; do
