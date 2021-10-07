@@ -978,6 +978,9 @@ configure-cpp() {
               -D CMAKE_EXPORT_COMPILE_COMMANDS=TRUE \
               -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
               -D CMAKE_CUDA_ARCHITECTURES="${CUDAARCHS:-}" \
+              -D CMAKE_CUDA_FLAGS="$CMAKE_CUDA_FLAGS" \
+              -D CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
+              -D CMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
               ${D_CMAKE_ARGS};
 
         fix-nvcc-clangd-compile-commands "$SOURCE_DIR" "$BINARY_DIR";
