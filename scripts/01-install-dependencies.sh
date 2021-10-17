@@ -10,6 +10,11 @@ INSTALLED_CLANGD=""
 INSTALLED_DOCKER=""
 INSTALLED_NVIDIA_CONTAINER_RUNTIME=""
 
+sudo_warn() {
+    echo "Running '$*' as root."
+    sudo "$@"
+}
+
 ask_before_install() {
     while true; do
         read -p "$1 " CHOICE </dev/tty
@@ -24,17 +29,17 @@ ask_before_install() {
 install_clangd() {
     INSTALLED_CLANGD=1
     APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd"
-    curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+    curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo_warn apt-key add -
     release=$(lsb_release -cs)
     echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release-13 main
 deb-src http://apt.llvm.org/$release/ llvm-toolchain-$release-13 main
-" | sudo tee /etc/apt/sources.list.d/llvm.list
+" | sudo_warn tee /etc/apt/sources.list.d/llvm.list
 }
 
 install_vscode() {
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-    sudo install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/ && rm packages.microsoft.gpg
-    sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+    sudo_warn install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/ && rm packages.microsoft.gpg
+    sudo_warn sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
     APT_DEPS="${APT_DEPS:+$APT_DEPS }code"
 }
 
@@ -43,23 +48,23 @@ install_docker() {
     INSTALLED_DOCKER=1
     APT_DEPS="${APT_DEPS:+$APT_DEPS }docker-ce"
     release=$(lsb_release -cs)
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $release stable"
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo_warn apt-key add -
+    sudo_warn add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $release stable"
 }
 
 install_docker_compose() {
     DOCKER_COMPOSE_VERSION="1.29.2"
-    sudo curl \
+    sudo_warn curl \
         -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
-        -o /usr/local/bin/docker-compose && sudo chmod +x /usr/local/bin/docker-compose
+        -o /usr/local/bin/docker-compose && sudo_warn chmod +x /usr/local/bin/docker-compose
 }
 
 install_nvidia_container_toolkit() {
     INSTALLED_NVIDIA_CONTAINER_RUNTIME=1
     APT_DEPS="${APT_DEPS:+$APT_DEPS }nvidia-container-toolkit nvidia-container-runtime"
     distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-    curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-    curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+    curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo_warn apt-key add -
+    curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo_warn tee /etc/apt/sources.list.d/nvidia-docker.list
 }
 
 # Install curl if not installed
@@ -80,8 +85,8 @@ if [ -z "$(which jq)" ]; then
 fi
 
 if [ -n "$APT_DEPS" ]; then
-    sudo apt update || true
-    sudo apt install -y $APT_DEPS
+    sudo_warn apt update || true
+    sudo_warn apt install -y $APT_DEPS
     APT_DEPS=""
 fi;
 
@@ -118,11 +123,11 @@ fi
 if [ -n "$APT_DEPS" ]; then
 
     echo "installing $APT_DEPS"
-    sudo apt update || true
-    sudo apt install -y $APT_DEPS
+    sudo_warn apt update || true
+    sudo_warn apt install -y $APT_DEPS
 
     if [ -n "$INSTALLED_DOCKER" ]; then
-        sudo usermod -aG docker $USER
+        sudo_warn usermod -aG docker $USER
     fi
 fi
 
