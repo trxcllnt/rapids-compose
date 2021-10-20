@@ -969,6 +969,8 @@ configure-cpp() {
         export CONDA_PREFIX_="$CONDA_PREFIX";
         unset CONDA_PREFIX;
 
+        export CCACHE_BASEDIR="$(realpath -m $BINARY_DIR)"
+
         cmake -G Ninja \
               -S "$SOURCE_DIR" \
               -B "$BINARY_DIR" \
@@ -983,6 +985,8 @@ configure-cpp() {
               -D CMAKE_C_FLAGS="$CMAKE_C_FLAGS" \
               ${D_CMAKE_ARGS};
 
+        unset CCACHE_BASEDIR;
+
         fix-nvcc-clangd-compile-commands "$SOURCE_DIR" "$BINARY_DIR";
 
         export CONDA_PREFIX="$CONDA_PREFIX_";
@@ -996,8 +1000,11 @@ build-cpp() {
     BUILD_TARGETS="${2:-all}";
     (
         set -Eeo pipefail;
+        export CCACHE_BASEDIR="$(find-cpp-build-home $1)";
+        export CCACHE_BASEDIR="$(realpath -m $CCACHE_BASEDIR)"
         time cmake --build "$(find-cpp-build-home $1)" -- -j${PARALLEL_LEVEL} $BUILD_TARGETS;
         [ $? == 0 ] && [[ "$(cpp-build-type)" == "release" || -z "$(create-cpp-launch-json $1)" || true ]];
+        unset CCACHE_BASEDIR;
     )
 }
 
@@ -1325,9 +1332,7 @@ fix-nvcc-clangd-compile-commands() {
         CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
         ALLOWED_WARNINGS=$(echo $(echo '
             -Werror=sign-compare
-            -Wno-unknown-pragmas
-            -Wno-c++17-extensions
-            -Wno-unevaluated-expression'));
+            -Wno-unknown-pragmas'));
 
         REPLACE_DIAGNOSTIC_COLORS="-Xcompiler=-fdiagnostics-color=always/"
         REPLACE_CROSS_EXECUTION_SPACE_CALL="-Wno-unevaluated-expression=cross-execution-space-call/";
