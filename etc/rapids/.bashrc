@@ -12,7 +12,6 @@ export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 # http://superuser.com/questions/575479/bash-history-truncated-to-500-lines-on-each-login
 export HISTFILE="$RAPIDS_HOME/.eternal_bash_history"
 
-export CCACHE_NOHASHDIR=;
 export CCACHE_DIR="$COMPOSE_HOME/etc/.ccache";
 export CCACHE_COMPILERCHECK="%compiler% --version";
 # Set this to debug ccache preprocessor errors and cache misses
