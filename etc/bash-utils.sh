@@ -1512,6 +1512,9 @@ find-cpp-home() {
     if [ "$PROJECT_HOME" != "$RMM_HOME" ]; then
         PROJECT_HOME="$PROJECT_HOME/cpp"
     fi;
+    if [[ "$1" == *"kafka"* ]]; then
+        PROJECT_HOME="$PROJECT_HOME/libcudf_kafka"
+    fi
     echo "$PROJECT_HOME";
 }
 

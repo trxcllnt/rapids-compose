@@ -18,6 +18,7 @@ make-symlink "$CONDA_HOME/envs" "$COMPOSE_HOME/etc/conda/envs"
 
 export RMM_INCLUDE="$RMM_HOME/include"
 export CUDF_INCLUDE="$CUDF_HOME/cpp/include"
+export CUDF_KAFKA_INCLUDE="$CUDF_HOME/cpp/libcudf_kafka/include/cudf_kafka"
 export CUDF_TEST_INCLUDE="$CUDF_HOME/cpp"
 export RAFT_INCLUDE="$RAFT_HOME/cpp/include"
 export CUML_INCLUDE="$CUML_HOME/cpp/include"
@@ -28,6 +29,7 @@ export CUDF_JNI_INCLUDE="$CUDF_HOME/java/src/main/native/include"
 
 export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
 export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
+export CUDF_KAFKA_ROOT_ABS="$CUDF_HOME/cpp/libcudf_kafka/$(cpp-build-dir $CUDF_HOME)"
 export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
 export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
 export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
@@ -48,6 +50,7 @@ export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_
 
 export RMM_ROOT="$RMM_HOME/build/$(basename "$RMM_ROOT_ABS")"
 export CUDF_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
+export CUDF_KAFKA_ROOT="$CUDF_HOME/cpp/libcudf_kafka/build/$(basename "$CUDF_KAFKA_ROOT_ABS")"
 export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
 export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
@@ -74,6 +77,7 @@ export PYTHONPATH="\
 $RMM_HOME/python:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
+$CUDF_HOME/python/cudf_kafka:\
 $RAFT_HOME/python:\
 $CUML_HOME/python:\
 $CUGRAPH_HOME/python/cugraph:\
@@ -98,6 +102,7 @@ $CONDA_HOME/lib:\
 $OLD_LD_LIBRARY_PATH:\
 $RMM_ROOT:\
 $CUDF_ROOT:\
+$CUDF_KAFKA_ROOT:\
 $RAFT_ROOT:\
 $CUML_ROOT:\
 $CUGRAPH_ROOT:\
@@ -105,6 +110,7 @@ $CUSPATIAL_ROOT"
 
 make-symlink "$RMM_ROOT_ABS" "$RMM_ROOT"
 make-symlink "$CUDF_ROOT_ABS" "$CUDF_ROOT"
+make-symlink "$CUDF_KAFKA_ROOT_ABS" "$CUDF_KAFKA_ROOT"
 make-symlink "$RAFT_ROOT_ABS" "$RAFT_ROOT"
 make-symlink "$CUML_ROOT_ABS" "$CUML_ROOT"
 make-symlink "$CUGRAPH_ROOT_ABS" "$CUGRAPH_ROOT"
@@ -113,12 +119,14 @@ make-symlink "$CUDF_JNI_ROOT_ABS" "$CUDF_JNI_ROOT"
 
 # make-symlink "$RMM_ROOT/include" "$RMM_HOME/build/include"
 make-symlink "$CUDF_ROOT/include" "$CUDF_HOME/cpp/build/include"
+make-symlink "$CUDF_KAFKA_ROOT/include" "$CUDF_HOME/cpp/libcudf_kafka/build/include"
 # make-symlink "$CUML_ROOT/include" "$CUML_HOME/cpp/build/include"
 # make-symlink "$CUGRAPH_ROOT/include" "$CUGRAPH_HOME/cpp/build/include"
 # make-symlink "$CUSPATIAL_ROOT/include" "$CUSPATIAL_HOME/cpp/build/include"
 
 make-symlink "$RMM_INCLUDE/rmm" "$CONDA_PREFIX/include/rmm"
 make-symlink "$CUDF_INCLUDE/cudf" "$CONDA_PREFIX/include/cudf"
+make-symlink "$CUDF_KAFKA_INCLUDE" "$CONDA_PREFIX/include/cudf_kafka"
 make-symlink "$CUDF_ROOT/include/libcxx" "$CONDA_PREFIX/include/libcudf/libcxx"
 make-symlink "$CUDF_ROOT/include/libcudacxx" "$CONDA_PREFIX/include/libcudf/libcudacxx"
 make-symlink "$RAFT_INCLUDE/raft" "$CONDA_PREFIX/include/raft"
