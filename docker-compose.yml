@@ -13,6 +13,7 @@ x-service-settings: &service_settings
       GCC_VERSION: "${GCC_VERSION:-9}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
+      BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cudagl}"
       CUDA_VERSION: "${CUDA_VERSION:-11.2.0}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
