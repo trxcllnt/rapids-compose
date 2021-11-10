@@ -39,7 +39,7 @@ fi' \
     build-essential \
     python3 python3-pip \
     # for building cudf-java
-    maven openjdk-8-jdk \
+    maven openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre openjdk-8-jre-headless \
     # Install nsight-compute and nsight-systems
     nsight-compute-2021.3.0 \
     nsight-systems-2021.3.3 \
