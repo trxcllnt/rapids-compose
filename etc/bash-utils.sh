@@ -662,13 +662,13 @@ export -f clean-cuml-python;
 clean-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning cugraph";
-    rm -rf "$CUGRAPH_HOME/python/dist" \
-           "$CUGRAPH_HOME/python/build" \
-           "$CUGRAPH_HOME/python/.hypothesis" \
-           "$CUGRAPH_HOME/python/cugraph/raft" \
-           "$CUGRAPH_HOME/python/.pytest_cache" \
-           "$CUGRAPH_HOME/python/_external_repositories" \
-           "$CUGRAPH_HOME/python/dask-worker-space";
+    rm -rf "$CUGRAPH_HOME/python/cugraph/dist" \
+           "$CUGRAPH_HOME/python/cugraph/build" \
+           "$CUGRAPH_HOME/python/cugraph/.hypothesis" \
+           "$CUGRAPH_HOME/python/cugraph/cugraph/raft" \
+           "$CUGRAPH_HOME/python/cugraph/.pytest_cache" \
+           "$CUGRAPH_HOME/python/cugraph/_external_repositories" \
+           "$CUGRAPH_HOME/python/cugraph/dask-worker-space";
     find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
     find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
@@ -941,7 +941,7 @@ test-cuml-python() {
 export -f test-cuml-python;
 
 test-cugraph-python() {
-    test-python "$CUGRAPH_HOME/python" $@;
+    test-python "$CUGRAPH_HOME/python/cugraph" $@;
 }
 
 export -f test-cugraph-python;
