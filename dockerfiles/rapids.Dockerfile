@@ -151,6 +151,12 @@ ENV RAFT_HOME="$RAPIDS_HOME/raft"
 ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
 ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
+ENV rmm_HOME="$RAPIDS_HOME/rmm"
+ENV cudf_HOME="$RAPIDS_HOME/cudf"
+ENV cuml_HOME="$RAPIDS_HOME/cuml"
+ENV raft_HOME="$RAPIDS_HOME/raft"
+ENV cugraph_HOME="$RAPIDS_HOME/cugraph"
+ENV cuspatial_HOME="$RAPIDS_HOME/cuspatial"
 
 RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
              "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
