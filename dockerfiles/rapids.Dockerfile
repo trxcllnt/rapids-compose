@@ -102,7 +102,7 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
-ARG CMAKE_VERSION=3.18.5
+ARG CMAKE_VERSION=3.21.3
 ENV CMAKE_VERSION=${CMAKE_VERSION}
 
 ARG PYTHON_VERSION=3.7
@@ -115,11 +115,11 @@ ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
 
 # Install CMake
-RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
-    "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
- && cd /tmp && tar -xvzf cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
- && /tmp/cmake-$CMAKE_VERSION/bootstrap --system-curl --parallel=$PARALLEL_LEVEL \
- && make install -j$PARALLEL_LEVEL \
+RUN mkdir -p /tmp/cmake \
+ && curl -fsSL --compressed -o "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+    "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+ && sh "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" --skip-license --exclude-subdir --prefix=/tmp/cmake \
+ && PATH="$PATH:/tmp/cmake/bin" \
  # Install ccache
  && git clone https://github.com/ccache/ccache.git /tmp/ccache && cd /tmp/ccache \
  && git checkout -b rapids-compose-tmp e071bcfd37dfb02b4f1fa4b45fff8feb10d1cbd2 \
@@ -131,7 +131,7 @@ RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
     -DUSE_LIBZSTD_FROM_INTERNET=ON .. \
  && make ccache -j${PARALLEL_LEVEL} && make install -j$PARALLEL_LEVEL && cd / && rm -rf /tmp/ccache \
  # Uninstall CMake
- && cd /tmp/cmake-$CMAKE_VERSION && make uninstall -j$PARALLEL_LEVEL && cd / && rm -rf /tmp/cmake-$CMAKE_VERSION* \
+ && rm -rf /tmp/* \
  # Install tini
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user
