@@ -1,7 +1,7 @@
-ARG CUDA_VERSION=11.2.0
+ARG CUDA_VERSION=11.5.0
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
-FROM rapidsai/${RAPIDS_NAMESPACE}/rapids:cuda-${CUDA_VERSION:-11.2.0}
+FROM rapidsai/${RAPIDS_NAMESPACE}/rapids:cuda-${CUDA_VERSION:-11.5.0}
 
 RUN apt update --fix-missing \
  && apt install -y --no-install-recommends \

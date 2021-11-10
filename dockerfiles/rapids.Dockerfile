@@ -1,9 +1,10 @@
-ARG CUDA_VERSION=11.2.0
+ARG BASE_CONTAINER=nvidia/cuda
+ARG CUDA_VERSION=11.5.0
 ARG RAPIDS_VERSION=latest
 ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu18.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
-FROM nvidia/cudagl:${CUDA_VERSION}-devel-${LINUX_VERSION}
+FROM ${BASE_CONTAINER}:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG USE_FISH_SHELL
 ARG CUDA_SHORT_VERSION
@@ -14,7 +15,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
  && apt update \
  && apt install --no-install-recommends -y \
-    apt-utils apt-transport-https software-properties-common \
+    pkg-config apt-utils apt-transport-https software-properties-common ca-certificates \
  && add-apt-repository -y ppa:git-core/ppa \
  # Needed to install compatible gcc 9/10 toolchains
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
@@ -40,16 +41,14 @@ fi' \
     # for building cudf-java
     maven openjdk-8-jdk \
     # Install nsight-compute and nsight-systems
-    nsight-compute-2020.3.1 \
-    nsight-systems-2020.4.3 \
+    nsight-compute-2021.3.0 \
+    nsight-systems-2021.3.3 \
     # Not sure what this is but it seems important
     cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
     # This provides the `nsight-sys` GUI
     cuda-nsight-systems-${NSIGHT_CUDA_VERSION} \
     # Needed by `nsight-sys` GUI
-    qt5-default \
-    libgl1-mesa-dev \
-    ca-certificates \
+    qt5-default libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
     libglib2.0-0 \
     libsqlite3-0 \
     xcb \
@@ -103,7 +102,7 @@ ENV _UID=${UID}
 ENV _GID=${GID}
 ARG GOSU_VERSION=1.11
 ARG TINI_VERSION=v0.18.0
-ARG CMAKE_VERSION=3.18.5
+ARG CMAKE_VERSION=3.21.3
 ENV CMAKE_VERSION=${CMAKE_VERSION}
 
 ARG PYTHON_VERSION=3.7
@@ -116,11 +115,11 @@ ARG PARALLEL_LEVEL=4
 ENV PARALLEL_LEVEL=${PARALLEL_LEVEL}
 
 # Install CMake
-RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
-    "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz" \
- && cd /tmp && tar -xvzf cmake-$CMAKE_VERSION.tar.gz && cd /tmp/cmake-$CMAKE_VERSION \
- && /tmp/cmake-$CMAKE_VERSION/bootstrap --system-curl --parallel=$PARALLEL_LEVEL \
- && make install -j$PARALLEL_LEVEL \
+RUN mkdir -p /tmp/cmake \
+ && curl -fsSL --compressed -o "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+    "https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" \
+ && sh "/tmp/cmake-$CMAKE_VERSION-linux-$(uname -m).sh" --skip-license --exclude-subdir --prefix=/tmp/cmake \
+ && PATH="$PATH:/tmp/cmake/bin" \
  # Install ccache
  && git clone https://github.com/ccache/ccache.git /tmp/ccache && cd /tmp/ccache \
  && git checkout -b rapids-compose-tmp e071bcfd37dfb02b4f1fa4b45fff8feb10d1cbd2 \
@@ -132,7 +131,7 @@ RUN curl -fsSL --compressed -o /tmp/cmake-$CMAKE_VERSION.tar.gz \
     -DUSE_LIBZSTD_FROM_INTERNET=ON .. \
  && make ccache -j${PARALLEL_LEVEL} && make install -j$PARALLEL_LEVEL && cd / && rm -rf /tmp/ccache \
  # Uninstall CMake
- && cd /tmp/cmake-$CMAKE_VERSION && make uninstall -j$PARALLEL_LEVEL && cd / && rm -rf /tmp/cmake-$CMAKE_VERSION* \
+ && rm -rf /tmp/* \
  # Install tini
  && curl -s -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini && chmod +x /usr/bin/tini \
  # Add gosu so we can run our apps as a non-root user

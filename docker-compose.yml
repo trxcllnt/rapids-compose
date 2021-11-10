@@ -13,7 +13,8 @@ x-service-settings: &service_settings
       GCC_VERSION: "${GCC_VERSION:-9}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
-      CUDA_VERSION: "${CUDA_VERSION:-11.2.0}"
+      BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
+      CUDA_VERSION: "${CUDA_VERSION:-11.5.0}"
       RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
@@ -50,7 +51,7 @@ services:
 
   rapids:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-11.2.0}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-11.5.0}
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile"
@@ -79,7 +80,7 @@ services:
 
   notebooks:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-11.2.0}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-11.5.0}
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile"
