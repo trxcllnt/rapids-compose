@@ -11,8 +11,8 @@ GID := $(or ${GID.${PLATFORM}}, 1000)
 # superfluous entering/exiting directory messages
 MAKE_Q := $(MAKE) --no-print-directory
 
-DEFAULT_BASE_CONTAINER := nvidia/cudagl
-DEFAULT_CUDA_VERSION := 11.2.0
+DEFAULT_BASE_CONTAINER := nvidia/cuda
+DEFAULT_CUDA_VERSION := 11.5.0
 DEFAULT_PYTHON_VERSION := 3.7
 DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
