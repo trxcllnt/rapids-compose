@@ -15,7 +15,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
  && apt update \
  && apt install --no-install-recommends -y \
-    apt-utils apt-transport-https software-properties-common \
+    pkg-config apt-utils apt-transport-https software-properties-common ca-certificates \
  && add-apt-repository -y ppa:git-core/ppa \
  # Needed to install compatible gcc 9/10 toolchains
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
@@ -41,16 +41,14 @@ fi' \
     # for building cudf-java
     maven openjdk-8-jdk \
     # Install nsight-compute and nsight-systems
-    nsight-compute-2020.3.1 \
-    nsight-systems-2020.4.3 \
+    nsight-compute-2021.3.0 \
+    nsight-systems-2021.3.3 \
     # Not sure what this is but it seems important
     cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
     # This provides the `nsight-sys` GUI
     cuda-nsight-systems-${NSIGHT_CUDA_VERSION} \
     # Needed by `nsight-sys` GUI
-    qt5-default \
-    libgl1-mesa-dev \
-    ca-certificates \
+    qt5-default libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
     libglib2.0-0 \
     libsqlite3-0 \
     xcb \
