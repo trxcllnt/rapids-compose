@@ -35,19 +35,20 @@ find-env-file-version() {
     done
 }
 
-replace-env-cuda-toolkit-version() {
+replace-env-versions() {
     VER=$(find-env-file-version $1)
     cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda$VER.yml" \
   | sed -r "s/cudatoolkit=$VER/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g"
+  | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
+  | sed -r "s/python[\s<>=,\.0-9]*/python=${PYTHON_VERSION}/g"
 }
 
 YMLS=()
-if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-cuda-toolkit-version rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
-if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-cuda-toolkit-version cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
-if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-cuda-toolkit-version cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
-if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-cuda-toolkit-version cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
-if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-cuda-toolkit-version cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
+if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
+if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
+if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
+if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-versions cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
+if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-versions cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
 YMLS+=(rapids.yml)
 conda-merge ${YMLS[@]} > merged.yml
 
