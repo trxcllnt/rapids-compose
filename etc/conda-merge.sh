@@ -40,7 +40,7 @@ replace-env-versions() {
     cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda$VER.yml" \
   | sed -r "s/cudatoolkit=$VER/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
   | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
-  | sed -r "s/python[\s<>=,\.0-9]*/python=${PYTHON_VERSION}/g"
+  | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
 }
 
 YMLS=()
