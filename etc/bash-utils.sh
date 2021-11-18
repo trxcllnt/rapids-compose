@@ -357,11 +357,11 @@ build-cudf-cpp() {
 export -f build-cudf-cpp;
 
 build-cudf-java() {
-    CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
-    CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
     config_args="$@"
     update-environment-variables $@ >/dev/null;
     config_args=$(echo $(echo "$config_args"));
+    CUDF_JNI_HOME="$CUDF_HOME/java/src/main/native";
+    CUDF_CPP_BUILD_DIR="$(find-cpp-build-home $CUDF_HOME)"
     (
         cd "$CUDF_HOME/java";
         mkdir -p "$CUDF_JNI_ROOT_ABS";
