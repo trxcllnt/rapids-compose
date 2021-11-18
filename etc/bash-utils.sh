@@ -370,6 +370,8 @@ build-cudf-java() {
         export CONDA_PREFIX_="$CONDA_PREFIX";
         unset CONDA_PREFIX;
 
+        export CUDF_CPP_BUILD_DIR;
+
         mvn package \
             ${config_args} \
             -Dmaven.test.skip=true \
