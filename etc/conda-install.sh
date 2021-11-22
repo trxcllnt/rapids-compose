@@ -54,16 +54,21 @@ touch $INSIDE__ENV_YML
 CHANGED="$(diff -qw $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true)"
 
 FRESH_CONDA_ENV=${FRESH_CONDA_ENV:-0}
+RECREATE_CONDA_ENV=0
 
-# if no directory for the conda env, create the conda env
-if [ ! -d "$CONDA_HOME/envs/$ENV_NAME" ]; then
-    FRESH_CONDA_ENV=1
+create-conda-env() {
     # create a new environment
     mamba update -n base -c defaults conda
     mamba update -n base -c conda-forge mamba
     mamba env create -n $ENV_NAME --file $INSIDE__ENV_YML
     # copy the conda environment.yml from inside the container to the outside
     cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
+}
+
+# if no directory for the conda env, create the conda env
+if [ ! -d "$CONDA_HOME/envs/$ENV_NAME" ]; then
+    FRESH_CONDA_ENV=1
+    create-conda-env
 # otherwise if the environment.yml inside/outside are different, update the existing conda env
 elif [ -n "${CHANGED// }" ]; then
     (
@@ -91,15 +96,26 @@ elif [ -n "${CHANGED// }" ]; then
         cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
     else
         while true; do
-            read -p "Failed to update conda environment. Continue anyway? (Y/N, default: Y) " CHOICE </dev/tty
+            echo "Failed to update conda environment. Select how to proceed."
+            echo "(Y) Continue anyway."
+            echo "(N) Exit."
+            echo "(R) Remove and re-create the conda environment from scratch instead of upgrading."
+            read -p "Choose an action to continue (Y/N/R, default: Y) " CHOICE </dev/tty
             if [ "$CHOICE" = "" ]; then CHOICE="Y"; fi
             case $CHOICE in
                 [Nn]* ) exit 1;;
+                [Rr]* ) RECREATE_CONDA_ENV=1; break;;
                 [Yy]* ) break;;
-                * ) echo "Please answer 'y' or 'n'";;
+                * ) echo "Please answer Y/N/R."
             esac
         done
     fi
+fi
+
+if [ "$RECREATE_CONDA_ENV" -eq "1" ]; then
+    mamba env remove --name $ENV_NAME
+    FRESH_CONDA_ENV=1
+    create-conda-env
 fi
 
 export FRESH_CONDA_ENV
