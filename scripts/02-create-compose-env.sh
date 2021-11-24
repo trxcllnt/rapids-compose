@@ -51,6 +51,8 @@ GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 CURRENT_CUDA_VERSION="11.5.0"
 if [[ "$(which nvcc)" != "" ]]; then
     CURRENT_CUDA_VERSION="$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
+    # Append a patch version ".0" to the end of the major.minor string.
+    CURRENT_CUDA_VERSION="${CURRENT_CUDA_VERSION}.0"
 fi
 
 echo "###
