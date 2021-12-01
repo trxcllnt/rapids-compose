@@ -27,7 +27,7 @@ if [[ "$USE_FISH_SHELL" == "YES" ]]; then \
 fi' \
  && apt update \
  && apt install --no-install-recommends -y \
-    jq ed git vim nano sudo curl wget entr \
+    jq ed git vim nano sudo curl wget entr less \
     # CMake dependencies
     curl libssl-dev libcurl4-openssl-dev zlib1g-dev \
     # Need tzdata for the pyarrow<->ORC tests
