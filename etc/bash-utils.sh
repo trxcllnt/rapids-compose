@@ -1257,7 +1257,7 @@ test-python() {
         if [[ $debug != true ]]; then
             eval "set -x; pytest $args $paths";
         else
-            eval "set -x; python -m ptvsd --host 0.0.0.0 --port 5678 --wait -m pytest $args $paths";
+            eval "set -x; python -m debugpy --listen 0.0.0.0:5678 --wait-for-client -m pytest $args $paths";
         fi
     )
 }
