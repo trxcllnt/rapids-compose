@@ -20,7 +20,7 @@ dependencies:
 - pytest-xdist
 - python=${PYTHON_VERSION}
 - pip:
-  - ptvsd
+  - debugpy
 EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
