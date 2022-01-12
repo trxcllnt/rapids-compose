@@ -159,7 +159,7 @@ To debug tests running in the container, use the `rapids.cudf.pytest.debug`:
 make rapids.cudf.pytest.debug args="-k 'test_reindex_dataframe'"
 ```
 
-This launches pytest with `ptvsd` for debugging in VSCode.
+This launches pytest with `debugpy` for debugging in VSCode.
 
 
 ### Working interactively in the RAPIDS container
