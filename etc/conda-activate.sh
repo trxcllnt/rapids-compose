@@ -119,7 +119,6 @@ make-symlink "$CUDF_ROOT/include" "$CUDF_HOME/cpp/build/include"
 
 make-symlink "$RMM_INCLUDE/rmm" "$CONDA_PREFIX/include/rmm"
 make-symlink "$CUDF_INCLUDE/cudf" "$CONDA_PREFIX/include/cudf"
-make-symlink "$CUDF_ROOT/_deps/libcudacxx-src/include" "$CONDA_PREFIX/include/rapids/libcudacxx"
 make-symlink "$RAFT_INCLUDE/raft" "$CONDA_PREFIX/include/raft"
 make-symlink "$RAFT_INCLUDE/raft.hpp" "$CONDA_PREFIX/include/raft.hpp"
 make-symlink "$CUML_INCLUDE/cuml" "$CONDA_PREFIX/include/cuml"
