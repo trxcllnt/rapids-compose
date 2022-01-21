@@ -1138,11 +1138,11 @@ export -f lint-python;
 
 set-gcc-version() {
     V="${1:-}";
-    if [[ $V != "9" && $V != "10" ]]; then
+    if [[ "$V" != "9" && "$V" != "10" && "$V" != "11" ]]; then
         while true; do
-            read -p "Please select GCC version 9 or 10: " V </dev/tty
+            read -p "Please select GCC version 9, 10, or 11: " V </dev/tty
             if [[ $V != "9" && $V != "10" ]]; then
-                >&2 echo "Invalid GCC version, please select 9 or 10";
+                >&2 echo "Invalid GCC version, please select 9, 10, or 11";
             else
                 break;
             fi

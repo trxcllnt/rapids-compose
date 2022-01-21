@@ -17,7 +17,7 @@ RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d
  && apt install --no-install-recommends -y \
     pkg-config apt-utils apt-transport-https software-properties-common ca-certificates \
  && add-apt-repository -y ppa:git-core/ppa \
- # Needed to install compatible gcc 9/10 toolchains
+ # Needed to install compatible gcc toolchains
  && add-apt-repository -y ppa:ubuntu-toolchain-r/test \
  # CUDA toolkit version usable to install `cuda-nsight-compute` and `cuda-nsight-systems` packages
  && NSIGHT_CUDA_VERSION=$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1 | sed "s/\./-/g") \
@@ -35,6 +35,7 @@ fi' \
     graphviz \
     gcc-9 g++-9 \
     gcc-10 g++-10 \
+    gcc-11 g++-11 \
     ninja-build \
     build-essential \
     python3 python3-pip \
@@ -85,7 +86,7 @@ RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  && update-alternatives --remove-all g++ >/dev/null 2>&1 || true \
  && update-alternatives --remove-all gcov >/dev/null 2>&1 || true \
  # Install alternatives for gcc/g++/cc/c++/gcov
- && for x in 9 10; do \
+ && for x in 9 10 11; do \
     update-alternatives \
     --install /usr/bin/gcc gcc /usr/bin/gcc-${x} ${x}0 \
     --slave /usr/bin/cc cc /usr/bin/gcc-${x} \
