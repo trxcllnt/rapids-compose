@@ -25,8 +25,8 @@ CODE_REPOS="${CODE_REPOS:-rmm raft cudf cuml cugraph cuspatial}"
 ALL_REPOS="${ALL_REPOS:-$CODE_REPOS compose notebooks-contrib}"
 
 for REPO in $ALL_REPOS; do
-    echo "$REPO:"
-    cd "$BASE_DIR/$REPO";
+    echo "$REPO:";
+    pushd "$BASE_DIR/$REPO";
     git status $ARGS;
-    cd - >/dev/null 2>&1;
+    popd;
 done
