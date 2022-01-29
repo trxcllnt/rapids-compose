@@ -15,7 +15,6 @@ x-service-settings: &service_settings
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
       CUDA_VERSION: "${CUDA_VERSION:-11.5.0}"
-      RAPIDS_VERSION: "${RAPIDS_VERSION:-latest}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"

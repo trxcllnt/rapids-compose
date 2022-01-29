@@ -16,5 +16,5 @@ cat .dockerignore
 
 exec docker build --no-cache \
     -f /tmp/print_build_context.Dockerfile \
-    -t rapidsai/${RAPIDS_NAMESPACE:-anon}/print_build_context:${RAPIDS_VERSION:-latest} \
+    -t rapidsai/${RAPIDS_NAMESPACE:-anon}/print_build_context:latest \
     .

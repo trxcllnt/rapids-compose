@@ -16,9 +16,6 @@ DEFAULT_CUDA_VERSION := 11.5.0
 DEFAULT_PYTHON_VERSION := 3.7
 DEFAULT_LINUX_VERSION := ubuntu18.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
-DEFAULT_RAPIDS_VERSION := $(shell RES="" \
- && [ -z "$$RES" ] && [ -n `which curl` ] && [ -n `which jq` ] && RES=$$(curl -s https://api.github.com/repos/rapidsai/cudf/tags | jq -e -r ".[].name" 2>/dev/null | head -n1) || true \
- && echo $${RES:-"latest"})
 
 .PHONY: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs dc.apt.cacher.up
 
@@ -129,7 +126,6 @@ dc:
 		CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
 		PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
-		RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} \
 		RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
 		CONDA_CUDA_TOOLKIT_VERSION=$${CONDA_CUDA_TOOLKIT_VERSION:-$$CUDA_VERSION} \
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
@@ -161,13 +157,12 @@ dc.print_build_context:
 # Build the docker-in-docker container
 dind:
 	set -a && . .env && set +a && \
-	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker build -q \
 		--pull --force-rm \
 		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
 		--build-arg COMPOSE_HOME="$$COMPOSE_HOME" \
-		-t "$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" \
+		-t "$$RAPIDS_NAMESPACE/rapids/dind:latest" \
 		-f dockerfiles/dind.Dockerfile .
 
 # Run docker-compose inside the docker-in-docker container
@@ -179,7 +174,6 @@ dc.dind: cmd_args ?=
 dc.dind: file ?= docker-compose.yml
 dc.dind: dind
 	set -a && . .env && set +a && \
-	export RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
 	docker run -it --rm --net=host --entrypoint "$$COMPOSE_HOME/etc/dind/$(cmd).sh" \
 		-v "$$COMPOSE_HOME:$$COMPOSE_HOME" \
@@ -207,7 +201,6 @@ dc.dind: dind
 		-e CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
 		-e LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
 		-e PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
-		-e RAPIDS_VERSION=$${RAPIDS_VERSION:-$(DEFAULT_RAPIDS_VERSION)} \
 		-e RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
 		-e CONDA_CUDA_TOOLKIT_VERSION=$${CONDA_CUDA_TOOLKIT_VERSION:-$$CUDA_VERSION} \
-		"$$RAPIDS_NAMESPACE/rapids/dind:$$RAPIDS_VERSION" $(file) $(cmd_args) $(svc) $(svc_args)
+		"$$RAPIDS_NAMESPACE/rapids/dind:latest" $(file) $(cmd_args) $(svc) $(svc_args)
