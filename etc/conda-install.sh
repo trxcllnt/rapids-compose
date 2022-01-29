@@ -38,6 +38,7 @@ fi
 ####
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
+export CONDA_OVERRIDE_CUDA=${CONDA_OVERRIDE_CUDA:-$CUDA_TOOLKIT_VERSION};
 
 INSIDE__ENV_YML="$RAPIDS_HOME/$ENV_NAME.yml"
 # TODO: this assumes the conda env name is the same as the folder under `compose/etc/`
