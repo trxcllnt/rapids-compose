@@ -190,10 +190,8 @@ cat << EOF
         "files.insertFinalNewline": true,
         "files.trimFinalNewlines": true,
         "files.associations": {
-            "*.cu": "cuda",
-            "*.cuh": "cuda",
-            // "*.cu": "cuda-cpp",
-            // "*.cuh": "cuda-cpp",
+            "*.cu": "cuda-cpp",
+            "*.cuh": "cuda-cpp",
             "**/libcudacxx/include/**/*": "cpp"
         },
         "files.watcherExclude": {
