@@ -158,7 +158,6 @@ cat << EOF
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
         "clangd.path": "/usr/bin/clangd",
-        "clangd.semanticHighlighting": true,
         "clangd.trace": "$HOME/.vscode/clangd.log",
         "clangd.arguments": [
             "-j=4",
@@ -254,13 +253,18 @@ cat << EOF
             "**/build/temp.linux-x86_64*": true,
             "**/build/bdist.linux-x86_64*": true
         },
-        "terminal.integrated.automationShell.linux": "/bin/bash",
         "terminal.integrated.enableFileLinks": true,
         "terminal.integrated.profiles.linux": {
             "bash": {
-                "path": "bash",
+                "path": "/bin/bash",
                 "icon": "terminal-bash",
                 "args": ["-c", "rapids_container=\$(docker ps | grep rapidsai/\$(whoami)/rapids | cut -d\" \" -f1 || echo \"\"); if [ \"\$rapids_container\" == \"\" ]; then exec \$SHELL; else exec docker exec -u \${UID}:\${GID} -it -w \"\$PWD\" \"\$rapids_container\" bash -li; fi"]
+            }
+        },
+        "terminal.integrated.automationProfile.linux": {
+            "bash": {
+                "path": "/bin/bash",
+                "icon": "terminal-bash",
             }
         },
     },
