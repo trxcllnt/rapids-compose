@@ -70,7 +70,7 @@ Would you like me to reuse your existing config? (y/n)" "YES")
     echo ""
 fi
 
-GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (9/10)" "9")}
+GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (9/10/11)" "9")}
 CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (11.5.0)" "$CURRENT_CUDA_VERSION")}
 PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.8/3.9)" "3.8")}
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
