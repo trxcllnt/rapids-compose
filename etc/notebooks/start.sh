@@ -20,7 +20,7 @@ echo "export CONDA_DEFAULT_ENV=notebooks \
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
     # Install the dask and nvdashboard jupyterlab extensions
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter labextension install dask-labextension jupyterlab-nvdashboard
+    jupyter labextension install dask-labextension
     # Set Jupyter Dark as the default theme in the extension settings. Doing it
     # this way allows it to be overridden by ~/.jupyter/lab/user-settings, which
     # is mounted in from the outside at `compose/etc/notebooks/.jupyter`

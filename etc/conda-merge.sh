@@ -92,7 +92,6 @@ dependencies:
 - umap-learn
 - pip:
   - graphistry
-  - git+https://github.com/rapidsai/jupyterlab-nvdashboard.git
 EOF
 
 conda-merge rapids.yml notebooks.yml > merged.yml && mv merged.yml notebooks.yml
