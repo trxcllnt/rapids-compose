@@ -12,6 +12,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN echo 'Acquire::HTTP::Proxy "http://172.17.0.1:3142";' >> /etc/apt/apt.conf.d/01proxy \
  && echo 'Acquire::HTTPS::Proxy "false";' >> /etc/apt/apt.conf.d/01proxy \
+ \
+ # Workaround for https://forums.developer.nvidia.com/t/notice-cuda-linux-repository-key-rotation/212772
+ && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$( \
+    . /etc/os-release; echo $NAME$VERSION_ID | tr -d '.' | tr '[:upper:]' '[:lower:]' \
+ )/$(uname -p)/3bf863cc.pub \
+ \
  && apt update \
  && apt install --no-install-recommends -y \
     pkg-config apt-utils apt-transport-https software-properties-common ca-certificates \
