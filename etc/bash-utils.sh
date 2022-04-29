@@ -1317,7 +1317,7 @@ fix-nvcc-clangd-compile-commands() {
     "configurations": [
         {
             "name": "$(basename `find-project-home $CPP_DIR`)",
-            "compileCommands": "$CC_JSON"
+            "compileCommands": "$CC_JSON_LINK"
         }
     ]
 }
@@ -1329,7 +1329,7 @@ EOF
 If:
   PathMatch: .*\.(c|h)$
 CompileFlags:
-  Compiler: /usr/bin/gcc
+  Compiler: /usr/bin/gcc-$GCC_VERSION
 
 ---
 
