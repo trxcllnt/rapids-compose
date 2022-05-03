@@ -157,12 +157,18 @@ cat << EOF
         // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
-        "clangd.path": "/usr/bin/clangd",
+        "clangd.path": "clangd",
+        "clangd.onConfigChanged": "restart",
+        "clangd.detectExtensionConflicts": true,
         "clangd.trace": "$HOME/.vscode/clangd.log",
         "clangd.arguments": [
             "-j=4",
+            "--pretty",
             "--log=info",
+            "--debug-origin",
             "--pch-storage=disk",
+            "--limit-results=0",
+            "--limit-references=0",
             "--completion-parse=auto",
             "--fallback-style=Google",
             "--compile-commands-dir=",
@@ -170,11 +176,12 @@ cat << EOF
             "--all-scopes-completion",
             "--header-insertion=iwyu",
             "--completion-style=detailed",
-            "--header-insertion-decorators"
+            "--header-insertion-decorators",
+            "--query-driver=/usr/local/bin/gcc,/usr/local/bin/g++,/usr/local/bin/nvcc,/usr/bin/g++*,/usr/local/cuda*/bin/nvcc"
         ],
         "search.exclude": {
-            "**/.clangd": true,
-            "**/.clangd/**": true,
+            "**/.cache": true,
+            "**/.cache/**": true,
             "**/etc/llvm": true,
             "**/etc/llvm/**": true,
             "**/etc/conda": true,
@@ -189,6 +196,10 @@ cat << EOF
         "files.insertFinalNewline": true,
         "files.trimFinalNewlines": true,
         "files.associations": {
+            "*.c": "c",
+            "*.h": "c",
+            "*.cpp": "cpp",
+            "*.hpp": "cpp",
             "*.cu": "cuda-cpp",
             "*.cuh": "cuda-cpp",
             "**/libcudacxx/include/**/*": "cpp"
@@ -197,8 +208,9 @@ cat << EOF
             "**/.git/objects/**": true,
             "**/.git/subtree-cache/**": true,
             "**/node_modules/**": true,
+            "**/.cache": true,
+            "**/.cache/**": true,
             "**/.clangd": true,
-            "**/.clangd/**": true,
             "**/etc/llvm": true,
             "**/etc/conda": true,
             "**/etc/.ccache": true,
@@ -235,8 +247,8 @@ cat << EOF
             "**/*.egg-info": true,
             "**/__pycache__": true,
             "**/.pytest_cache": true,
-            "**/.clangd": true,
-            "**/.clangd/**": true,
+            "**/.cache": true,
+            "**/.cache/**": true,
             "**/build/lib": true,
             "**/build/include": true,
             "**/rmm/**/*.so": true,
