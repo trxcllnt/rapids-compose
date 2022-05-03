@@ -157,7 +157,7 @@ cat << EOF
         // Set this so vscode-python doesn't fight itself over which python binary to use :facepalm:
         "python.pythonPath": "$COMPOSE_HOME/etc/conda/envs/rapids/bin/python",
 
-        "clangd.path": "/usr/bin/clangd",
+        "clangd.path": "clangd",
         "clangd.onConfigChanged": "restart",
         "clangd.detectExtensionConflicts": true,
         "clangd.trace": "$HOME/.vscode/clangd.log",
