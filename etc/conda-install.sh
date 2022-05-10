@@ -122,6 +122,7 @@ fi
 export FRESH_CONDA_ENV
 
 rm -f "$RAPIDS_HOME/rmm.yml"       || true >/dev/null 2>&1;
+rm -f "$RAPIDS_HOME/raft.yml"       || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cudf.yml"      || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cuml.yml"      || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cugraph.yml"   || true >/dev/null 2>&1;
