@@ -48,7 +48,8 @@ fi' \
     # This provides the `nsight-sys` GUI
     cuda-nsight-systems-${NSIGHT_CUDA_VERSION} \
     # Needed by `nsight-sys` GUI
-    qt5-default libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
+    qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
+    libglvnd-dev libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev \
     libglib2.0-0 \
     libsqlite3-0 \
     xcb \
