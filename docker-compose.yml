@@ -9,14 +9,14 @@ x-service-settings: &service_settings
       UID: ${_UID:-1000}
       GID: ${_GID:-1000}
       BUILD_TESTS: "OFF"
-      PYTHON_VERSION: "${PYTHON_VERSION:-3.7}"
+      PYTHON_VERSION: "${PYTHON_VERSION:-3.9}"
       GCC_VERSION: "${GCC_VERSION:-9}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
       CUDA_VERSION: "${CUDA_VERSION:-11.5.0}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
-      LINUX_VERSION: "${LINUX_VERSION:-ubuntu18.04}"
+      LINUX_VERSION: "${LINUX_VERSION:-ubuntu20.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
       USE_FISH_SHELL: "${USE_FISH_SHELL:-}"
   tty: true

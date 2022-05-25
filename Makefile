@@ -13,8 +13,8 @@ MAKE_Q := $(MAKE) --no-print-directory
 
 DEFAULT_BASE_CONTAINER := nvidia/cuda
 DEFAULT_CUDA_VERSION := 11.5.0
-DEFAULT_PYTHON_VERSION := 3.7
-DEFAULT_LINUX_VERSION := ubuntu18.04
+DEFAULT_PYTHON_VERSION := 3.9
+DEFAULT_LINUX_VERSION := ubuntu20.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 
 .PHONY: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs dc.apt.cacher.up
