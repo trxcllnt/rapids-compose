@@ -487,7 +487,7 @@ export -f build-cuspatial-cpp;
 build-rmm-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building rmm";
-    build-python "$RMM_HOME/python" --inplace;
+    build-python-new "$RMM_HOME/python" "RMM";
 }
 
 export -f build-rmm-python;
@@ -495,7 +495,7 @@ export -f build-rmm-python;
 build-cudf-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cudf";
-    build-python "$CUDF_HOME/python/cudf" --inplace;
+    build-python-new "$CUDF_HOME/python/cudf" "CUDF";
 }
 
 export -f build-cudf-python;
@@ -503,7 +503,7 @@ export -f build-cudf-python;
 build-raft-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building raft";
-    build-python "$RAFT_HOME/python" --inplace;
+    build-python-new "$RAFT_HOME/python" "RAFT";
 }
 
 export -f build-raft-python;
@@ -527,7 +527,7 @@ export -f build-cugraph-python;
 build-cuspatial-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuspatial";
-    build-python "$CUSPATIAL_HOME/python/cuspatial" --inplace;
+    build-python-new "$CUSPATIAL_HOME/python/cuspatial" "CUSPATIAL";
 }
 
 export -f build-cuspatial-python;
@@ -597,6 +597,7 @@ clean-rmm-python() {
     print-heading "Cleaning rmm";
     rm -rf "$RMM_HOME/python/dist" \
            "$RMM_HOME/python/build";
+           "$RMM_HOME/python/_skbuild";
     find "$RMM_HOME" -type f -name '*.pyc' -delete;
     find "$RMM_HOME" -type d -name '__pycache__' -delete;
     find "$RMM_HOME/python" -type f -name '*.so' -delete;
@@ -611,6 +612,7 @@ clean-cudf-python() {
     rm -rf "$CUDF_HOME/.pytest_cache" \
            "$CUDF_HOME/python/cudf/dist" \
            "$CUDF_HOME/python/cudf/build" \
+           "$CUDF_HOME/python/cudf/_skbuild" \
            "$CUDF_HOME/python/.hypothesis" \
            "$CUDF_HOME/python/.pytest_cache" \
            "$CUDF_HOME/python/cudf/.hypothesis" \
@@ -630,6 +632,7 @@ clean-raft-python() {
     print-heading "Cleaning raft";
     rm -rf "$RAFT_HOME/python/dist" \
            "$RAFT_HOME/python/build" \
+           "$RAFT_HOME/python/_skbuild" \
            "$RAFT_HOME/python/.hypothesis" \
            "$RAFT_HOME/python/.pytest_cache" \
            "$CUML_HOME/python/cuml/raft" \
@@ -647,6 +650,7 @@ clean-cuml-python() {
     print-heading "Cleaning cuml";
     rm -rf "$CUML_HOME/python/dist" \
            "$CUML_HOME/python/build" \
+           "$CUML_HOME/python/_skbuild" \
            "$CUML_HOME/python/cuml/raft" \
            "$CUML_HOME/python/.hypothesis" \
            "$CUML_HOME/python/.pytest_cache" \
@@ -685,6 +689,7 @@ clean-cuspatial-python() {
            "$CUSPATIAL_HOME/python/.pytest_cache" \
            "$CUSPATIAL_HOME/python/cuspatial/dist" \
            "$CUSPATIAL_HOME/python/cuspatial/build" \
+           "$CUSPATIAL_HOME/python/cuspatial/_skbuild" \
            "$CUSPATIAL_HOME/python/cuspatial/.hypothesis" \
            "$CUSPATIAL_HOME/python/cuspatial/.pytest_cache";
     find "$CUSPATIAL_HOME" -type f -name '*.pyc' -delete;
@@ -1039,6 +1044,38 @@ build-python() {
 }
 
 export -f build-python;
+
+# Once all RAPIDS packages are transitioned to scikit-build we can remove the old build-python
+build-python-new() {
+    (
+        cd "$1";
+
+        # Create or remove ccache compiler symlinks
+        set-gcc-version $GCC_VERSION;
+
+        CYTHON_FLAGS="${CYTHON_FLAGS:-}";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-reorder";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unknown-pragmas";
+        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unused-variable";
+
+        export CONDA_PREFIX_="$CONDA_PREFIX";
+        unset CONDA_PREFIX;
+
+        prefix_path=${2}_ROOT
+        time env \
+             RAFT_PATH="$RAFT_HOME" \
+             CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
+             CXXFLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }$CYTHON_FLAGS" \
+             python setup.py build_ext --inplace -- -DFIND_${2}_CPP=ON -DCMAKE_PREFIX_PATH=${!prefix_path} ${@:3} -- -j${PARALLEL_LEVEL} ;
+
+        export CONDA_PREFIX="$CONDA_PREFIX_";
+        unset CONDA_PREFIX_;
+
+        rm -rf ./*.egg-info ./.eggs;
+    )
+}
+
+export -f build-python-new;
 
 docs-cpp() {
     (
