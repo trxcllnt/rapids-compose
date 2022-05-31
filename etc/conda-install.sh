@@ -59,7 +59,7 @@ RECREATE_CONDA_ENV=0
 
 create-conda-env() {
     # create a new environment
-    conda update -n base -c defaults conda
+    conda update -n base -c conda-forge conda
     conda update -n base -c conda-forge mamba
     mamba env create -n $ENV_NAME --file $INSIDE__ENV_YML
     # copy the conda environment.yml from inside the container to the outside
