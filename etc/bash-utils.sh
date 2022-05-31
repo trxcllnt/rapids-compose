@@ -527,7 +527,7 @@ export -f build-cugraph-python;
 build-cuspatial-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuspatial";
-    build-python-new "$CUSPATIAL_HOME/python/cuspatial" "CUSPATIAL";
+    build-python-new "$CUSPATIAL_HOME/python/cuspatial" "CUSPATIAL" "-Dcudf_ROOT=${CUDF_ROOT_ABS}";
 }
 
 export -f build-cuspatial-python;
