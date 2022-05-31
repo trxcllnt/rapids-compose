@@ -89,7 +89,7 @@ elif [ -n "${CHANGED// }" ]; then
     # print the diff to the console for debugging
     diff -wy $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true
     # update the existing environment
-    conda update -n base -c defaults conda
+    conda update -n base -c conda-forge conda
     conda update -n base -c conda-forge mamba
     mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune || CONDA_ENV_UPDATE_FAILED=1
     if [ "$CONDA_ENV_UPDATE_FAILED" -eq "0" ]; then
