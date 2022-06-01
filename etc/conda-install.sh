@@ -111,7 +111,7 @@ fi
 
 if [ "$RECREATE_CONDA_ENV" -eq "1" ]; then
     conda remove -n base mamba
-    mamba env remove --name $ENV_NAME
+    conda env remove --name $ENV_NAME
     FRESH_CONDA_ENV=1
     create-conda-env
 fi
