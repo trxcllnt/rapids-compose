@@ -23,6 +23,10 @@ if [[ "$(which conda)" == "" ]]; then
     conda config --system --remove channels defaults
 fi
 
+if [[ "$(which mamba)" == "" ]]; then
+    conda install -n base -c conda-forge mamba
+fi
+
 ####
 # Diff the conda environment.yml file created when the container was built
 # against the environment.yml that exists in the container's volume mount.
@@ -55,8 +59,7 @@ RECREATE_CONDA_ENV=0
 
 create-conda-env() {
     # create a new environment
-    conda update -n base -c conda-forge conda
-    conda install -n base -c conda-forge mamba
+    mamba update -n base -c conda-forge conda mamba
     mamba env create -n $ENV_NAME --file $INSIDE__ENV_YML
     # copy the conda environment.yml from inside the container to the outside
     cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
@@ -85,7 +88,7 @@ elif [ -n "${CHANGED// }" ]; then
     # print the diff to the console for debugging
     diff -wy $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true
     # update the existing environment
-    conda update -n base -c conda-forge conda mamba && \
+    mamba update -n base -c conda-forge conda mamba && \
         mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune || \
         CONDA_ENV_UPDATE_FAILED=1
     if [ "$CONDA_ENV_UPDATE_FAILED" -eq "0" ]; then
@@ -110,8 +113,8 @@ elif [ -n "${CHANGED// }" ]; then
 fi
 
 if [ "$RECREATE_CONDA_ENV" -eq "1" ]; then
-    conda remove -n base mamba
-    conda env remove --name $ENV_NAME
+    conda install -n base mamba --force-reinstall
+    mamba env remove --name $ENV_NAME
     FRESH_CONDA_ENV=1
     create-conda-env
 fi
