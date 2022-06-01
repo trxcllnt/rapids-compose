@@ -88,9 +88,11 @@ elif [ -n "${CHANGED// }" ]; then
     # print the diff to the console for debugging
     diff -wy $OUTSIDE_ENV_YML $INSIDE__ENV_YML || true
     # update the existing environment
-    mamba update -n base -c conda-forge mamba
-    mamba update -n base -c conda-forge conda
-    mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune || CONDA_ENV_UPDATE_FAILED=1
+    mamba update -n base -c conda-forge mamba \
+    && mamba update -n base -c conda-forge conda \
+    && mamba env update -n $ENV_NAME --file $INSIDE__ENV_YML --prune \
+    || CONDA_ENV_UPDATE_FAILED=1
+
     if [ "$CONDA_ENV_UPDATE_FAILED" -eq "0" ]; then
         # copy the conda environment.yml from inside the container to the outside
         cp $INSIDE__ENV_YML $OUTSIDE_ENV_YML
@@ -113,6 +115,7 @@ elif [ -n "${CHANGED// }" ]; then
 fi
 
 if [ "$RECREATE_CONDA_ENV" -eq "1" ]; then
+    conda install -n base mamba --force-reinstall
     mamba env remove --name $ENV_NAME
     FRESH_CONDA_ENV=1
     create-conda-env
