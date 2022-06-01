@@ -16,8 +16,8 @@ mkdir -p "$CONDA_HOME"
 
 # ensure conda's installed
 if [[ "$(which conda)" == "" ]]; then
-    curl -s -o "$RAPIDS_HOME/miniconda.sh" -L https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    chmod +x "$RAPIDS_HOME/miniconda.sh" && "$RAPIDS_HOME/miniconda.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/miniconda.sh"
+    curl -s -o "$RAPIDS_HOME/mambaforge.sh" -L https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh
+    chmod +x "$RAPIDS_HOME/mambaforge.sh" && "$RAPIDS_HOME/mambaforge.sh" -f -b -p "$CONDA_HOME" && rm "$RAPIDS_HOME/mambaforge.sh"
     conda config --system --set always_yes yes
     conda config --system --set changeps1 False
     conda config --system --remove channels defaults
