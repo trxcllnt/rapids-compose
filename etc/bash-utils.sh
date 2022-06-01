@@ -596,7 +596,7 @@ clean-rmm-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning rmm";
     rm -rf "$RMM_HOME/python/dist" \
-           "$RMM_HOME/python/build";
+           "$RMM_HOME/python/build" \
            "$RMM_HOME/python/_skbuild";
     find "$RMM_HOME" -type f -name '*.pyc' -delete;
     find "$RMM_HOME" -type d -name '__pycache__' -delete;
