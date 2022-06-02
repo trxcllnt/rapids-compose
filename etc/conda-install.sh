@@ -115,7 +115,6 @@ elif [ -n "${CHANGED// }" ]; then
 fi
 
 if [ "$RECREATE_CONDA_ENV" -eq "1" ]; then
-    conda install -n base mamba --force-reinstall
     mamba env remove --name $ENV_NAME
     FRESH_CONDA_ENV=1
     create-conda-env
