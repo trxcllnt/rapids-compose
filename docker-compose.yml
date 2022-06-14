@@ -36,7 +36,7 @@ x-service-settings: &service_settings
     - SYS_PTRACE
   security_opt:
     - apparmor=unconfined
-    - seccomp="${COMPOSE_HOME:-$PWD/compose}/etc/settings/docker-seccomp-with-perf.json"
+    - seccomp=${COMPOSE_HOME:-$PWD/compose}/etc/settings/docker-seccomp-with-perf.json
   depends_on:
     - apt-cacher-ng
   deploy:
