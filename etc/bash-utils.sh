@@ -1348,6 +1348,7 @@ fix-nvcc-clangd-compile-commands() {
 
         mv "$CC_JSON" "$CC_JSON.orig";
 
+        mkdir -p "$CPP_DIR/.vscode"
         cat << EOF > "$CPP_DIR/.vscode/c_cpp_properties.json"
 {
     "version": 4,
