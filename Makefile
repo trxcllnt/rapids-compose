@@ -21,7 +21,7 @@ DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 
 .SILENT: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs dc.apt.cacher.up
 
-all: rapids
+all: rapids notebooks
 
 rapids: rapids.build
 	@$(MAKE_Q) dc.run svc="rapids" cmd_args="-u $(UID):$(GID)" svc_args="bash -c 'build-rapids'"
