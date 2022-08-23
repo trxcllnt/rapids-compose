@@ -702,7 +702,7 @@ export -f clean-cuspatial-python;
 
 docs-rmm-cpp() {
     ARGS="$(update-environment-variables $@)";
-    print-heading "Generating docs for libcudf";
+    print-heading "Generating docs for librmm";
     docs-cpp "$RMM_HOME" "rmm_doc" "$RMM_HOME/cpp/doxygen/html" $ARGS;
 }
 
@@ -750,8 +750,8 @@ export -f docs-cuspatial-cpp;
 
 docs-rmm-python() {
     ARGS="$(update-environment-variables $@)";
-    print-heading "Generating docs for cudf";
-    docs-python "$RMM_HOME/docs" "html" $ARGS;
+    print-heading "Generating docs for rmm";
+    docs-python "$RMM_HOME/python/docs" "html" $ARGS;
 }
 
 export -f docs-rmm-python;
