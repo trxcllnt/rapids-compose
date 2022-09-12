@@ -35,17 +35,40 @@ find-env-file-version() {
     done
 }
 
+find-env-file-version-dfg() {
+    # This function should be used for packages that have migrated to use
+    # rapids-dependency-file-generator
+    ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
+    for YML in $ENVS_DIR/all_cuda-*_arch-x86_64.yaml; do
+        YML="${YML#$ENVS_DIR/}"
+        CONDA_ENV_CUDA_VER=$(echo ${YML} | sed 's/.*cuda-\([0-9][0-9]\)\([0-9]\)_.*/\1.\2/')
+        echo "${CONDA_ENV_CUDA_VER}"
+        break;
+    done
+}
+
 replace-env-versions() {
-    VER=$(find-env-file-version $1)
-    cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda$VER.yml" \
-  | sed -r "s/cudatoolkit=$VER/cudatoolkit=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s/nvcc_linux-64=$VER/nvcc_linux-64=$CUDA_TOOLKIT_VERSION/g" \
-  | sed -r "s!rapidsai/label/cuda$VER!rapidsai/label/cuda$CUDA_TOOLKIT_VERSION!g" \
+    CONDA_ENV_CUDA_VER=$(find-env-file-version $1)
+    cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda${CONDA_ENV_CUDA_VER}.yml" \
+  | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
+  | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
+  | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
+  | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
+}
+
+replace-env-versions-dfg() {
+    # This function should be used for packages that have migrated to use
+    # rapids-dependency-file-generator
+    CONDA_ENV_CUDA_VER=$(find-env-file-version-dfg $1)
+    cat "${RAPIDS_HOME}/$1/conda/environments/all_cuda-${CONDA_ENV_CUDA_VER//./}_arch-x86_64.yaml" \
+  | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
+  | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
+  | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
   | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
 }
 
 YMLS=()
-if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
+if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions-dfg rmm)"   > rmm.yml       && YMLS+=(rmm.yml);       fi;
 if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
 if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
 if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
