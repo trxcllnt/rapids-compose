@@ -20,6 +20,8 @@ x-service-settings: &service_settings
   tty: true
   environment:
     TERM: "${TERM}"
+    _UID: ${_UID:-1000}
+    _GID: ${_GID:-1000}
     # LC_ALL: C
     # Use the host's X11 display
     DISPLAY: "${DISPLAY:-}"
