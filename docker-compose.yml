@@ -6,8 +6,6 @@ x-service-settings: &service_settings
   build: &build_settings
     context: ..
     args:
-      UID: ${_UID:-1000}
-      GID: ${_GID:-1000}
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "${PYTHON_VERSION:-3.9}"
       GCC_VERSION: "${GCC_VERSION:-9}"

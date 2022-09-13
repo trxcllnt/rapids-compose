@@ -9,6 +9,6 @@ RUN apt update --fix-missing \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
  && bash -c "echo -e '#!/bin/bash -e\n\
 exec \"\$COMPOSE_HOME/etc/notebooks/start.sh\" \"\$@\"\n\
-'" > /entrypoint.sh && chown ${_UID}:${_GID} /entrypoint.sh && chmod +x /entrypoint.sh
+'" > /entrypoint.sh && chown rapids:rapids /entrypoint.sh && chmod +x /entrypoint.sh
 
 CMD ["jupyter-lab", "--ip=0.0.0.0", "--no-browser", "--NotebookApp.token=''"]

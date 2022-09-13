@@ -97,10 +97,6 @@ RUN update-alternatives --remove-all cc  >/dev/null 2>&1 || true \
  # Set gcc-${GCC_VERSION} as the default gcc
  && update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION}
 
-ARG UID=1000
-ARG GID=1000
-ENV _UID=${UID}
-ENV _GID=${GID}
 ARG GOSU_VERSION=1.14
 ARG TINI_VERSION=v0.19.0
 ARG CMAKE_VERSION=3.23.1
@@ -156,22 +152,20 @@ RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
              "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
- # Create a rapids user with the same GID/UID as your outside OS user,
- # so you own files created by the container when using volume mounts.
- && groupadd -g ${GID} rapids && useradd -u ${UID} -g rapids \
-    # 1. Set up a rapids home directory
-    # 2. Add this user to the tty group
-    # 3. Assign bash as the login shell
-    -d "$RAPIDS_HOME" -G tty -G sudo -s /bin/bash rapids \
- && echo rapids:rapids | chpasswd \
+ && adduser \
+    --gecos '' \
+    --shell /bin/bash \
+    --home "$RAPIDS_HOME" \
+    --disabled-password rapids \
+ && echo "rapids ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd \
  && chmod 0777 /tmp \
- && chown -R ${_UID}:${_GID} "$RAPIDS_HOME" "$CONDA_HOME" \
+ && chown -R rapids:rapids "$RAPIDS_HOME" "$CONDA_HOME" \
  && chmod -R 0755 /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
  && bash -c "echo -e '#!/bin/bash -e\n\
 exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
 '" > /entrypoint.sh \
  && touch "$RAPIDS_HOME/.bashrc" && touch "$RAPIDS_HOME/.bash_history" \
- && chown ${_UID}:${_GID} /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
+ && chown rapids:rapids /entrypoint.sh "$RAPIDS_HOME/.bashrc" "$RAPIDS_HOME/.bash_history" \
  && chmod +x /entrypoint.sh \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
