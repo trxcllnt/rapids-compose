@@ -148,15 +148,21 @@ ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
 ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
 
+ARG UID
+ARG GID
+ENV UID="$UID"
+ENV GID="$GID"
+
 RUN mkdir -p /var/log "$RAPIDS_HOME" "$CONDA_HOME" \
              "$RAPIDS_HOME" "$RAPIDS_HOME/.conda" "$RAPIDS_HOME/notebooks" \
  # Symlink to root so we have an easy entrypoint from external scripts
  && ln -s "$RAPIDS_HOME" /rapids \
- && adduser \
-    --gecos '' \
+ && groupadd -g $GID -o rapids \
+ && useradd \
+    --uid $UID --gid $GID --no-log-init \
     --shell /bin/bash \
-    --home "$RAPIDS_HOME" \
-    --disabled-password rapids \
+    --home-dir "$RAPIDS_HOME" \
+    rapids \
  && echo "rapids ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd \
  && chmod 0777 /tmp \
  && chown -R rapids:rapids "$RAPIDS_HOME" "$CONDA_HOME" \
