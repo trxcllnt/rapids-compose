@@ -128,7 +128,7 @@ dc:
 		PYTHON_VERSION=$${PYTHON_VERSION:-$(DEFAULT_PYTHON_VERSION)} \
 		RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} \
 		CONDA_CUDA_TOOLKIT_VERSION=$${CONDA_CUDA_TOOLKIT_VERSION:-$$CUDA_VERSION} \
-		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
+		docker compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
 	export CODE_REPOS="rmm raft cudf cuml cugraph cuspatial" && \
