@@ -150,3 +150,5 @@ fi
 
 # activate the $ENV_NAME conda environment
 source activate "$ENV_NAME"
+
+update-environment-variables >/dev/null 2>&1;

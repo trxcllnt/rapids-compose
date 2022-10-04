@@ -8,7 +8,7 @@
 # A wrapper to colorize the output from Nvidia's cuda
 # compiler "nvcc".  This wrapper also outputs messages
 # in gcc format instead of nvcc's format so that tools
-# which parse gcc errors can find filenames and line 
+# which parse gcc errors can find filenames and line
 # numbers (e.g. eclipse).
 #
 # This colornvcc wrapper is based on the colorgcc wrapper:
@@ -33,14 +33,14 @@
 # Note:
 #
 # colornvcc will only emit color codes if:
-# 
+#
 #    (1) Its STDOUT is a tty and
 #    (2) the value of $TERM is not listed in the "nocolor" option.
 #
 # If colornvcc colorizes the output, the compiler's STDERR will be
 # combined with STDOUT. Otherwise, colornvcc just passes the output from
 # the compiler through without modification.
-# 
+#
 # Author: Kristi Tsukida <kristi.tsukida@gmail.com>
 # Started: April 23, 2009
 # Licence: GNU Public License
@@ -60,7 +60,7 @@ use IPC::Open3;
 
 sub initDefaults
 {
-   $compilerPaths{"nvcc"} = "/usr/bin/nvcc";
+   $compilerPaths{"nvcc"} = "/usr/local/bin/nvcc";
 
    $nocolor{"dumb"} = "true";
 
@@ -176,7 +176,7 @@ $compiler = $compilerPaths{$progName} || $compilerPaths{"nvcc"};
 die "$compiler is self-referencing"
         if ( -l $compiler and (stat $compiler)[1] == (stat $0)[1] );
 
-# Get the terminal type. 
+# Get the terminal type.
 $terminal = $ENV{"TERM"} || "dumb";
 
 # If it's in the list of terminal types not to color, or if
@@ -184,7 +184,7 @@ $terminal = $ENV{"TERM"} || "dumb";
 $noColor = "false";
 if (! -t STDOUT || $nocolor{$terminal})
 {
-   $noColor = "true"; 
+   $noColor = "true";
    #exec $compiler, @ARGV
    #   or die("Couldn't exec");
 }
@@ -204,7 +204,7 @@ my $parent_proc_name = (split /\s+/, $parent_proc, 5)[4];
 
 # print "parent_proc_name: $parent_proc_name";
 
-if ($parent_proc_name eq "sh\n") {
+if ($parent_proc_name eq "nvcc\n") {
    foreach my $arg (@ARGV) {
       if ($arg eq "--version") {
         $noColor = "true";
@@ -259,7 +259,7 @@ while(<NVCCOUT>)
          $most_recent_line_no_color = $colors{"errorNumberColor"};
          $most_recent_message_color = $colors{"errorMessageColor"};
       }
-      else 
+      else
       {
          # An intermediate or last line in a warning or error message
          print($most_recent_file_name_color, "$field1", color("reset"), " ");
@@ -281,7 +281,7 @@ while(<NVCCOUT>)
       # No line number, treat as an "introductory" line of text.
       srcscan($_, $colors{"introColor"});
    }
-   else # Anything else.        
+   else # Anything else.
    {
       # Doesn't seem to be a warning or an error. Print normally.
       print(color("reset"), $_);
@@ -291,8 +291,3 @@ while(<NVCCOUT>)
 # Get the return code of the compiler and exit with that.
 waitpid($compiler_pid, 0);
 exit ($? >> 8);
-
-
-
-
-

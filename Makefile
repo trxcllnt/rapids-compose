@@ -17,9 +17,9 @@ DEFAULT_PYTHON_VERSION := 3.9
 DEFAULT_LINUX_VERSION := ubuntu20.04
 DEFAULT_RAPIDS_NAMESPACE := $(shell echo $$USER)
 
-.PHONY: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs dc.apt.cacher.up
+.PHONY: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs
 
-.SILENT: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs dc.apt.cacher.up
+.SILENT: init rapids notebooks rapids.build rapids.run rapids.exec rapids.logs rapids.cudf.run rapids.cudf.pytest rapids.cudf.pytest.debug notebooks.build notebooks.run notebooks.up notebooks.exec notebooks.logs dind dc dc.up dc.run dc.dind dc.exec dc.logs
 
 all: rapids notebooks
 
@@ -35,7 +35,7 @@ rapids.build:
 rapids.run: args ?=
 rapids.run: cmd_args ?=
 rapids.run: work_dir ?= /rapids
-rapids.run: dc.apt.cacher.up
+rapids.run:
 	@$(MAKE_Q) dc.run svc="rapids" svc_args="$(args)" cmd_args="-u $(UID):$(GID) -w $(work_dir) $(cmd_args)"
 
 rapids.exec: args ?=
@@ -70,15 +70,10 @@ notebooks.logs: cmd_args ?= -f
 notebooks.logs:
 	@$(MAKE_Q) dc.logs svc="notebooks" svc_args="$(args)" cmd_args="$(cmd_args)"
 
-dc.apt.cacher.up:
-	@$(MAKE_Q) dc.up svc="apt-cacher-ng" cmd_args="-d"
-
 dc.build: svc ?=
-dc.build: svc_args ?=
-dc.build: cmd_args ?= --pull --force-rm
 dc.build: file ?= docker-compose.yml
-dc.build: dc.apt.cacher.up
-	@$(MAKE_Q) dc.dind cmd="build"
+dc.build:
+	@$(MAKE_Q) dc.dind cmd="build" svc="$(svc)" cmd_args="--progress plain --pull --force-rm"
 
 dc.up: svc ?=
 dc.up: svc_args ?=

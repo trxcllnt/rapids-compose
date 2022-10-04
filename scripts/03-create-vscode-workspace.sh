@@ -177,7 +177,7 @@ cat << EOF
             "--header-insertion=iwyu",
             "--completion-style=detailed",
             "--header-insertion-decorators",
-            "--query-driver=/usr/local/bin/gcc,/usr/local/bin/g++,/usr/local/bin/nvcc,/usr/bin/g++*,/usr/local/cuda*/bin/nvcc"
+            "--query-driver=/usr/bin/gcc*,/usr/bin/g++*,/usr/local/cuda*/bin/nvcc"
         ],
         "search.exclude": {
             "**/.cache": true,

@@ -4,17 +4,14 @@ set -Eeo pipefail
 
 source "$RAPIDS_HOME/.bashrc"
 
-# Create or remove ccache compiler symlinks
-set-gcc-version $GCC_VERSION >/dev/null 2>&1;
-
 # - ensure conda's installed
 # - ensure the notebooks conda env is created/updated/activated
 source "$COMPOSE_HOME/etc/conda-install.sh" notebooks
 
 # activate the notebooks conda environment on bash login
 echo "export CONDA_DEFAULT_ENV=notebooks \
-   && source \"$RAPIDS_HOME/.bashrc\" \
-   && source activate notebooks" \
+   && source \"$RAPIDS_HOME/.bashrc\" >/dev/null 2>&1 \
+   && source activate notebooks >/dev/null 2>&1" \
 > "$RAPIDS_HOME/.bash_login"
 
 if [ "$FRESH_CONDA_ENV" = "1" ]; then
@@ -37,12 +34,4 @@ done
 
 cd "$RAPIDS_HOME/notebooks"
 
-RUN_CMD="$(echo $(eval "echo $@"))"
-
-# Run with gosu because `docker-compose up` doesn't support the --user flag.
-# see: https://github.com/docker/compose/issues/1532
-if [ "$_UID:$_GID" != "$(id -u):$(id -g)" ]; then
-    RUN_CMD="/usr/local/sbin/gosu $_UID:$_GID $RUN_CMD"
-fi;
-
-exec -l ${RUN_CMD}
+exec -l "$@"

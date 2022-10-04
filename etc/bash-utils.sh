@@ -967,9 +967,6 @@ configure-cpp() {
         SOURCE_DIR="$(find-cpp-home $1)";
         BINARY_DIR="$SOURCE_DIR/$(cpp-build-dir $SOURCE_DIR)";
 
-        # Create or remove ccache compiler symlinks
-        set-gcc-version $GCC_VERSION;
-
         mkdir -p "$BINARY_DIR";
 
         export CONDA_PREFIX_="$CONDA_PREFIX";
@@ -992,10 +989,10 @@ configure-cpp() {
 
         unset CCACHE_BASEDIR;
 
-        fix-nvcc-clangd-compile-commands "$SOURCE_DIR" "$BINARY_DIR";
-
         export CONDA_PREFIX="$CONDA_PREFIX_";
         unset CONDA_PREFIX_;
+
+        fix-nvcc-clangd-compile-commands "$SOURCE_DIR" "$BINARY_DIR";
     )
 }
 
@@ -1018,9 +1015,6 @@ export -f build-cpp;
 build-python() {
     (
         cd "$1";
-
-        # Create or remove ccache compiler symlinks
-        set-gcc-version $GCC_VERSION;
 
         CYTHON_FLAGS="${CYTHON_FLAGS:-}";
         CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-reorder";
@@ -1049,9 +1043,6 @@ export -f build-python;
 build-python-new() {
     (
         cd "$1";
-
-        # Create or remove ccache compiler symlinks
-        set-gcc-version $GCC_VERSION;
 
         CYTHON_FLAGS="${CYTHON_FLAGS:-}";
         CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-reorder";
@@ -1170,43 +1161,6 @@ lint-python() {
 }
 
 export -f lint-python;
-
-set-gcc-version() {
-    V="${1:-}";
-    if [[ "$V" != "9" && "$V" != "10" && "$V" != "11" ]]; then
-        while true; do
-            read -p "Please select GCC version 9, 10, or 11: " V </dev/tty
-            if [[ $V != "9" && $V != "10" ]]; then
-                >&2 echo "Invalid GCC version, please select 9, 10, or 11";
-            else
-                break;
-            fi
-        done
-    fi
-    echo "Using gcc-$V and g++-$V"
-    export GCC_VERSION="$V"
-    export CXX_VERSION="$V"
-    export NVCC="/usr/local/bin/nvcc"
-    export CC="/usr/local/bin/gcc-$GCC_VERSION"
-    export CXX="/usr/local/bin/g++-$CXX_VERSION"
-    sudo update-alternatives --set gcc /usr/bin/gcc-${GCC_VERSION} >/dev/null 2>&1;
-    # Create or remove ccache compiler symlinks
-    if [ "$USE_CCACHE" == "YES" ]; then
-        sudo ln -s -f "$(which ccache)" "/usr/local/bin/gcc"                        >/dev/null 2>&1;
-        sudo ln -s -f "$(which ccache)" "/usr/local/bin/g++"                        >/dev/null 2>&1;
-        sudo ln -s -f "$(which ccache)" "/usr/local/bin/nvcc"                       >/dev/null 2>&1;
-        sudo ln -s -f "$(which ccache)" "/usr/local/bin/gcc-$GCC_VERSION"           >/dev/null 2>&1;
-        sudo ln -s -f "$(which ccache)" "/usr/local/bin/g++-$CXX_VERSION"           >/dev/null 2>&1;
-    else
-        sudo ln -s -f "/usr/bin/nvcc" "/usr/local/bin/nvcc"                         >/dev/null 2>&1;
-        sudo ln -s -f "/usr/bin/gcc" "/usr/local/bin/gcc"                           >/dev/null 2>&1;
-        sudo ln -s -f "/usr/bin/g++" "/usr/local/bin/g++"                           >/dev/null 2>&1;
-        sudo ln -s -f "/usr/bin/gcc-$GCC_VERSION" "/usr/local/bin/gcc-$GCC_VERSION" >/dev/null 2>&1;
-        sudo ln -s -f "/usr/bin/g++-$CXX_VERSION" "/usr/local/bin/g++-$CXX_VERSION" >/dev/null 2>&1;
-    fi
-}
-
-export -f set-gcc-version;
 
 test-cpp() {
     (
@@ -1367,7 +1321,7 @@ EOF
 If:
   PathMatch: .*\.(c|h)$
 CompileFlags:
-  Compiler: /usr/bin/gcc-$GCC_VERSION
+  Compiler: $CONDA_PREFIX/bin/gcc
 
 ---
 
@@ -1375,7 +1329,7 @@ CompileFlags:
 If:
   PathMatch: .*\.(c|h)pp$
 CompileFlags:
-  Compiler: /usr/bin/g++-$CXX_VERSION
+  Compiler: $CONDA_PREFIX/bin/g++
 
 ---
 
@@ -1557,10 +1511,8 @@ make-symlink() {
 export -f make-symlink;
 
 update-environment-variables() {
-    GCC_VER="$GCC_VERSION"
     set -a && . "$COMPOSE_HOME/.env" && set +a;
     unset NVIDIA_VISIBLE_DEVICES;
-    export GCC_VERSION="$GCC_VER";
     args=
     tests=
     bench=
@@ -1586,6 +1538,9 @@ update-environment-variables() {
             *) args="${args:+$args }$1";;
         esac; shift;
     done
+    export CC="/usr/local/sbin/gcc"
+    export CXX="/usr/local/sbin/g++"
+    export NVCC="/usr/local/sbin/nvcc"
     export BUILD_RMM="${build_rmm:-$BUILD_RMM}"
     export BUILD_CUDF="${build_cudf:-$BUILD_CUDF}"
     export BUILD_CUML="${build_cuml:-$BUILD_CUML}"
@@ -1626,6 +1581,11 @@ update-environment-variables() {
     if [ -n "${REACTIVATE_ENV// }" ] && [ ${CONDA_PREFIX:-""} != "" ]; then
         source "$CONDA_PREFIX/etc/conda/activate.d/env-vars.sh"
     fi
+
+    export CC="/usr/local/sbin/gcc"
+    export CXX="/usr/local/sbin/g++"
+    export NVCC="/usr/local/sbin/nvcc"
+
     # return the rest of the unparsed args
     echo "$args";
 }

@@ -82,15 +82,12 @@ $CUSPATIAL_HOME/python/cuspatial"
 export OLD_PATH="${OLD_PATH:-$PATH}"
 export OLD_LD_LIBRARY_PATH="${OLD_LD_LIBRARY_PATH:-$LD_LIBRARY_PATH}"
 
-# export PATH="$CONDA_HOME/bin:\
-# $CONDA_PREFIX/bin:\
-# /usr/local/sbin:\
-# /usr/local/bin:\
-# /usr/sbin:\
-# /usr/bin:\
-# /sbin:\
-# /bin:\
-# $CUDA_HOME/bin"
+export PATH="\
+$CONDA_HOME/bin:\
+/usr/local/sbin:/usr/local/bin:\
+$CONDA_PREFIX/bin:\
+/usr/sbin:/usr/bin:/sbin:/bin:\
+$CUDA_HOME/bin"
 
 export LD_LIBRARY_PATH="\
 $CONDA_HOME/envs/rapids/lib:\
