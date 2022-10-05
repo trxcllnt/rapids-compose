@@ -83,9 +83,9 @@ export OLD_PATH="${OLD_PATH:-$PATH}"
 export OLD_LD_LIBRARY_PATH="${OLD_LD_LIBRARY_PATH:-$LD_LIBRARY_PATH}"
 
 export PATH="\
-$CONDA_HOME/bin:\
 /usr/local/sbin:/usr/local/bin:\
 $CONDA_PREFIX/bin:\
+$CONDA_HOME/bin:\
 /usr/sbin:/usr/bin:/sbin:/bin:\
 $CUDA_HOME/bin"
 

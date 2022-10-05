@@ -3,8 +3,8 @@
 shopt -s histappend;
 
 # Infinite bash history
-export HISTSIZE=-1
-export HISTFILESIZE=-1
+export HISTSIZE=
+export HISTFILESIZE=
 export HISTCONTROL=ignoreboth;
 # flush commands to .bash_history immediately
 export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
@@ -21,9 +21,9 @@ export CCACHE_COMPILERCHECK="%compiler% --version";
 export CUDA_BIN_PATH="$CUDA_HOME";
 export CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION}";
 export PATH="\
-$CONDA_HOME/bin:\
 /usr/local/sbin:/usr/local/bin:\
 $CONDA_PREFIX/bin:\
+$CONDA_HOME/bin:\
 /usr/sbin:/usr/bin:/sbin:/bin:\
 $CUDA_HOME/bin"
 
