@@ -4,19 +4,7 @@ ARG RAPIDS_NAMESPACE=anon
 ARG LINUX_VERSION=ubuntu20.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
-FROM ${BASE_CONTAINER}:${CUDA_VERSION}-devel-${LINUX_VERSION} as base
-
-FROM base as amd64-files
-ONBUILD ARG TINI_VERSION=v0.19.0
-ONBUILD ARG CCACHE_VERSION=4.6.3
-ONBUILD ARG FIXUID_VERSION=0.5.1
-ONBUILD ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/src/tini/tini
-ONBUILD ADD https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz /usr/local/src/ccache/ccache.tar.xz
-ONBUILD ADD https://github.com/boxboat/fixuid/releases/download/v${FIXUID_VERSION}/fixuid-${FIXUID_VERSION}-linux-amd64.tar.gz /usr/local/src/fixuid/fixuid.tar.gz
-
-FROM ${TARGETARCH}-files as files
-
-FROM base
+FROM ${BASE_CONTAINER}:${CUDA_VERSION}-devel-${LINUX_VERSION}
 
 ARG USE_FISH_SHELL
 ARG CUDA_SHORT_VERSION
@@ -84,6 +72,10 @@ fi' \
 ARG RAPIDS_HOME
 ARG COMPOSE_HOME
 
+ARG TINI_VERSION=v0.19.0
+ARG CCACHE_VERSION=4.6.3
+ARG FIXUID_VERSION=0.5.1
+
 ENV RAPIDS_HOME="$RAPIDS_HOME"
 ENV COMPOSE_HOME="$COMPOSE_HOME"
 ENV CONDA_HOME="$COMPOSE_HOME/etc/conda/cuda_$CUDA_SHORT_VERSION"
@@ -95,14 +87,12 @@ ENV CUGRAPH_HOME="$RAPIDS_HOME/cugraph"
 ENV CUSPATIAL_HOME="$RAPIDS_HOME/cuspatial"
 ENV NOTEBOOKS_CONTRIB_HOME="$RAPIDS_HOME/notebooks-contrib"
 
-RUN --mount=type=bind,from=files,src=/usr/local/src/tini,target=/usr/local/src/tini \
-    --mount=type=bind,from=files,src=/usr/local/src/ccache,target=/usr/local/src/ccache \
-    --mount=type=bind,from=files,src=/usr/local/src/fixuid,target=/usr/local/src/fixuid \
- # Install tini
-    cp /usr/local/src/tini/tini /usr/bin/tini \
+    # Install tini
+RUN curl -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /usr/bin/tini \
  && chown root:root /usr/bin/tini && chmod 0755 /usr/bin/tini \
  # Install ccache
- && tar -C /usr/bin -f /usr/local/src/ccache/ccache.tar.xz --wildcards --strip-components=1 -x */ccache \
+ && curl -L https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz -o /tmp/ccache.tar.xz \
+ && tar -C /usr/bin -f /tmp/ccache.tar.xz --wildcards --strip-components=1 -x */ccache \
  && chown root:root /usr/bin/ccache && chmod 0755 /usr/bin/ccache \
  # Set up ccache symlinks
  && ln -s -f /usr/bin/ccache /usr/local/sbin/gcc  \
@@ -137,7 +127,8 @@ exec \"\$COMPOSE_HOME/etc/rapids/start.sh\" \"\$@\"\n\
  # Install fixuid
  # https://github.com/boxboat/fixuid#install-fixuid-in-dockerfile
  ################################################################
- && tar -C /usr/bin -xf /usr/local/src/fixuid/fixuid.tar.gz \
+ && curl -L https://github.com/boxboat/fixuid/releases/download/v${FIXUID_VERSION}/fixuid-${FIXUID_VERSION}-linux-amd64.tar.gz -o /tmp/fixuid.tar.gz \
+ && tar -C /usr/bin -xf /tmp/fixuid.tar.gz \
  && chown root:root /usr/bin/fixuid && chmod 4755 /usr/bin/fixuid \
  && mkdir -p /etc/fixuid \
  && bash -c "echo -e '\n\
