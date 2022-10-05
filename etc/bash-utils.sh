@@ -445,7 +445,8 @@ export -f build-cuml-cpp;
 configure-cugraph-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D rmm_ROOT=${RMM_ROOT}
+    config_args="-D USE_CUGRAPH_OPS=OFF
+                 -D rmm_ROOT=${RMM_ROOT}
                  -D raft_ROOT=${RAFT_ROOT}
                  $config_args"
     config_args=$(echo $(echo "$config_args"));
