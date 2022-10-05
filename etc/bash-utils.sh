@@ -396,6 +396,7 @@ configure-raft-cpp() {
     update-environment-variables $@ >/dev/null;
     config_args="-D DETECT_CONDA_ENV=OFF
                  -D rmm_ROOT=${RMM_ROOT}
+                 -D RAFT_USE_FAISS_STATIC=OFF
                  -D DISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  $config_args"
     config_args=$(echo $(echo "$config_args"));
