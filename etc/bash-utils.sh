@@ -1286,18 +1286,26 @@ fix-nvcc-clangd-compile-commands() {
             exit 1;
         fi
 
-        cat "$CC_JSON"                                              \
-        `# Rewrite '-isystem=' to '-isystem '`                      \
-        | sed -r "s/-isystem=/-isystem /g"                          \
-        `# Rewrite /usr/local/bin/gcc to /usr/bin/gcc`              \
-        | sed -r "s@/usr/local/bin/gcc@/usr/bin/gcc@g"              \
-        `# Rewrite /usr/local/bin/g++ to /usr/bin/g++`              \
-        | sed -r "s@/usr/local/bin/g\+\+@/usr/bin/g\+\+@g"          \
-        `# Rewrite /usr/local/bin/nvcc to /usr/local/cuda/bin/nvcc` \
-        | sed -r "s@/usr/local/bin/nvcc@$CUDA_HOME/bin/nvcc@g"      \
-        `# Rewrite /usr/local/cuda to /usr/local/cuda-X.Y`          \
-        | sed -r "s@$CUDA_HOME@$(realpath -m $CUDA_HOME)@g"         \
-        > "$CC_JSON_CLANGD"                                         ;
+        CLANG_CUDA_OPTIONS="--cuda-path=$CUDA_HOME";
+        CLANG_CUDA_OPTIONS="$CLANG_CUDA_OPTIONS -nocudalib";
+        CLANG_CUDA_OPTIONS="$CLANG_CUDA_OPTIONS --cuda-path-ignore-env";
+        CLANG_CUDA_OPTIONS="$CLANG_CUDA_OPTIONS --no-cuda-version-check";
+        CLANG_CUDA_OPTIONS="-x cuda $CLANG_CUDA_OPTIONS";
+
+        cat "$CC_JSON"                                                  \
+        `# Rewrite '-isystem=' to '-isystem '`                          \
+        | sed -r "s/-isystem=/-isystem /g"                              \
+        `# Change '-x cu' to '-x cuda', plus other clangd cuda options` \
+        | sed -r "s! -x cu ! $CLANG_CUDA_OPTIONS !g"                    \
+        `# Rewrite /usr/local/sbin/gcc to /usr/bin/gcc`                 \
+        | sed -r "s@/usr/local/sbin/gcc@/usr/bin/gcc@g"                 \
+        `# Rewrite /usr/local/sbin/g++ to /usr/bin/g++`                 \
+        | sed -r "s@/usr/local/sbin/g\+\+@/usr/bin/g\+\+@g"             \
+        `# Rewrite /usr/local/sbin/nvcc to /usr/local/cuda/bin/nvcc`    \
+        | sed -r "s@/usr/local/sbin/nvcc@$CUDA_HOME/bin/nvcc@g"         \
+        `# Rewrite /usr/local/cuda to /usr/local/cuda-X.Y`              \
+        | sed -r "s@$CUDA_HOME@$(realpath -m $CUDA_HOME)@g"             \
+        > "$CC_JSON_CLANGD"                                             ;
 
         # symlink compile_commands.clangd.json to the project root so clangd can find it
         make-symlink "$CC_JSON_CLANGD" "$CC_JSON_LINK";
@@ -1560,7 +1568,7 @@ update-environment-variables() {
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 
-    export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-}}"
+    export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-NATIVE}}"
     export CMAKE_C_FLAGS="${CFLAGS:+$CFLAGS }-fdiagnostics-color=always"
     export CMAKE_CXX_FLAGS="${CXXFLAGS:+$CXXFLAGS }-fdiagnostics-color=always"
     export CMAKE_CUDA_FLAGS="${CUDAFLAGS:+$CUDAFLAGS }-Xcompiler=-fdiagnostics-color=always"
