@@ -2,6 +2,10 @@
 
 set -Eeo pipefail
 
+if [ -z "$(which conda-merge)" ]; then
+    pip install --no-cache-dir conda-merge==0.1.5;
+fi
+
 cd "$RAPIDS_HOME"
 
 ####

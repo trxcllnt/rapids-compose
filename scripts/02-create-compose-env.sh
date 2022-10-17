@@ -70,7 +70,6 @@ Would you like me to reuse your existing config? (y/n)" "YES")
     echo ""
 fi
 
-GCC_VERSION=${GCC_VERSION:-$(select_version "Please enter your desired GCC version (9/10/11)" "9")}
 CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (11.5.0)" "$CURRENT_CUDA_VERSION")}
 PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.8/3.9)" "3.8")}
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
@@ -81,17 +80,12 @@ BUILD_BENCHMARKS=${BUILD_BENCHMARKS:-$(select_version "Select whether to configu
 
 CONDA_CUDA_TOOLKIT_VERSION=$(echo $CUDA_VERSION | cut -d'.' -f1,2)
 
-USE_CCACHE=${USE_CCACHE:-$(choose_bool_option "Use ccache for C++ builds? (y/n)" "YES")}
-
-if [[ "$USE_CCACHE" == "YES" ]]; then
-    CCACHE_MAXSIZE_MESSAGE="
+CCACHE_MAXSIZE_MESSAGE="
 Select the ccache max cache size.
 The default value is 5G. The default suffix is G. Use 0 for no limit.
 Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
 "
-    CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-$(select_version "$CCACHE_MAXSIZE_MESSAGE" "5G")}
-
-fi
+CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-$(select_version "$CCACHE_MAXSIZE_MESSAGE" "5G")}
 
 BUILD_RMM=${BUILD_RMM:-"YES"}
 BUILD_CUDF=${BUILD_CUDF:-"YES"}
@@ -116,14 +110,11 @@ COMPOSE_HOME=$COMPOSE_HOME
 
 # Build arguments
 BASE_CONTAINER=nvidia/cuda
-GCC_VERSION=$GCC_VERSION
 CUDA_VERSION=$CUDA_VERSION
 CONDA_CUDA_TOOLKIT_VERSION=$CONDA_CUDA_TOOLKIT_VERSION
 PYTHON_VERSION=$PYTHON_VERSION
 LINUX_VERSION=ubuntu20.04
 
-# Whether to use ccache (https://ccache.dev/) to speed up gcc/nvcc build times
-USE_CCACHE=$USE_CCACHE
 # Whether to build C++/cuda tests/benchmarks during \`make rapids\` target
 BUILD_TESTS=$BUILD_TESTS
 BUILD_BENCHMARKS=$BUILD_BENCHMARKS

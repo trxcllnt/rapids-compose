@@ -20,6 +20,7 @@ while [[ "$#" -gt 0 ]]; do
         -q|--quiet) args="${args:+$args }$1";; # Don't print anything to STDOUT
         --build-arg) args="${args:+$args }$1 $2"; shift;; # Set build-time variables for services.
         -m|--memory) args="${args:+$args }$1 $2"; shift;; # Sets memory limit for the build container.
+        --progress) args="${args:+$args }$1 $2"; shift;; # Set type of progress output (auto, tty, plain, quiet) (default "auto")
         *) break;;
     esac; shift;
 done
@@ -27,7 +28,5 @@ done
 file="$file";
 args="$args";
 services=$*;
-
-docker-compose up -d apt-cacher-ng;
 
 exec docker-compose -f $file build $args $services;

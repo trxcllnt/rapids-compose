@@ -8,7 +8,6 @@ x-service-settings: &service_settings
     args:
       BUILD_TESTS: "OFF"
       PYTHON_VERSION: "${PYTHON_VERSION:-3.9}"
-      GCC_VERSION: "${GCC_VERSION:-9}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
@@ -20,8 +19,6 @@ x-service-settings: &service_settings
   tty: true
   environment:
     TERM: "${TERM}"
-    _UID: ${_UID:-1000}
-    _GID: ${_GID:-1000}
     # LC_ALL: C
     # Use the host's X11 display
     DISPLAY: "${DISPLAY:-}"
@@ -37,8 +34,6 @@ x-service-settings: &service_settings
   security_opt:
     - apparmor=unconfined
     - seccomp=${COMPOSE_HOME:-$PWD/compose}/etc/settings/docker-seccomp-with-perf.json
-  depends_on:
-    - apt-cacher-ng
   deploy:
     resources:
       reservations:
@@ -63,7 +58,7 @@ services:
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
-      - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/bin/nvcc"
+      - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/local/bin/nvcc"
       - &dot_colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &dot_local "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.local:${RAPIDS_HOME:-$PWD}/.local"
       - &dot_config "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.config:${RAPIDS_HOME:-$PWD}/.config"
@@ -108,14 +103,3 @@ services:
       - &jupyter "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/.jupyter:${RAPIDS_HOME:-$PWD}/.jupyter"
       - &notebooks_contrib "${RAPIDS_HOME:-$PWD}/notebooks-contrib:${RAPIDS_HOME:-$PWD}/notebooks/contrib"
       - &notebooks_sandbox "${COMPOSE_HOME:-$PWD/compose}/etc/notebooks/sandbox:${RAPIDS_HOME:-$PWD}/notebooks/sandbox"
-
-  apt-cacher-ng:
-    restart: always
-    image: sameersbn/apt-cacher-ng:3.1-3
-    ports:
-    - "3142:3142"
-    volumes:
-    - apt-cache:/var/cache/apt-cacher-ng
-
-volumes:
-  apt-cache:
