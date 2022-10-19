@@ -943,7 +943,7 @@ test-raft-python() {
 export -f test-raft-python;
 
 test-cuml-python() {
-    test-python "$CUML_HOME/python" $@;
+    test-python "$CUML_HOME/python/cuml/tests" $@;
 }
 
 export -f test-cuml-python;
