@@ -513,7 +513,7 @@ export -f build-raft-python;
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuml";
-    build-python "$CUML_HOME/python" --inplace -DFIND_CUML_CPP=ON;
+    build-python-new "$CUML_HOME/python" "CUML";
 }
 
 export -f build-cuml-python;
