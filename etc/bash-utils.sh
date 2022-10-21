@@ -513,7 +513,7 @@ export -f build-raft-python;
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuml";
-    build-python "$CUML_HOME/python" --inplace;
+    build-python-new "$CUML_HOME/python" "CUML";
 }
 
 export -f build-cuml-python;
@@ -943,7 +943,7 @@ test-raft-python() {
 export -f test-raft-python;
 
 test-cuml-python() {
-    test-python "$CUML_HOME/python" $@;
+    test-python "$CUML_HOME/python/cuml/tests" $@;
 }
 
 export -f test-cuml-python;
@@ -1568,7 +1568,7 @@ update-environment-variables() {
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 
-    export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-NATIVE}}"
+    export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-native}}"
     export CMAKE_C_FLAGS="${CFLAGS:+$CFLAGS }-fdiagnostics-color=always"
     export CMAKE_CXX_FLAGS="${CXXFLAGS:+$CXXFLAGS }-fdiagnostics-color=always"
     export CMAKE_CUDA_FLAGS="${CUDAFLAGS:+$CUDAFLAGS }-Xcompiler=-fdiagnostics-color=always"
