@@ -1360,6 +1360,7 @@ CompileFlags:
     # strip CUDA fatbin args
     - "-Xfatbin*"
     # strip CUDA arch flags
+    - "-arch*"
     - "-gencode*"
     - "--generate-code*"
     # strip CUDA flags unknown to clang
