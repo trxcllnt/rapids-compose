@@ -15,9 +15,9 @@ cat << EOF > rapids.yml
 name: rapids
 channels:
 - rapidsai
-- nvidia
 - rapidsai-nightly
 - conda-forge
+- nvidia
 dependencies:
 - cmake>=3.20
 - cmake_setuptools
@@ -98,10 +98,9 @@ cat << EOF > notebooks.yml
 name: notebooks
 channels:
 - rapidsai
-- nvidia
 - rapidsai-nightly
-# - numba
 - conda-forge
+- nvidia
 dependencies:
 - bokeh
 - dask-labextension
