@@ -239,7 +239,8 @@ cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-cugraph) == true ]; then build-cugraph-cpp $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-cpp $@ || exit 1; fi;
         if [ $(should-build-rmm) == true ]; then build-rmm-python $@ || exit 1; fi;
-        if [ $(should-build-raft) == true ]; then build-raft-python $@ || exit 1; fi;
+        if [ $(should-build-raft) == true ]; then build-pylibraft-python $@ || exit 1; fi;
+        if [ $(should-build-raft) == true ]; then build-raft-dask-python $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-python $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
@@ -503,14 +504,21 @@ build-cudf-python() {
 
 export -f build-cudf-python;
 
-build-raft-python() {
+build-pylibraft-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building raft";
     build-python-new "$RAFT_HOME/python/pylibraft" "RAFT";
+}
+
+export -f build-pylibraft-python;
+
+build-raft-dask-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building raft";
     build-python-new "$RAFT_HOME/python/raft-dask" "RAFT";
 }
 
-export -f build-raft-python;
+export -f build-raft-dask-python;
 
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
