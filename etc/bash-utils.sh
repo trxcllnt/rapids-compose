@@ -421,6 +421,7 @@ configure-cuml-cpp() {
                  -D rmm_ROOT=${RMM_ROOT}
                  -D raft_ROOT=${RAFT_ROOT}
                  -D BUILD_CUML_MG_TESTS=OFF
+                 -D CUML_RAFT_CLONE_ON_PIN=OFF
                  -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
@@ -505,7 +506,8 @@ export -f build-cudf-python;
 build-raft-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building raft";
-    build-python-new "$RAFT_HOME/python" "RAFT";
+    build-python-new "$RAFT_HOME/python/pylibraft" "RAFT";
+    build-python-new "$RAFT_HOME/python/raft-dask" "RAFT";
 }
 
 export -f build-raft-python;
@@ -513,7 +515,8 @@ export -f build-raft-python;
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuml";
-    build-python-new "$CUML_HOME/python" "CUML";
+    build-python-new "$CUML_HOME/python" "CUML" \
+        "-Draft_ROOT=${RAFT_ROOT_ABS}";
 }
 
 export -f build-cuml-python;
@@ -521,7 +524,10 @@ export -f build-cuml-python;
 build-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cugraph";
-    build-python "$CUGRAPH_HOME/python/cugraph" --inplace;
+    build-python-new "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
+        "-Draft_ROOT=${RAFT_ROOT_ABS}";
+    build-python-new "$CUGRAPH_HOME/python/cugraph" "CUGRAPH" \
+        "-Draft_ROOT=${RAFT_ROOT_ABS}";
 }
 
 export -f build-cugraph-python;
@@ -641,8 +647,8 @@ clean-raft-python() {
            "$CUGRAPH_HOME/python/cugraph/raft";
     find "$RAFT_HOME" -type f -name '*.pyc' -delete;
     find "$RAFT_HOME" -type d -name '__pycache__' -delete;
-    find "$RAFT_HOME/python/raft" -type f -name '*.so' -delete;
-    find "$RAFT_HOME/python/raft" -type f -name '*.cpp' -delete;
+    find "$RAFT_HOME/python/pylibraft" -type f -name '*.so' -delete;
+    find "$RAFT_HOME/python/raft-dask" -type f -name '*.cpp' -delete;
 }
 
 export -f clean-raft-python;
@@ -984,9 +990,9 @@ configure-cpp() {
               -D CMAKE_PREFIX_PATH="$CONDA_PREFIX_" \
               -D CMAKE_EXPORT_COMPILE_COMMANDS=TRUE \
               -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
-              -D CMAKE_CUDA_ARCHITECTURES="${CUDAARCHS:-}" \
               -D CMAKE_CUDA_FLAGS="$CMAKE_CUDA_FLAGS" \
               -D CMAKE_CXX_FLAGS="$CMAKE_CXX_FLAGS" \
+              -D CMAKE_CUDA_ARCHITECTURES="${CMAKE_CUDA_ARCHITECTURES:-}" \
               ${D_CMAKE_ARGS};
 
         unset CCACHE_BASEDIR;
@@ -1056,10 +1062,15 @@ build-python-new() {
 
         prefix_path=${2}_ROOT
         time env \
-             RAFT_PATH="$RAFT_HOME" \
              CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
              CXXFLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }$CYTHON_FLAGS" \
-             python setup.py build_ext --inplace -- -DFIND_${2}_CPP=ON -DCMAKE_PREFIX_PATH=${!prefix_path} ${@:3} -- -j${PARALLEL_LEVEL} ;
+             SKBUILD_BUILD_OPTIONS="-j${PARALLEL_LEVEL}" \
+             CMAKE_ARGS="${CMAKE_ARGS:+$CMAKE_ARGS } \
+             -DFIND_$(echo "$2" | tr '[:lower:]' '[:upper:]')_CPP=ON \
+             -DFIND_$(echo "$2" | tr '[:upper:]' '[:lower:]')_CPP=ON \
+             -D$(echo "$2" | tr '[:upper:]' '[:lower:]')_ROOT=${!prefix_path} \
+             ${@:3}" \
+             python setup.py build_ext --inplace;
 
         export CONDA_PREFIX="$CONDA_PREFIX_";
         unset CONDA_PREFIX_;
@@ -1569,6 +1580,7 @@ update-environment-variables() {
     export CUGRAPH_ROOT_ABS="$CUGRAPH_HOME/cpp/$(cpp-build-dir $CUGRAPH_HOME)"
     export CUSPATIAL_ROOT_ABS="$CUSPATIAL_HOME/cpp/$(cpp-build-dir $CUSPATIAL_HOME)"
 
+    export CMAKE_CUDA_ARCHITECTURES="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-NATIVE}}"
     export CUDAARCHS="${CUDAARCHS:-${CMAKE_CUDA_ARCHITECTURES:-native}}"
     export CMAKE_C_FLAGS="${CFLAGS:+$CFLAGS }-fdiagnostics-color=always"
     export CMAKE_CXX_FLAGS="${CXXFLAGS:+$CXXFLAGS }-fdiagnostics-color=always"

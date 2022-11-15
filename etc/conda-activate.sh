@@ -74,9 +74,11 @@ export PYTHONPATH="\
 $RMM_HOME/python:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
-$RAFT_HOME/python:\
+$RAFT_HOME/python/pylibraft:\
+$RAFT_HOME/python/raft-dask:\
 $CUML_HOME/python:\
 $CUGRAPH_HOME/python/cugraph:\
+$CUGRAPH_HOME/python/pylibcugraph:\
 $CUSPATIAL_HOME/python/cuspatial"
 
 export OLD_PATH="${OLD_PATH:-$PATH}"

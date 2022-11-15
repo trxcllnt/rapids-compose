@@ -45,6 +45,18 @@ cat << EOF
             "path": "cudf/python/dask_cudf"
         },
         {
+            "name": "raft",
+            "path": "raft"
+        },
+        {
+            "name": "raft-cpp",
+            "path": "raft/cpp"
+        },
+        {
+            "name": "raft-python",
+            "path": "raft/python"
+        },
+        {
             "name": "cugraph",
             "path": "cugraph"
         },
@@ -54,7 +66,7 @@ cat << EOF
         },
         {
             "name": "cugraph-python",
-            "path": "cugraph/python/cugraph"
+            "path": "cugraph/python"
         },
         {
             "name": "cuML",
@@ -67,18 +79,6 @@ cat << EOF
         {
             "name": "cuML-python",
             "path": "cuml/python"
-        },
-        {
-            "name": "raft",
-            "path": "raft"
-        },
-        {
-            "name": "raft-cpp",
-            "path": "raft/cpp"
-        },
-        {
-            "name": "raft-python",
-            "path": "raft/python"
         },
         {
             "name": "cuspatial",
