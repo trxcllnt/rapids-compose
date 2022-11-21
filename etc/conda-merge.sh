@@ -77,7 +77,7 @@ if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions r
 if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions-dfg cudf)"  > cudf.yml      && YMLS+=(cudf.yml);      fi;
 if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
 if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-versions cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
-if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-versions cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
+if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-versions-dfg cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
 YMLS+=(rapids.yml)
 conda-merge ${YMLS[@]} > merged.yml
 
