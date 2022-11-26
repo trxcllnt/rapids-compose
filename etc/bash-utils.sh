@@ -277,7 +277,8 @@ cuSpatial: $(should-build-cuspatial $@)";
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@; fi"
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-python $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-python $@; fi"
-        run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-python $@; fi"
+        run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-dask-python $@; fi"
+        run-in-background "if [ \$(should-build-raft) == true ]; then clean-pylibraft-python $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-python $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-python $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-python $@; fi"
@@ -643,23 +644,37 @@ clean-cudf-python() {
 
 export -f clean-cudf-python;
 
-clean-raft-python() {
+clean-raft-dask-python() {
     update-environment-variables $@ >/dev/null;
-    print-heading "Cleaning raft";
-    rm -rf "$RAFT_HOME/python/dist" \
-           "$RAFT_HOME/python/build" \
-           "$RAFT_HOME/python/_skbuild" \
-           "$RAFT_HOME/python/.hypothesis" \
-           "$RAFT_HOME/python/.pytest_cache" \
-           "$CUML_HOME/python/cuml/raft" \
-           "$CUGRAPH_HOME/python/cugraph/raft";
-    find "$RAFT_HOME" -type f -name '*.pyc' -delete;
-    find "$RAFT_HOME" -type d -name '__pycache__' -delete;
-    find "$RAFT_HOME/python/pylibraft" -type f -name '*.so' -delete;
+    print-heading "Cleaning raft-dask";
+    rm -rf "$RAFT_HOME/python/raft-dask/dist" \
+           "$RAFT_HOME/python/raft-dask/build" \
+           "$RAFT_HOME/python/raft-dask/_skbuild" \
+           "$RAFT_HOME/python/raft-dask/.hypothesis" \
+           "$RAFT_HOME/python/raft-dask/.pytest_cache"
+    find "$RAFT_HOME/python/raft-dask" -type f -name '*.pyc' -delete;
+    find "$RAFT_HOME/python/raft-dask" -type d -name '__pycache__' -delete;
+    find "$RAFT_HOME/python/raft-dask" -type f -name '*.so' -delete;
     find "$RAFT_HOME/python/raft-dask" -type f -name '*.cpp' -delete;
 }
 
-export -f clean-raft-python;
+export -f clean-raft-dask-python;
+
+clean-pylibraft-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning pylibraft";
+    rm -rf "$RAFT_HOME/python/pylibraft/dist" \
+           "$RAFT_HOME/python/pylibraft/build" \
+           "$RAFT_HOME/python/pylibraft/_skbuild" \
+           "$RAFT_HOME/python/pylibraft/.hypothesis" \
+           "$RAFT_HOME/python/pylibraft/.pytest_cache"
+    find "$RAFT_HOME/python/pylibraft" -type f -name '*.pyc' -delete;
+    find "$RAFT_HOME/python/pylibraft" -type d -name '__pycache__' -delete;
+    find "$RAFT_HOME/python/pylibraft" -type f -name '*.so' -delete;
+    find "$RAFT_HOME/python/pylibraft" -type f -name '*.cpp' -delete;
+}
+
+export -f clean-pylibraft-python;
 
 clean-cuml-python() {
     update-environment-variables $@ >/dev/null;
