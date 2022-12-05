@@ -700,15 +700,24 @@ clean-cugraph-python() {
     print-heading "Cleaning cugraph";
     rm -rf "$CUGRAPH_HOME/python/cugraph/dist" \
            "$CUGRAPH_HOME/python/cugraph/build" \
+           "$CUGRAPH_HOME/python/cugraph/_skbuild" \
            "$CUGRAPH_HOME/python/cugraph/.hypothesis" \
-           "$CUGRAPH_HOME/python/cugraph/cugraph/raft" \
            "$CUGRAPH_HOME/python/cugraph/.pytest_cache" \
            "$CUGRAPH_HOME/python/cugraph/_external_repositories" \
            "$CUGRAPH_HOME/python/cugraph/dask-worker-space";
+    rm -rf "$CUGRAPH_HOME/python/pylibcugraph/dist" \
+           "$CUGRAPH_HOME/python/pylibcugraph/build" \
+           "$CUGRAPH_HOME/python/pylibcugraph/_skbuild" \
+           "$CUGRAPH_HOME/python/pylibcugraph/.hypothesis" \
+           "$CUGRAPH_HOME/python/pylibcugraph/.pytest_cache" \
+           "$CUGRAPH_HOME/python/pylibcugraph/_external_repositories" \
+           "$CUGRAPH_HOME/python/pylibcugraph/dask-worker-space";
     find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
     find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete;
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type f -name '*.so' -delete;
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type f -name '*.cpp' -delete;
 }
 
 export -f clean-cugraph-python;
