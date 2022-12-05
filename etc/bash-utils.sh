@@ -534,9 +534,9 @@ build-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cugraph";
     build-python-new "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
-        "-Draft_ROOT=${RAFT_ROOT_ABS}";
+        "-Draft_ROOT=${RAFT_ROOT_ABS} -DUSE_CUGRAPH_OPS=OFF";
     build-python-new "$CUGRAPH_HOME/python/cugraph" "CUGRAPH" \
-        "-Draft_ROOT=${RAFT_ROOT_ABS}";
+        "-Draft_ROOT=${RAFT_ROOT_ABS}-DUSE_CUGRAPH_OPS=OFF";
 }
 
 export -f build-cugraph-python;
