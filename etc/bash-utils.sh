@@ -243,6 +243,7 @@ cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-raft) == true ]; then build-raft-dask-python $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-python $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-python $@ || exit 1; fi;
+        if [ $(should-build-cugraph) == true ]; then build-pylibcugraph-python $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-python $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-python $@ || exit 1; fi;
     )
@@ -280,6 +281,7 @@ cuSpatial: $(should-build-cuspatial $@)";
         run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-dask-python $@; fi"
         run-in-background "if [ \$(should-build-raft) == true ]; then clean-pylibraft-python $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-python $@; fi"
+        run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-pylibcugraph-python $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-python $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-python $@; fi"
 
@@ -530,13 +532,20 @@ build-cuml-python() {
 
 export -f build-cuml-python;
 
+build-pylibcugraph-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building pylibcugraph";
+    build-python-new "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
+        "-Draft_ROOT=${RAFT_ROOT_ABS} -DUSE_CUGRAPH_OPS=OFF";
+}
+
+export -f build-pylibcugraph-python;
+
 build-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cugraph";
-    build-python-new "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
-        "-Draft_ROOT=${RAFT_ROOT_ABS}";
     build-python-new "$CUGRAPH_HOME/python/cugraph" "CUGRAPH" \
-        "-Draft_ROOT=${RAFT_ROOT_ABS}";
+        "-Draft_ROOT=${RAFT_ROOT_ABS} -DUSE_CUGRAPH_OPS=OFF";
 }
 
 export -f build-cugraph-python;
@@ -695,18 +704,36 @@ clean-cuml-python() {
 
 export -f clean-cuml-python;
 
+clean-pylibcugraph-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning pylibcugraph";
+    rm -rf "$CUGRAPH_HOME/python/pylibcugraph/dist" \
+           "$CUGRAPH_HOME/python/pylibcugraph/build" \
+           "$CUGRAPH_HOME/python/pylibcugraph/_skbuild" \
+           "$CUGRAPH_HOME/python/pylibcugraph/.hypothesis" \
+           "$CUGRAPH_HOME/python/pylibcugraph/.pytest_cache" \
+           "$CUGRAPH_HOME/python/pylibcugraph/_external_repositories" \
+           "$CUGRAPH_HOME/python/pylibcugraph/dask-worker-space";
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type f -name '*.pyc' -delete;
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type d -name '__pycache__' -delete;
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type f -name '*.so' -delete;
+    find "$CUGRAPH_HOME/python/pylibcugraph" -type f -name '*.cpp' -delete;
+}
+
+export -f clean-pylibcugraph-python;
+
 clean-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning cugraph";
     rm -rf "$CUGRAPH_HOME/python/cugraph/dist" \
            "$CUGRAPH_HOME/python/cugraph/build" \
+           "$CUGRAPH_HOME/python/cugraph/_skbuild" \
            "$CUGRAPH_HOME/python/cugraph/.hypothesis" \
-           "$CUGRAPH_HOME/python/cugraph/cugraph/raft" \
            "$CUGRAPH_HOME/python/cugraph/.pytest_cache" \
            "$CUGRAPH_HOME/python/cugraph/_external_repositories" \
            "$CUGRAPH_HOME/python/cugraph/dask-worker-space";
-    find "$CUGRAPH_HOME" -type f -name '*.pyc' -delete;
-    find "$CUGRAPH_HOME" -type d -name '__pycache__' -delete;
+    find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.pyc' -delete;
+    find "$CUGRAPH_HOME/python/cugraph" -type d -name '__pycache__' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.so' -delete;
     find "$CUGRAPH_HOME/python/cugraph" -type f -name '*.cpp' -delete;
 }
