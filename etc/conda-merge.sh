@@ -73,7 +73,7 @@ replace-env-versions-dfg() {
 
 YMLS=()
 if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions-dfg rmm)"   > rmm.yml       && YMLS+=(rmm.yml);       fi;
-if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
+if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions-dfg raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
 if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions-dfg cudf)"  > cudf.yml      && YMLS+=(cudf.yml);      fi;
 if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
 if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-versions cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
