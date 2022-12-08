@@ -31,8 +31,8 @@ install_clangd() {
     APT_DEPS="${APT_DEPS:+$APT_DEPS }clangd"
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo_warn apt-key add -
     release=$(lsb_release -cs)
-    echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release-13 main
-deb-src http://apt.llvm.org/$release/ llvm-toolchain-$release-13 main
+    echo "deb http://apt.llvm.org/$release/ llvm-toolchain-$release main
+deb-src http://apt.llvm.org/$release/ llvm-toolchain-$release main
 " | sudo_warn tee /etc/apt/sources.list.d/llvm.list
 }
 
