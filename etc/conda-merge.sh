@@ -29,7 +29,7 @@ EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
 
-find-env-file-version() {
+find-env-file-version-old() {
     ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
     for YML in $ENVS_DIR/${1}_dev_cuda*.yml; do
         YML="${YML#$ENVS_DIR/$1}"
@@ -39,7 +39,7 @@ find-env-file-version() {
     done
 }
 
-find-env-file-version-dfg() {
+find-env-file-version-new() {
     # This function should be used for packages that have migrated to use
     # rapids-dependency-file-generator
     ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
@@ -51,8 +51,8 @@ find-env-file-version-dfg() {
     done
 }
 
-replace-env-versions() {
-    CONDA_ENV_CUDA_VER=$(find-env-file-version $1)
+replace-env-versions-old() {
+    CONDA_ENV_CUDA_VER=$(find-env-file-version-old $1)
     cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda${CONDA_ENV_CUDA_VER}.yml" \
   | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
@@ -60,10 +60,10 @@ replace-env-versions() {
   | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
 }
 
-replace-env-versions-dfg() {
+replace-env-versions-new() {
     # This function should be used for packages that have migrated to use
     # rapids-dependency-file-generator
-    CONDA_ENV_CUDA_VER=$(find-env-file-version-dfg $1)
+    CONDA_ENV_CUDA_VER=$(find-env-file-version-new $1)
     cat "${RAPIDS_HOME}/$1/conda/environments/all_cuda-${CONDA_ENV_CUDA_VER//./}_arch-x86_64.yaml" \
   | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
@@ -71,13 +71,17 @@ replace-env-versions-dfg() {
   | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
 }
 
+replace-env-versions() {
+    replace-env-versions-old $@ 2>/dev/null || replace-env-versions-new $@;
+}
+
 YMLS=()
-if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions-dfg rmm)"   > rmm.yml       && YMLS+=(rmm.yml);       fi;
-if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions-dfg raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
-if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions-dfg cudf)"  > cudf.yml      && YMLS+=(cudf.yml);      fi;
+if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
+if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
+if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
 if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
 if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-versions cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
-if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-versions-dfg cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
+if [ $(should-build-cuspatial) == true ]; then echo -e "$(replace-env-versions cuspatial)" > cuspatial.yml && YMLS+=(cuspatial.yml); fi;
 YMLS+=(rapids.yml)
 conda-merge ${YMLS[@]} > merged.yml
 
