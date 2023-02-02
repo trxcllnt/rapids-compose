@@ -71,7 +71,7 @@ Would you like me to reuse your existing config? (y/n)" "YES")
 fi
 
 CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (11.8.0)" "$CURRENT_CUDA_VERSION")}
-PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.8/3.9)" "3.8")}
+PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.8/3.10)" "3.10")}
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
 PARALLEL_LEVEL=${PARALLEL_LEVEL:-$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")}
 NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")}

@@ -7,7 +7,7 @@ x-service-settings: &service_settings
     context: ..
     args:
       BUILD_TESTS: "OFF"
-      PYTHON_VERSION: "${PYTHON_VERSION:-3.9}"
+      PYTHON_VERSION: "${PYTHON_VERSION:-3.10}"
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
