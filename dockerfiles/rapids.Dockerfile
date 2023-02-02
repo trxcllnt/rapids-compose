@@ -34,8 +34,8 @@ fi' \
     # for building cudf-java
     maven openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre openjdk-8-jre-headless \
     # Install nsight-compute and nsight-systems
-    nsight-compute-2022.2.0 \
-    nsight-systems-2022.1.3 \
+    nsight-compute-2022.4.1 \
+    nsight-systems-2022.4.2 \
     # Not sure what this is but it seems important
     cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
     # This provides the `nsight-sys` GUI
