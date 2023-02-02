@@ -1,5 +1,5 @@
 
-# RAPIDS docker-compose environment for Ubuntu 18.04/20.04
+# RAPIDS docker-compose environment for Ubuntu 20.04/22.04
 
 ## Quick links
 
@@ -13,8 +13,8 @@
 ## Synopsis
 
 This is a collection of scripts for setting up an environment for RAPIDS
-development and notebooks starting from a clean install of Ubuntu 18.04
-or 20.04. It automates the following steps:
+development and notebooks starting from a clean install of Ubuntu 20.04
+or 22.04. It automates the following steps:
 
 1. Installation of dependencies:
    * [Clangd](https://clang.llvm.org/extra/clangd/) - a language server used to
