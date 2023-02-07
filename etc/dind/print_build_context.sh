@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 
 cat << EOF > "/tmp/print_build_context.Dockerfile"
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 RUN mkdir /tmp/build/
 COPY . /tmp/build
 RUN echo Total size: \$(du -sh  /tmp/build) \

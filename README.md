@@ -1,5 +1,5 @@
 
-# RAPIDS docker-compose environment for Ubuntu 18.04/20.04
+# RAPIDS docker-compose environment for Ubuntu 20.04/22.04
 
 ## Quick links
 
@@ -13,8 +13,8 @@
 ## Synopsis
 
 This is a collection of scripts for setting up an environment for RAPIDS
-development and notebooks starting from a clean install of Ubuntu 18.04
-or 20.04. It automates the following steps:
+development and notebooks starting from a clean install of Ubuntu 20.04
+or 22.04. It automates the following steps:
 
 1. Installation of dependencies:
    * [Clangd](https://clang.llvm.org/extra/clangd/) - a language server used to
@@ -169,12 +169,12 @@ there can be conflicts. To solve this:
    (e.g. libcudf.so) from source, but you may not be able to build and use the Python
    bindings/libraries. In this situation, in the `compose/.env` file, you need to set `CUDA_VERSION`
    to the version of the CUDA toolkit you want to use, but set `CONDA_CUDA_TOOLKIT_VERSION` to the
-   latest earlier version for which conda packages exist. So in the case of working with CUDA 11.0
+   latest earlier version for which conda packages exist. So in the case of working with CUDA 12.0
    RC, set
 
    ```dotenv
-   CUDA_VERSION=11.5.1
-   CONDA_CUDA_TOOLKIT_VERSION=11.5
+   CUDA_VERSION=12.0.0
+   CONDA_CUDA_TOOLKIT_VERSION=11.8
    ```
 
 ### DNS Resolution Issues

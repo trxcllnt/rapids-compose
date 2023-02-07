@@ -1,7 +1,7 @@
 ARG BASE_CONTAINER=nvidia/cuda
-ARG CUDA_VERSION=11.5.0
+ARG CUDA_VERSION=11.8.0
 ARG RAPIDS_NAMESPACE=anon
-ARG LINUX_VERSION=ubuntu20.04
+ARG LINUX_VERSION=ubuntu22.04
 ARG CUDA_SHORT_VERSION=${CUDA_VERSION}
 
 FROM ${BASE_CONTAINER}:${CUDA_VERSION}-devel-${LINUX_VERSION}
@@ -34,8 +34,8 @@ fi' \
     # for building cudf-java
     maven openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre openjdk-8-jre-headless \
     # Install nsight-compute and nsight-systems
-    nsight-compute-2022.2.0 \
-    nsight-systems-2022.1.3 \
+    nsight-compute-2022.4.1 \
+    nsight-systems-2022.4.2 \
     # Not sure what this is but it seems important
     cuda-nsight-compute-${NSIGHT_CUDA_VERSION} \
     # This provides the `nsight-sys` GUI
