@@ -153,12 +153,14 @@ dc.print_build_context:
 dind:
 	set -a && . .env && set +a && \
 	export RAPIDS_NAMESPACE=$${RAPIDS_NAMESPACE:-$(DEFAULT_RAPIDS_NAMESPACE)} && \
-	docker build -q \
-		--pull --force-rm \
-		--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
-		--build-arg COMPOSE_HOME="$$COMPOSE_HOME" \
-		-t "$$RAPIDS_NAMESPACE/rapids/dind:latest" \
-		-f dockerfiles/dind.Dockerfile .
+	env 	CUDA_VERSION=$${CUDA_VERSION:-$(DEFAULT_CUDA_VERSION)} \
+		LINUX_VERSION=$${LINUX_VERSION:-$(DEFAULT_LINUX_VERSION)} \
+		docker build -q \
+			--pull --force-rm \
+			--build-arg RAPIDS_HOME="$$RAPIDS_HOME" \
+			--build-arg COMPOSE_HOME="$$COMPOSE_HOME" \
+			-t "$$RAPIDS_NAMESPACE/rapids/dind:latest" \
+			-f dockerfiles/dind.Dockerfile .
 
 # Run docker-compose inside the docker-in-docker container
 dc.dind: svc ?=
