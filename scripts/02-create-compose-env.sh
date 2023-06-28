@@ -48,7 +48,7 @@ fi
 
 GPUS_LIST="$(join-list-contents ', ' `seq 0 $((NUM_GPUS-1))`)"
 
-CURRENT_CUDA_VERSION="11.8.0"
+CURRENT_CUDA_VERSION="12.0.1"
 if [[ "$(which nvcc)" != "" ]]; then
     CURRENT_CUDA_VERSION="$(nvcc --version | head -n4 | tail -n1 | cut -d' ' -f5 | cut -d',' -f1)"
     # Append a patch version ".0" to the end of the major.minor string.
@@ -70,8 +70,8 @@ Would you like me to reuse your existing config? (y/n)" "YES")
     echo ""
 fi
 
-CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (11.8.0)" "$CURRENT_CUDA_VERSION")}
-PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.8/3.10)" "3.10")}
+CUDA_VERSION=${CUDA_VERSION:-$(select_version "Please enter your desired CUDA version (12.0.1)" "$CURRENT_CUDA_VERSION")}
+PYTHON_VERSION=${PYTHON_VERSION:-$(select_version "Please enter your desired Python version (3.9/3.10)" "3.10")}
 CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-$(select_version "Select RAPIDS CMake project built type (Debug/Release)" "Release")}
 PARALLEL_LEVEL=${PARALLEL_LEVEL:-$(select_version "Select how many threads to use for parallel compilation (max: $(nproc))" "$(nproc --ignore=2)")}
 NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-$(select_version "Select which GPU the container should use ($GPUS_LIST)" "0")}
