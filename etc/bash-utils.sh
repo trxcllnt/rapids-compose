@@ -432,7 +432,6 @@ configure-cuml-cpp() {
                  -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
-                 -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
                  -D DISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  $config_args"
     config_args=$(echo $(echo "$config_args"));
