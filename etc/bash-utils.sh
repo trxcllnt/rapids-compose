@@ -499,7 +499,7 @@ export -f build-cuspatial-cpp;
 build-rmm-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building rmm";
-    build-python-new "$RMM_HOME/python" "RMM";
+    build-python "$RMM_HOME/python" "RMM";
 }
 
 export -f build-rmm-python;
@@ -507,7 +507,7 @@ export -f build-rmm-python;
 build-cudf-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cudf";
-    build-python-new "$CUDF_HOME/python/cudf" "CUDF";
+    build-python "$CUDF_HOME/python/cudf" "CUDF";
 }
 
 export -f build-cudf-python;
@@ -515,7 +515,7 @@ export -f build-cudf-python;
 build-pylibraft-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building raft";
-    build-python-new "$RAFT_HOME/python/pylibraft" "RAFT";
+    build-python "$RAFT_HOME/python/pylibraft" "RAFT";
 }
 
 export -f build-pylibraft-python;
@@ -523,7 +523,7 @@ export -f build-pylibraft-python;
 build-raft-dask-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building raft";
-    build-python-new "$RAFT_HOME/python/raft-dask" "RAFT";
+    build-python "$RAFT_HOME/python/raft-dask" "RAFT";
 }
 
 export -f build-raft-dask-python;
@@ -531,7 +531,7 @@ export -f build-raft-dask-python;
 build-cuml-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuml";
-    build-python-new "$CUML_HOME/python" "CUML" \
+    build-python "$CUML_HOME/python" "CUML" \
         "-Draft_ROOT=${RAFT_ROOT_ABS}";
 }
 
@@ -540,7 +540,7 @@ export -f build-cuml-python;
 build-pylibcugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building pylibcugraph";
-    build-python-new "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
+    build-python "$CUGRAPH_HOME/python/pylibcugraph" "CUGRAPH" \
         "-Draft_ROOT=${RAFT_ROOT_ABS} -DUSE_CUGRAPH_OPS=OFF";
 }
 
@@ -549,7 +549,7 @@ export -f build-pylibcugraph-python;
 build-cugraph-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cugraph";
-    build-python-new "$CUGRAPH_HOME/python/cugraph" "CUGRAPH" \
+    build-python "$CUGRAPH_HOME/python/cugraph" "CUGRAPH" \
         "-Draft_ROOT=${RAFT_ROOT_ABS} -DUSE_CUGRAPH_OPS=OFF";
 }
 
@@ -558,7 +558,7 @@ export -f build-cugraph-python;
 build-cuspatial-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cuspatial";
-    build-python-new "$CUSPATIAL_HOME/python/cuspatial" "CUSPATIAL" "-Dcudf_ROOT=${CUDF_ROOT_ABS}";
+    build-python "$CUSPATIAL_HOME/python/cuspatial" "CUSPATIAL" "-Dcudf_ROOT=${CUDF_ROOT_ABS}";
 }
 
 export -f build-cuspatial-python;
@@ -1087,34 +1087,6 @@ build-python() {
         export CONDA_PREFIX_="$CONDA_PREFIX";
         unset CONDA_PREFIX;
 
-        time env \
-             RAFT_PATH="$RAFT_HOME" \
-             CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
-             CXXFLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }$CYTHON_FLAGS" \
-             python setup.py build_ext -j${PARALLEL_LEVEL} ${@:2};
-
-        export CONDA_PREFIX="$CONDA_PREFIX_";
-        unset CONDA_PREFIX_;
-
-        rm -rf ./*.egg-info ./.eggs;
-    )
-}
-
-export -f build-python;
-
-# Once all RAPIDS packages are transitioned to scikit-build we can remove the old build-python
-build-python-new() {
-    (
-        cd "$1";
-
-        CYTHON_FLAGS="${CYTHON_FLAGS:-}";
-        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-reorder";
-        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unknown-pragmas";
-        CYTHON_FLAGS="${CYTHON_FLAGS:+$CYTHON_FLAGS }-Wno-unused-variable";
-
-        export CONDA_PREFIX_="$CONDA_PREFIX";
-        unset CONDA_PREFIX;
-
         prefix_path=${2}_ROOT
         time env \
              CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
@@ -1134,7 +1106,7 @@ build-python-new() {
     )
 }
 
-export -f build-python-new;
+export -f build-python;
 
 docs-cpp() {
     (
