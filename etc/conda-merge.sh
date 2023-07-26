@@ -19,9 +19,6 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cmake>=3.20
-- cmake_setuptools
-- pytest-xdist
 - python=${PYTHON_VERSION}
 - pip:
   - debugpy
