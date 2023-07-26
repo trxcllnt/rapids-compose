@@ -95,7 +95,7 @@ conda-merge ${YMLS[@]} > merged.yml
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rapids-build-env|rapids-notebook-env|rapids-doc-env|rapids-pytest-benchmark)(.*?)$' \
-  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|libraft|pyraft|pylibraft|raft-dask|dask-cudf|cugraph|cuspatial|cuxfilter)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|libraft|pyraft|pylibraft|raft-dask|dask-cudf|cugraph|cuspatial|cuxfilter|cuml)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(\.git\@[^(main|master)])(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml
