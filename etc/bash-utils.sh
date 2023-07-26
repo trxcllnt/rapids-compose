@@ -41,7 +41,6 @@
 #                    determined by their dependence on each other. For example,
 #                    RMM will be built before cuDF because cuDF depends on RMM.
 # clean-rapids - (✝) Remove build artifacts for each enabled RAPIDS project
-# lint-rapids  - (✝) Lint/fix Cython/Python for each enabled RAPIDS project
 #
 ###
 # Commands to build each project separately:
@@ -91,24 +90,6 @@
 # docs-cuml-python      - (✝) Build the cuml library documentation
 # docs-cugraph-python   - (✝) Build the cugraph library documentation
 # docs-cuspatial-python - (✝) Build the cuspatial library documentation
-####
-# Commands to lint each C++ project separately:
-#
-# lint-rmm-cpp        - (✝) Lint/fix the librmm C++/CUDA source files with clang-format
-# lint-cudf-cpp       - (✝) Lint/fix the libcudf C++/CUDA source files with clang-format
-# lint-cuml-cpp       - (✝) Lint/fix the libcuml C++/CUDA source files with clang-format
-# lint-cugraph-cpp    - (✝) Lint/fix the libcugraph C++/CUDA source files with clang-format
-# lint-cuspatial-cpp  - (✝) Lint/fix the libcuspatial C++/CUDA source files with clang-format
-#
-###
-# Commands to lint each Python project separately:
-#
-# lint-rmm-python        - (✝) Lint/fix the rmm Cython and Python source files
-# lint-cudf-python       - (✝) Lint/fix the cudf Cython and Python source files
-# lint-cuml-python       - (✝) Lint/fix the cuml Cython and Python source files
-# lint-cugraph-python    - (✝) Lint/fix the cugraph Cython and Python source files
-# lint-cuspatial-python  - (✝) Lint/fix the cuspatial Cython and Python source files
-#
 ###
 # Commands to run each project's C++ tests:
 #
@@ -294,28 +275,6 @@ cuSpatial: $(should-build-cuspatial $@)";
 }
 
 export -f clean-rapids;
-
-lint-rapids() {
-    (
-        set -Eeo pipefail
-        print-heading "\
-Linting RAPIDS projects: \
-RMM: $(should-build-rmm $@), \
-cuDF: $(should-build-cudf $@), \
-raft: $(should-build-raft $@), \
-cuML: $(should-build-cuml $@), \
-cuGraph: $(should-build-cugraph $@), \
-cuSpatial: $(should-build-cuspatial $@)";
-        if [ $(should-build-rmm) == true ]; then lint-rmm-cpp $@ && lint-rmm-python $@ || exit 1; fi
-        if [ $(should-build-cudf) == true ]; then lint-cudf-cpp $@ && lint-cudf-python $@ || exit 1; fi
-        if [ $(should-build-raft) == true ]; then lint-raft-cpp $@ && lint-raft-python $@ || exit 1; fi
-        if [ $(should-build-cuml) ]; then lint-cuml-cpp $@ && lint-cuml-python $@ || exit 1; fi
-        if [ $(should-build-cugraph) ]; then lint-cugraph-cpp $@ && lint-cugraph-python $@ || exit 1; fi
-        if [ $(should-build-cuspatial) ]; then lint-cuspatial-cpp $@ && lint-cuspatial-python $@ || exit 1; fi
-    )
-}
-
-export -f lint-rapids;
 
 configure-rmm-cpp() {
     config_args="$@"
@@ -859,78 +818,6 @@ docs-cuspatial-python() {
 
 export -f docs-cuspatial-python;
 
-lint-rmm-cpp() {
-    print-heading "Linting librmm" && lint-cpp "$RMM_HOME";
-}
-
-export -f lint-rmm-cpp;
-
-lint-cudf-cpp() {
-    print-heading "Linting libcudf" && lint-cpp "$CUDF_HOME";
-}
-
-export -f lint-cudf-cpp;
-
-lint-raft-cpp() {
-    print-heading "Linting libraft" && lint-cpp "$RAFT_HOME";
-}
-
-export -f lint-raft-cpp;
-
-lint-cuml-cpp() {
-    print-heading "Linting libcuml" && lint-cpp "$CUML_HOME";
-}
-
-export -f lint-cuml-cpp;
-
-lint-cugraph-cpp() {
-    print-heading "Linting libcugraph" && lint-cpp "$CUGRAPH_HOME";
-}
-
-export -f lint-cugraph-cpp;
-
-lint-cuspatial-cpp() {
-    print-heading "Linting libcuspatial" && lint-cpp "$CUSPATIAL_HOME";
-}
-
-export -f lint-cuspatial-cpp;
-
-lint-rmm-python() {
-    print-heading "Linting rmm" && lint-python "$RMM_HOME" --black --isort --flake8;
-}
-
-export -f lint-rmm-python;
-
-lint-cudf-python() {
-    print-heading "Linting cudf" && lint-python "$CUDF_HOME" --black --isort --flake8;
-}
-
-export -f lint-cudf-python;
-
-lint-raft-python() {
-    print-heading "Linting raft" && lint-python "$RAFT_HOME" --flake8;
-}
-
-export -f lint-raft-python;
-
-lint-cuml-python() {
-    print-heading "Linting cuml" && lint-python "$CUML_HOME" --flake8;
-}
-
-export -f lint-cuml-python;
-
-lint-cugraph-python() {
-    print-heading "Linting cugraph" && lint-python "$CUGRAPH_HOME" --flake8;
-}
-
-export -f lint-cugraph-python;
-
-lint-cuspatial-python() {
-    print-heading "Linting cuspatial" && lint-python "$CUSPATIAL_HOME" --black --isort --flake8;
-}
-
-export -f lint-cuspatial-python;
-
 test-rmm-cpp() {
     test-cpp "$(find-cpp-build-home $RMM_HOME)" $@;
 }
@@ -1208,27 +1095,6 @@ docs-python() {
 }
 
 export -f docs-python;
-
-lint-cpp() {
-    (
-        cd "$1";
-        CLANG_FORMAT_PY="$(find -type f -name 'run-clang-format.py' | head -n1)"
-        if [[ "$CLANG_FORMAT_PY" != "" && -f "$CLANG_FORMAT_PY" ]]; then
-            python "$CLANG_FORMAT_PY" -inplace || true;
-        fi
-    )
-}
-
-export -f lint-cpp;
-
-lint-python() {
-    (
-        cd "$1";
-        bash "$COMPOSE_HOME/etc/rapids/lint.sh" ${@:2} || true;
-    )
-}
-
-export -f lint-python;
 
 test-cpp() {
     (
