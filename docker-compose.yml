@@ -11,7 +11,7 @@ x-service-settings: &service_settings
       RAPIDS_HOME: "${RAPIDS_HOME:-$PWD}"
       COMPOSE_HOME: "${COMPOSE_HOME:-$PWD/compose}"
       BASE_CONTAINER: "${BASE_CONTAINER:-nvidia/cuda}"
-      CUDA_VERSION: "${CUDA_VERSION:-11.8.0}"
+      CUDA_VERSION: "${CUDA_VERSION:-12.0.1}"
       RAPIDS_NAMESPACE: "${RAPIDS_NAMESPACE:-anon}"
       LINUX_VERSION: "${LINUX_VERSION:-ubuntu22.04}"
       PARALLEL_LEVEL: "${PARALLEL_LEVEL:-4}"
@@ -45,7 +45,7 @@ services:
 
   rapids:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-11.8.0}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/rapids:cuda-${CUDA_VERSION:-12.0.1}
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/rapids.Dockerfile"
@@ -74,7 +74,7 @@ services:
 
   notebooks:
     <<: *service_settings
-    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-11.8.0}
+    image: rapidsai/${RAPIDS_NAMESPACE:-anon}/notebooks:cuda-${CUDA_VERSION:-12.0.1}
     build:
       <<: *build_settings
       dockerfile: "${COMPOSE_HOME:-$PWD/compose}/dockerfiles/notebooks.Dockerfile"

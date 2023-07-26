@@ -340,8 +340,11 @@ export -f build-rmm-cpp;
 configure-cudf-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
+    # We disable CUPTI support in NVBench because it requires cuda-driver-dev
+    # and breaks minor version compatibility for the resulting builds.
     config_args="-D rmm_ROOT=${RMM_ROOT}
                  -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
+                 -D NVBench_ENABLE_CUPTI=OFF
                  $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libcudf";
@@ -429,7 +432,6 @@ configure-cuml-cpp() {
                  -D BUILD_CUML_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_PRIMS_TESTS=${BUILD_TESTS:-OFF}
                  -D BUILD_CUML_BENCH=${BUILD_BENCHMARKS:-OFF}
-                 -D BUILD_CUML_PRIMS_BENCH=${BUILD_BENCHMARKS:-OFF}
                  -D DISABLE_DEPRECATION_WARNINGS=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  $config_args"
     config_args=$(echo $(echo "$config_args"));
@@ -472,8 +474,11 @@ export -f build-cugraph-cpp;
 configure-cuspatial-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
+    # We disable CUPTI support in NVBench because it requires cuda-driver-dev
+    # and breaks minor version compatibility for the resulting builds.
     config_args="-D rmm_ROOT=${RMM_ROOT}
                  -D cudf_ROOT=${CUDF_ROOT}
+                 -D NVBench_ENABLE_CUPTI=OFF
                  -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  $config_args"
     config_args=$(echo $(echo "$config_args"));

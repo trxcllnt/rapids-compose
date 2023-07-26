@@ -42,18 +42,24 @@ find-env-file-version-old() {
 find-env-file-version-new() {
     # This function should be used for packages that have migrated to use
     # rapids-dependency-file-generator
+
+    # Try to use the environment for the provided CONDA_CUDA_TOOLKIT_VERSION,
+    # otherwise take the most recent environment with matching major version.
     ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
-    for YML in $ENVS_DIR/all_cuda-*_arch-x86_64.yaml; do
-        YML="${YML#$ENVS_DIR/}"
-        CONDA_ENV_CUDA_VER=$(echo ${YML} | sed 's/.*cuda-\([0-9][0-9]\)\([0-9]\)_.*/\1.\2/')
-        echo "${CONDA_ENV_CUDA_VER}"
-        break;
-    done
+    if [[ -f "$ENVS_DIR/all_cuda-${CONDA_CUDA_TOOLKIT_VERSION//./}_arch-x86-64.yaml" ]]; then
+        YML="all_cuda-${CONDA_CUDA_TOOLKIT_VERSION//./}_arch-x86-64.yaml"
+    else
+        CUDA_MAJOR=${CONDA_CUDA_TOOLKIT_VERSION:0:2}
+        YML=$(ls ${ENVS_DIR} | grep -e all_cuda-${CUDA_MAJOR}.*_arch-x86_64\.yaml | sort -g | tail -n1)
+    fi
+    CONDA_ENV_CUDA_VER=$(echo ${YML} | sed 's/.*cuda-\([0-9][0-9]\)\([0-9]\)_.*/\1.\2/')
+    echo "${CONDA_ENV_CUDA_VER}"
 }
 
 replace-env-versions-old() {
     CONDA_ENV_CUDA_VER=$(find-env-file-version-old $1)
     cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda${CONDA_ENV_CUDA_VER}.yml" \
+  | sed -r "s/cuda-version=${CONDA_ENV_CUDA_VER}/cuda-version=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
@@ -65,6 +71,7 @@ replace-env-versions-new() {
     # rapids-dependency-file-generator
     CONDA_ENV_CUDA_VER=$(find-env-file-version-new $1)
     cat "${RAPIDS_HOME}/$1/conda/environments/all_cuda-${CONDA_ENV_CUDA_VER//./}_arch-x86_64.yaml" \
+  | sed -r "s/cuda-version=${CONDA_ENV_CUDA_VER}/cuda-version=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
