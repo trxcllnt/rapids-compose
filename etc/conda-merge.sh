@@ -19,9 +19,6 @@ channels:
 - conda-forge
 - nvidia
 dependencies:
-- cmake>=3.20
-- cmake_setuptools
-- pytest-xdist
 - python=${PYTHON_VERSION}
 - pip:
   - debugpy
@@ -29,17 +26,7 @@ EOF
 
 CUDA_TOOLKIT_VERSION=${CONDA_CUDA_TOOLKIT_VERSION:-$CUDA_SHORT_VERSION};
 
-find-env-file-version-old() {
-    ENVS_DIR="$RAPIDS_HOME/$1/conda/environments"
-    for YML in $ENVS_DIR/${1}_dev_cuda*.yml; do
-        YML="${YML#$ENVS_DIR/$1}"
-        YML="${YML#_dev_cuda}"
-        echo "${YML%*.yml}"
-        break;
-    done
-}
-
-find-env-file-version-new() {
+find-env-file-version() {
     # This function should be used for packages that have migrated to use
     # rapids-dependency-file-generator
 
@@ -56,30 +43,16 @@ find-env-file-version-new() {
     echo "${CONDA_ENV_CUDA_VER}"
 }
 
-replace-env-versions-old() {
-    CONDA_ENV_CUDA_VER=$(find-env-file-version-old $1)
-    cat "$RAPIDS_HOME/$1/conda/environments/$1_dev_cuda${CONDA_ENV_CUDA_VER}.yml" \
-  | sed -r "s/cuda-version=${CONDA_ENV_CUDA_VER}/cuda-version=${CUDA_TOOLKIT_VERSION}/g" \
-  | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
-  | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
-  | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
-  | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
-}
-
-replace-env-versions-new() {
+replace-env-versions() {
     # This function should be used for packages that have migrated to use
     # rapids-dependency-file-generator
-    CONDA_ENV_CUDA_VER=$(find-env-file-version-new $1)
+    CONDA_ENV_CUDA_VER=$(find-env-file-version $1)
     cat "${RAPIDS_HOME}/$1/conda/environments/all_cuda-${CONDA_ENV_CUDA_VER//./}_arch-x86_64.yaml" \
   | sed -r "s/cuda-version=${CONDA_ENV_CUDA_VER}/cuda-version=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/cudatoolkit=${CONDA_ENV_CUDA_VER}/cudatoolkit=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s/nvcc_linux-64=${CONDA_ENV_CUDA_VER}/nvcc_linux-64=${CUDA_TOOLKIT_VERSION}/g" \
   | sed -r "s!rapidsai/label/cuda${CONDA_ENV_CUDA_VER}!rapidsai/label/cuda${CUDA_TOOLKIT_VERSION}!g" \
   | sed -r "s/- python[<>=,\.0-9]*$/- python=${PYTHON_VERSION}/g"
-}
-
-replace-env-versions() {
-    replace-env-versions-old $@ 2>/dev/null || replace-env-versions-new $@;
 }
 
 YMLS=()
@@ -95,7 +68,7 @@ conda-merge ${YMLS[@]} > merged.yml
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rapids-build-env|rapids-notebook-env|rapids-doc-env|rapids-pytest-benchmark)(.*?)$' \
-  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|libraft|pyraft|pylibraft|raft-dask|dask-cudf|cugraph|cuspatial|cuxfilter)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|raft|cuml|cugraph|cuspatial|cuxfilter)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(\.git\@[^(main|master)])(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml
