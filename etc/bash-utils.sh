@@ -975,6 +975,13 @@ build-python() {
         unset CONDA_PREFIX;
 
         prefix_path=${2}_ROOT
+
+        # This default can be removed once all projects have setup.py removed.
+        local cmd="python setup.py build_ext --inplace"
+        if [[ ! -f "setup.py" ]]; then
+            cmd="pip install -e . --no-deps --no-build-isolation"
+        fi
+
         time env \
              CFLAGS="${CMAKE_C_FLAGS:+$CMAKE_C_FLAGS }$CYTHON_FLAGS" \
              CXXFLAGS="${CMAKE_CXX_FLAGS:+$CMAKE_CXX_FLAGS }$CYTHON_FLAGS" \
@@ -984,7 +991,7 @@ build-python() {
              -DFIND_$(echo "$2" | tr '[:upper:]' '[:lower:]')_CPP=ON \
              -D$(echo "$2" | tr '[:upper:]' '[:lower:]')_ROOT=${!prefix_path} \
              ${@:3}" \
-             python setup.py build_ext --inplace;
+             ${cmd}
 
         export CONDA_PREFIX="$CONDA_PREFIX_";
         unset CONDA_PREFIX_;
