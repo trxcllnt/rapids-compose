@@ -14,7 +14,7 @@ for REPO in $CODE_REPOS; do
     fi
     # local-ignore **/compile_commands.json symlinks
     COMPILE_COMMANDS_JSON="**/compile_commands.json"
-    if [ -z `grep compile_commands.json $PWD/$REPO/.git/info/exclude` ]; then
+    if [[ -z `grep compile_commands.json $PWD/$REPO/.git/info/exclude` ]]; then
         echo "$COMPILE_COMMANDS_JSON" >> "$PWD/$REPO/.git/info/exclude"
     fi
 done

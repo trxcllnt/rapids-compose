@@ -58,6 +58,7 @@ replace-env-versions() {
 YMLS=()
 if [ $(should-build-rmm)       == true ]; then echo -e "$(replace-env-versions rmm)"       > rmm.yml       && YMLS+=(rmm.yml);       fi;
 if [ $(should-build-raft)      == true ]; then echo -e "$(replace-env-versions raft)"      > raft.yml      && YMLS+=(raft.yml);      fi;
+if [ $(should-build-kvikio)    == true ]; then echo -e "$(replace-env-versions kvikio)"    > kvikio.yml    && YMLS+=(kvikio.yml);      fi;
 if [ $(should-build-cudf)      == true ]; then echo -e "$(replace-env-versions cudf)"      > cudf.yml      && YMLS+=(cudf.yml);      fi;
 if [ $(should-build-cuml)      == true ]; then echo -e "$(replace-env-versions cuml)"      > cuml.yml      && YMLS+=(cuml.yml);      fi;
 if [ $(should-build-cugraph)   == true ]; then echo -e "$(replace-env-versions cugraph)"   > cugraph.yml   && YMLS+=(cugraph.yml);   fi;
@@ -68,7 +69,7 @@ conda-merge ${YMLS[@]} > merged.yml
 # Strip out cmake + the rapids packages, and save the combined environment
 cat merged.yml \
   | grep -v -P '^(.*?)\-(.*?)(rapids-build-env|rapids-notebook-env|rapids-doc-env|rapids-pytest-benchmark)(.*?)$' \
-  | grep -v -P '^(.*?)\-(.*?)(rmm|cudf|raft|cuml(?!prims)|cugraph(?!ops)|cuspatial|cuxfilter)(.*?)$' \
+  | grep -v -P '^(.*?)\-(.*?)(rmm|kvikio|cudf|raft|cuml(?!prims)|cugraph(?!ops)|cuspatial|cuxfilter)(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(\.git\@[^(main|master)])(.*?)$' \
   | grep -v -P '^(.*?)\-(.*?)(cmake=)(.*?)$' \
   > rapids.yml

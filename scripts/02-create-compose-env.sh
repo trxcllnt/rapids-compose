@@ -88,6 +88,7 @@ Available suffixes: k, M, G, T (decimal), and Ki, Mi, Gi, Ti (binary).
 CCACHE_MAXSIZE=${CCACHE_MAXSIZE:-$(select_version "$CCACHE_MAXSIZE_MESSAGE" "5G")}
 
 BUILD_RMM=${BUILD_RMM:-"YES"}
+BUILD_KVIKIO=${BUILD_KVIKIO:-"YES"}
 BUILD_CUDF=${BUILD_CUDF:-"YES"}
 BUILD_RAFT=${BUILD_RAFT:-$(choose_bool_option "Build raft C++ and Cython? (y/n)" "NO")}
 BUILD_CUML=${BUILD_CUML:-$(choose_bool_option "Build cuML C++ and Cython? (y/n)" "NO")}
@@ -126,6 +127,8 @@ CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 ###
 # Whether to build rmm C++ and Cython
 BUILD_RMM=$BUILD_RMM
+# Whether to build Kvikio C++ and Cython (implies BUILD_RMM=YES)
+BUILD_KVIKIO=$BUILD_KVIKIO
 # Whether to build cuDF C++ and Cython (implies BUILD_RMM=YES)
 BUILD_CUDF=$BUILD_CUDF
 # Whether to build raft C++ and Cython

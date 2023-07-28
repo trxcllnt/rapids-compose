@@ -126,9 +126,10 @@ dc:
 		docker-compose -f $(file) $(cmd) $(cmd_args) $(svc) $(svc_args)
 
 init:
-	export CODE_REPOS="rmm raft cudf cuml cugraph cuspatial" && \
+	export CODE_REPOS="rmm raft kvikio cudf cuml cugraph cuspatial" && \
 	export ALL_REPOS="$$CODE_REPOS notebooks-contrib" && \
 	export PYTHON_DIRS="rmm/python \
+						kvikio/python \
 						raft/python \
 						cuml/python \
 						cugraph/python \
@@ -175,6 +176,7 @@ dc.dind: dind
 	docker run -it --rm --net=host --entrypoint "$$COMPOSE_HOME/etc/dind/$(cmd).sh" \
 		-v "$$COMPOSE_HOME:$$COMPOSE_HOME" \
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
+		-v "$$RAPIDS_HOME/kvikio:$$RAPIDS_HOME/kvikio" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
 		-v "$$RAPIDS_HOME/cuml:$$RAPIDS_HOME/cuml" \
 		-v "$$RAPIDS_HOME/cugraph:$$RAPIDS_HOME/cugraph" \
