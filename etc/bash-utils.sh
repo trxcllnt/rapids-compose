@@ -346,6 +346,7 @@ configure-cudf-cpp() {
     # We disable CUPTI support in NVBench because it requires cuda-driver-dev
     # and breaks minor version compatibility for the resulting builds.
     config_args="-D rmm_ROOT=${RMM_ROOT}
+                 -D KvikIO_ROOT=${KVIKIO_ROOT}
                  -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  -D NVBench_ENABLE_CUPTI=OFF
                  $config_args"
