@@ -58,6 +58,7 @@ services:
       - &cugraph "${RAPIDS_HOME:-$PWD}/cugraph:${RAPIDS_HOME:-$PWD}/cugraph"
       - &cuspatial "${RAPIDS_HOME:-$PWD}/cuspatial:${RAPIDS_HOME:-$PWD}/cuspatial"
       - &bashrc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bashrc:${RAPIDS_HOME:-$PWD}/.bashrc"
+      - &bash_aliases "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/.bash_aliases:${RAPIDS_HOME:-$PWD}/.bash_aliases"
       - &colornvcc "${COMPOSE_HOME:-$PWD/compose}/etc/rapids/colornvcc:/usr/local/bin/nvcc"
       - &dot_colornvccrc "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.colornvccrc:${RAPIDS_HOME:-$PWD}/.colornvccrc"
       - &dot_local "${COMPOSE_HOME:-$PWD/compose}/etc/settings/.local:${RAPIDS_HOME:-$PWD}/.local"
