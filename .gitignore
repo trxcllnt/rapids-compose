@@ -3,7 +3,6 @@
 **/etc/llvm
 **/etc/conda
 **/etc/.ccache
-**/etc/.bash_aliases
 **/etc/settings/.config/*
 **/etc/settings/.ipython/*
 **/etc/settings/.local/share/*
@@ -12,6 +11,7 @@
 **/etc/rapids/include/*
 **/etc/rapids/.vscode/*
 **/etc/rapids/rapids*.yml
+**/etc/rapids/.bash_aliases
 **/etc/rapids/.bash_history
 
 **/etc/notebooks/sandbox/*
