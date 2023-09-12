@@ -843,7 +843,7 @@ test-cudf-java() {
 export -f test-cudf-java;
 
 test-raft-cpp() {
-    cd "$(find-cpp-build-home $RAFT_HOME)" && ./test_raft;
+    test-cpp "$(find-cpp-build-home $RAFT_HOME)" $@;
 }
 
 export -f test-raft-cpp;
