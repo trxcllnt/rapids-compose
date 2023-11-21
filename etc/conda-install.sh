@@ -74,6 +74,7 @@ elif [ -n "${CHANGED// }" ]; then
     (
         cd "$CONDA_HOME/envs/$ENV_NAME/include";
         rm rmm                || true >/dev/null 2>&1;
+        rm kvikio             || true >/dev/null 2>&1;
         rm cudf               || true >/dev/null 2>&1;
         rm raft               || true >/dev/null 2>&1;
         rm raft.hpp           || true >/dev/null 2>&1;
@@ -124,6 +125,7 @@ export FRESH_CONDA_ENV
 
 rm -f "$RAPIDS_HOME/rmm.yml"       || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/raft.yml"      || true >/dev/null 2>&1;
+rm -f "$RAPIDS_HOME/kvikio.yml"    || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cudf.yml"      || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cuml.yml"      || true >/dev/null 2>&1;
 rm -f "$RAPIDS_HOME/cugraph.yml"   || true >/dev/null 2>&1;

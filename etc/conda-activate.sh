@@ -2,9 +2,10 @@
 
 set -Ee
 
-rm -rf "$CONDA_PREFIX"/include/{rmm,cudf,libcudf,cuml,cugraph,cuspatial}
+rm -rf "$CONDA_PREFIX"/include/{rmm,kvikio,raft,cudf,cuml,cugraph,cuspatial}
 
 mkdir -p "$RMM_HOME/build"
+mkdir -p "$KVIKIO_HOME/cpp/build"
 mkdir -p "$CUDF_HOME/cpp/build"
 mkdir -p "$RAFT_HOME/cpp/build"
 mkdir -p "$CUML_HOME/cpp/build"
@@ -17,6 +18,7 @@ make-symlink "$CONDA_HOME/bin" "$COMPOSE_HOME/etc/conda/bin"
 make-symlink "$CONDA_HOME/envs" "$COMPOSE_HOME/etc/conda/envs"
 
 export RMM_INCLUDE="$RMM_HOME/include"
+export KVIKIO_INCLUDE="$KVIKIO_HOME/cpp/include"
 export CUDF_INCLUDE="$CUDF_HOME/cpp/include"
 export CUDF_TEST_INCLUDE="$CUDF_HOME/cpp"
 export RAFT_INCLUDE="$RAFT_HOME/cpp/include"
@@ -27,6 +29,7 @@ export COMPOSE_INCLUDE="$COMPOSE_HOME/etc/rapids/include"
 export CUDF_JNI_INCLUDE="$CUDF_HOME/java/src/main/native/include"
 
 export RMM_ROOT_ABS="$RMM_HOME/$(cpp-build-dir $RMM_HOME)"
+export KVIKIO_ROOT_ABS="$KVIKIO_HOME/cpp/$(cpp-build-dir $KVIKIO_HOME)"
 export CUDF_ROOT_ABS="$CUDF_HOME/cpp/$(cpp-build-dir $CUDF_HOME)"
 export RAFT_ROOT_ABS="$RAFT_HOME/cpp/$(cpp-build-dir $RAFT_HOME)"
 export CUML_ROOT_ABS="$CUML_HOME/cpp/$(cpp-build-dir $CUML_HOME)"
@@ -47,6 +50,7 @@ export CUDF_JNI_ROOT_ABS="$CUDF_HOME/java/src/main/native/$(cpp-build-dir $CUDF_
 ###
 
 export RMM_ROOT="$RMM_HOME/build/$(basename "$RMM_ROOT_ABS")"
+export KVIKIO_ROOT="$KVIKIO_HOME/cpp/build/$(basename "$KVIKIO_ROOT_ABS")"
 export CUDF_ROOT="$CUDF_HOME/cpp/build/$(basename "$CUDF_ROOT_ABS")"
 export RAFT_ROOT="$RAFT_HOME/cpp/build/$(basename "$RAFT_ROOT_ABS")"
 export CUML_ROOT="$CUML_HOME/cpp/build/$(basename "$CUML_ROOT_ABS")"
@@ -54,7 +58,6 @@ export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
 export CUSPATIAL_ROOT="$CUSPATIAL_HOME/cpp/build/$(basename "$CUSPATIAL_ROOT_ABS")"
 export CUDF_JNI_ROOT="$CUDF_HOME/java/src/main/native/build/$(basename "$CUDF_JNI_ROOT_ABS")"
 
-export RMM_LIBRARY="$RMM_ROOT/librmm.so"
 export CUDF_LIBRARY="$CUDF_ROOT/libcudf.so"
 export CUDF_JNI_LIBRARY="$CUDF_JNI_ROOT/libcudfjni.so"
 export CUDFTESTUTIL_LIBRARY="$CUDF_ROOT/libcudftestutil.a"
@@ -72,6 +75,7 @@ export LIBCUDF_KERNEL_CACHE_PATH="$(find-cpp-build-home $CUDF_HOME)/.jitify-cach
 
 export PYTHONPATH="\
 $RMM_HOME/python:\
+$KVIKIO_HOME/python:\
 $CUDF_HOME/python/cudf:\
 $CUDF_HOME/python/dask_cudf:\
 $RAFT_HOME/python/pylibraft:\
@@ -103,6 +107,7 @@ $CUGRAPH_ROOT:\
 $CUSPATIAL_ROOT"
 
 make-symlink "$RMM_ROOT_ABS" "$RMM_ROOT"
+make-symlink "$KVIKIO_ROOT_ABS" "$KVIKIO_ROOT"
 make-symlink "$CUDF_ROOT_ABS" "$CUDF_ROOT"
 make-symlink "$RAFT_ROOT_ABS" "$RAFT_ROOT"
 make-symlink "$CUML_ROOT_ABS" "$CUML_ROOT"
@@ -117,6 +122,7 @@ make-symlink "$CUDF_ROOT/include" "$CUDF_HOME/cpp/build/include"
 # make-symlink "$CUSPATIAL_ROOT/include" "$CUSPATIAL_HOME/cpp/build/include"
 
 make-symlink "$RMM_INCLUDE/rmm" "$CONDA_PREFIX/include/rmm"
+make-symlink "$KVIKIO_INCLUDE/kvikio" "$CONDA_PREFIX/include/kvikio"
 make-symlink "$CUDF_INCLUDE/cudf" "$CONDA_PREFIX/include/cudf"
 make-symlink "$RAFT_INCLUDE/raft" "$CONDA_PREFIX/include/raft"
 make-symlink "$RAFT_INCLUDE/raft.hpp" "$CONDA_PREFIX/include/raft.hpp"
@@ -126,7 +132,6 @@ make-symlink "$CUSPATIAL_INCLUDE/cuspatial" "$CONDA_PREFIX/include/cuspatial"
 
 make-symlink "$COMPOSE_HOME/etc/conda/envs/rapids/include/dlpack" "$COMPOSE_INCLUDE/dlpack"
 
-make-symlink "$RMM_LIBRARY" "$CONDA_PREFIX/lib/$(basename $RMM_LIBRARY)"
 make-symlink "$CUDF_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUDF_LIBRARY)"
 make-symlink "$NVTEXT_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVTEXT_LIBRARY)"
 make-symlink "$CUML_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUML_LIBRARY)"
