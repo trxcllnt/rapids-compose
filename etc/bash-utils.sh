@@ -321,8 +321,6 @@ export -f build-rmm-cpp;
 configure-kvikio-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
-    config_args="-D rmm_ROOT=${RMM_ROOT}
-                 $config_args"
     config_args=$(echo $(echo "$config_args"));
     print-heading "Configuring libkvikio";
     configure-cpp "$KVIKIO_HOME/cpp" "$config_args";

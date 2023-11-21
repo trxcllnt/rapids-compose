@@ -2,7 +2,7 @@
 
 set -Ee
 
-rm -rf "$CONDA_PREFIX"/include/{rmm,kvikio,cudf,libcudf,cuml,cugraph,cuspatial}
+rm -rf "$CONDA_PREFIX"/include/{rmm,kvikio,raft,cudf,cuml,cugraph,cuspatial}
 
 mkdir -p "$RMM_HOME/build"
 mkdir -p "$KVIKIO_HOME/cpp/build"
@@ -58,8 +58,6 @@ export CUGRAPH_ROOT="$CUGRAPH_HOME/cpp/build/$(basename "$CUGRAPH_ROOT_ABS")"
 export CUSPATIAL_ROOT="$CUSPATIAL_HOME/cpp/build/$(basename "$CUSPATIAL_ROOT_ABS")"
 export CUDF_JNI_ROOT="$CUDF_HOME/java/src/main/native/build/$(basename "$CUDF_JNI_ROOT_ABS")"
 
-export RMM_LIBRARY="$RMM_ROOT/librmm.so"
-export KVIKIO_LIBRARY="$KVIKIO_ROOT/libkvikio.so"
 export CUDF_LIBRARY="$CUDF_ROOT/libcudf.so"
 export CUDF_JNI_LIBRARY="$CUDF_JNI_ROOT/libcudfjni.so"
 export CUDFTESTUTIL_LIBRARY="$CUDF_ROOT/libcudftestutil.a"
@@ -134,8 +132,6 @@ make-symlink "$CUSPATIAL_INCLUDE/cuspatial" "$CONDA_PREFIX/include/cuspatial"
 
 make-symlink "$COMPOSE_HOME/etc/conda/envs/rapids/include/dlpack" "$COMPOSE_INCLUDE/dlpack"
 
-make-symlink "$RMM_LIBRARY" "$CONDA_PREFIX/lib/$(basename $RMM_LIBRARY)"
-make-symlink "$KVIKIO_LIBRARY" "$CONDA_PREFIX/lib/$(basename $KVIKIO_LIBRARY)"
 make-symlink "$CUDF_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUDF_LIBRARY)"
 make-symlink "$NVTEXT_LIBRARY" "$CONDA_PREFIX/lib/$(basename $NVTEXT_LIBRARY)"
 make-symlink "$CUML_LIBRARY" "$CONDA_PREFIX/lib/$(basename $CUML_LIBRARY)"

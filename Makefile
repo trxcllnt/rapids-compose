@@ -176,6 +176,7 @@ dc.dind: dind
 	docker run -it --rm --net=host --entrypoint "$$COMPOSE_HOME/etc/dind/$(cmd).sh" \
 		-v "$$COMPOSE_HOME:$$COMPOSE_HOME" \
 		-v "$$RAPIDS_HOME/rmm:$$RAPIDS_HOME/rmm" \
+		-v "$$RAPIDS_HOME/raft:$$RAPIDS_HOME/raft" \
 		-v "$$RAPIDS_HOME/kvikio:$$RAPIDS_HOME/kvikio" \
 		-v "$$RAPIDS_HOME/cudf:$$RAPIDS_HOME/cudf" \
 		-v "$$RAPIDS_HOME/cuml:$$RAPIDS_HOME/cuml" \

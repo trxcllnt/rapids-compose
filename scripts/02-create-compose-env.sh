@@ -127,7 +127,7 @@ CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE
 ###
 # Whether to build rmm C++ and Cython
 BUILD_RMM=$BUILD_RMM
-# Whether to build Kvikio C++ and Cython (implies BUILD_RMM=YES)
+# Whether to build Kvikio C++ and Cython
 BUILD_KVIKIO=$BUILD_KVIKIO
 # Whether to build cuDF C++ and Cython (implies BUILD_RMM=YES)
 BUILD_CUDF=$BUILD_CUDF
