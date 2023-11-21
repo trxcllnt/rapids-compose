@@ -19,11 +19,12 @@
 #       omitted, the corresponding .env configuration will be used.
 #
 # --rmm         Build librmm and rmm
+# --raft        Build libraft, pylibraft, and raft-dask (implies --rmm)
 # --kvikio      Build libkvikio and kvikio
-# --cudf        Build libcudf and cudf (implies --rmm)
+# --cudf        Build libcudf and cudf (implies --rmm and --kvikio)
 # --cuml        Build libcuml and cuml (implies --cudf)
-# --cugraph     Build libcugraph and cugraph (implies --cudf)
-# --cuspatial   Build libcuspatial and cuspatial (implies --cudf)
+# --cugraph     Build libcugraph and cugraph (implies --cudf and --raft)
+# --cuspatial   Build libcuspatial and cuspatial (implies --cudf and --raft)
 # -b, --bench   Build C++ benchmarks
 # -t, --tests   Build C++ unit tests
 # -d, --debug   Build C++ with CMAKE_BUILD_TYPE=Debug
