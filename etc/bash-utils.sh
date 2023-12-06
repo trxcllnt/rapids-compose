@@ -19,10 +19,12 @@
 #       omitted, the corresponding .env configuration will be used.
 #
 # --rmm         Build librmm and rmm
-# --cudf        Build libcudf and cudf (implies --rmm)
+# --raft        Build libraft, pylibraft, and raft-dask (implies --rmm)
+# --kvikio      Build libkvikio and kvikio
+# --cudf        Build libcudf and cudf (implies --rmm and --kvikio)
 # --cuml        Build libcuml and cuml (implies --cudf)
-# --cugraph     Build libcugraph and cugraph (implies --cudf)
-# --cuspatial   Build libcuspatial and cuspatial (implies --cudf)
+# --cugraph     Build libcugraph and cugraph (implies --cudf and --raft)
+# --cuspatial   Build libcuspatial and cuspatial (implies --cudf and --raft)
 # -b, --bench   Build C++ benchmarks
 # -t, --tests   Build C++ unit tests
 # -d, --debug   Build C++ with CMAKE_BUILD_TYPE=Debug
@@ -63,12 +65,14 @@
 # Commands to clean each project separately:
 #
 # clean-rmm-cpp          - (✝) Clean the librmm C++ build artifacts for the current git branch
+# clean-kvikio-cpp       - (✝) Clean the libkvikio C++ build artifacts for the current git branch
 # clean-cudf-cpp         - (✝) Clean the libcudf C++ build artifacts for the current git branch
 # clean-cuml-cpp         - (✝) Clean the libcuml C++ build artifacts for the current git branch
 # clean-cugraph-cpp      - (✝) Clean the libcugraph C++ build artifacts for the current git branch
 # clean-cuspatial-cpp    - (✝) Clean the libcuspatial C++ build artifacts for the current git branch
 #
 # clean-rmm-python       - (✝) Clean the rmm Cython build assets
+# clean-kvikio-python    - (✝) Clean the kvikio Cython build assets
 # clean-cudf-python      - (✝) Clean the cudf Cython build assets
 # clean-cuml-python      - (✝) Clean the cuml Cython build assets
 # clean-cugraph-python   - (✝) Clean the cugraph Cython build assets
@@ -80,12 +84,14 @@
 # Commands to build documentation for each project separately:
 #
 # docs-rmm-cpp          - (✝) Build the librmm C++ library documentation
+# docs-kvikio-cpp       - (✝) Build the libkvikio C++ library documentation
 # docs-cudf-cpp         - (✝) Build the libcudf C++ library documentation
 # docs-cuml-cpp         - (✝) Build the libcuml C++ library documentation
 # docs-cugraph-cpp      - (✝) Build the libcugraph C++ library documentation
 # docs-cuspatial-cpp    - (✝) Build the libcuspatial C++ library documentation
 #
 # docs-rmm-python       - (✝) Build the rmm Python library documentation
+# docs-kvikio-python    - (✝) Build the kvikio Python library documentation
 # docs-cudf-python      - (✝) Build the cudf library documentation
 # docs-cuml-python      - (✝) Build the cuml library documentation
 # docs-cugraph-python   - (✝) Build the cugraph library documentation
@@ -97,6 +103,7 @@
 # Note: Flags are passed to ctest. To see a list of all avaialble flags, run ctest --help
 #
 # test-rmm-cpp        - (✝) Run librmm C++ tests
+# test-kvikio-cpp     - (✝) Run libkvikio C++ tests
 # test-cudf-cpp       - (✝) Run libcudf C++ tests
 # test-cuml-cpp       - (✝) Run libcuml C++ tests
 # test-cugraph-cpp    - (✝) Run libcugraph C++ tests
@@ -116,6 +123,7 @@
 #       to the directory where pytests is run.
 #
 # test-rmm-python        - (✝) Run rmm pytests
+# test-kvikio-python     - (✝) Run kvikio pytests
 # test-cudf-python       - (✝) Run cudf pytests
 # test-cuml-python       - (✝) Run cuml pytests
 # test-cugraph-python    - (✝) Run cugraph pytests
@@ -143,10 +151,17 @@
 
 should-build-rmm() {
     update-environment-variables $@ >/dev/null;
-    $(should-build-cudf) || [ "$BUILD_RMM" == "YES" ] && echo true || echo false;
+    $(should-build-cuml) || $(should-build-cugraph) || $(should-build-cuspatial) || $(should-build-cudf) || [ "$BUILD_RMM" == "YES" ] && echo true || echo false;
 }
 
 export -f should-build-rmm;
+
+should-build-kvikio() {
+    update-environment-variables $@ >/dev/null;
+    $(should-build-cudf) || [ "$BUILD_KVIKIO" == "YES" ] && echo true || echo false;
+}
+
+export -f should-build-kvikio;
 
 should-build-cudf() {
     update-environment-variables $@ >/dev/null;
@@ -189,12 +204,14 @@ configure-rapids() {
         print-heading "\
 Configuring RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
+KVIKIO: $(should-build-kvikio $@), \
 cuDF: $(should-build-cudf $@), \
 raft: $(should-build-raft $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then configure-rmm-cpp $@ || exit 1; fi;
+        if [ $(should-build-kvikio) == true ]; then configure-kvikio-cpp $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then configure-cudf-cpp $@ || exit 1; fi;
         if [ $(should-build-raft) == true ]; then configure-raft-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then configure-cuml-cpp $@ || exit 1; fi;
@@ -209,17 +226,20 @@ build-rapids() {
         print-heading "\
 Building RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
+KVIKIO: $(should-build-kvikio $@), \
 cuDF: $(should-build-cudf $@), \
 cuML: $(should-build-cuml $@), \
 cuGraph: $(should-build-cugraph $@), \
 cuSpatial: $(should-build-cuspatial $@)";
         if [ $(should-build-rmm) == true ]; then build-rmm-cpp $@ || exit 1; fi;
+        if [ $(should-build-kvikio) == true ]; then build-kvikio-cpp $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-cpp $@ || exit 1; fi;
         if [ $(should-build-raft) == true ]; then build-raft-cpp $@ || exit 1; fi;
         if [ $(should-build-cuml) == true ]; then build-cuml-cpp $@ || exit 1; fi;
         if [ $(should-build-cugraph) == true ]; then build-cugraph-cpp $@ || exit 1; fi;
         if [ $(should-build-cuspatial) == true ]; then build-cuspatial-cpp $@ || exit 1; fi;
         if [ $(should-build-rmm) == true ]; then build-rmm-python $@ || exit 1; fi;
+        if [ $(should-build-kvikio) == true ]; then build-kvikio-python $@ || exit 1; fi;
         if [ $(should-build-raft) == true ]; then build-pylibraft-python $@ || exit 1; fi;
         if [ $(should-build-raft) == true ]; then build-raft-dask-python $@ || exit 1; fi;
         if [ $(should-build-cudf) == true ]; then build-cudf-python $@ || exit 1; fi;
@@ -238,6 +258,7 @@ clean-rapids() {
         print-heading "\
 Cleaning RAPIDS projects: \
 RMM: $(should-build-rmm $@), \
+KVIKIO: $(should-build-kvikio $@), \
 cuDF: $(should-build-cudf $@), \
 raft: $(should-build-raft $@), \
 cuML: $(should-build-cuml $@), \
@@ -252,12 +273,14 @@ cuSpatial: $(should-build-cuspatial $@)";
         }
 
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-cpp $@; fi"
+        run-in-background "if [ \$(should-build-kvikio) == true ]; then clean-kvikio-cpp $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-cpp $@; fi"
         run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-cpp $@; fi"
         run-in-background "if [ \$(should-build-cuml) == true ]; then clean-cuml-cpp $@; fi"
         run-in-background "if [ \$(should-build-cugraph) == true ]; then clean-cugraph-cpp $@; fi"
         run-in-background "if [ \$(should-build-cuspatial) == true ]; then clean-cuspatial-cpp $@; fi"
         run-in-background "if [ \$(should-build-rmm) == true ]; then clean-rmm-python $@; fi"
+        run-in-background "if [ \$(should-build-kvikio) == true ]; then clean-kvikio-python $@; fi"
         run-in-background "if [ \$(should-build-cudf) == true ]; then clean-cudf-python $@; fi"
         run-in-background "if [ \$(should-build-raft) == true ]; then clean-raft-dask-python $@; fi"
         run-in-background "if [ \$(should-build-raft) == true ]; then clean-pylibraft-python $@; fi"
@@ -296,12 +319,33 @@ build-rmm-cpp() {
 
 export -f build-rmm-cpp;
 
+configure-kvikio-cpp() {
+    config_args="$@"
+    update-environment-variables $@ >/dev/null;
+    config_args=$(echo $(echo "$config_args"));
+    print-heading "Configuring libkvikio";
+    configure-cpp "$KVIKIO_HOME/cpp" "$config_args";
+}
+
+export -f configure-kvikio-cpp;
+
+build-kvikio-cpp() {
+    configure-kvikio-cpp "$@"
+
+    print-heading "Building libkvikio";
+
+    build-cpp "$KVIKIO_HOME/cpp" "all";
+}
+
+export -f build-kvikio-cpp;
+
 configure-cudf-cpp() {
     config_args="$@"
     update-environment-variables $@ >/dev/null;
     # We disable CUPTI support in NVBench because it requires cuda-driver-dev
     # and breaks minor version compatibility for the resulting builds.
     config_args="-D rmm_ROOT=${RMM_ROOT}
+                 -D KvikIO_ROOT=${KVIKIO_ROOT}
                  -D DISABLE_DEPRECATION_WARNING=${DISABLE_DEPRECATION_WARNINGS:-ON}
                  -D NVBench_ENABLE_CUPTI=OFF
                  $config_args"
@@ -463,6 +507,14 @@ build-rmm-python() {
 
 export -f build-rmm-python;
 
+build-kvikio-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Building kvikio";
+    build-python "$KVIKIO_HOME/python" "KVIKIO";
+}
+
+export -f build-kvikio-python;
+
 build-cudf-python() {
     update-environment-variables $@ >/dev/null;
     print-heading "Building cudf";
@@ -530,6 +582,14 @@ clean-rmm-cpp() {
 
 export -f clean-rmm-cpp;
 
+clean-kvikio-cpp() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning libkvikio";
+    rm -rf "$KVIKIO_ROOT_ABS";
+}
+
+export -f clean-kvikio-cpp;
+
 clean-cudf-cpp() {
     update-environment-variables $@ >/dev/null;
     print-heading "Cleaning libcudf";
@@ -595,6 +655,20 @@ clean-rmm-python() {
 }
 
 export -f clean-rmm-python;
+
+clean-kvikio-python() {
+    update-environment-variables $@ >/dev/null;
+    print-heading "Cleaning kvikio";
+    rm -rf "$KVIKIO_HOME/python/dist" \
+           "$KVIKIO_HOME/python/build" \
+           "$KVIKIO_HOME/python/_skbuild";
+    find "$KVIKIO_HOME" -type f -name '*.pyc' -delete;
+    find "$KVIKIO_HOME" -type d -name '__pycache__' -delete;
+    find "$KVIKIO_HOME/python" -type f -name '*.so' -delete;
+    find "$KVIKIO_HOME/python" -type f -name '*.cpp' -delete;
+}
+
+export -f clean-kvikio-python;
 
 clean-cudf-python() {
     update-environment-variables $@ >/dev/null;
@@ -843,7 +917,7 @@ test-cudf-java() {
 export -f test-cudf-java;
 
 test-raft-cpp() {
-    cd "$(find-cpp-build-home $RAFT_HOME)" && ./test_raft;
+    test-cpp "$(find-cpp-build-home $RAFT_HOME)" $@;
 }
 
 export -f test-raft-cpp;
@@ -1374,6 +1448,7 @@ export -f print-heading;
 find-project-home() {
     PROJECT_HOMES="\
     $RMM_HOME
+    $KVIKIO_HOME
     $CUDF_HOME
     $CUML_HOME
     $RAFT_HOME
