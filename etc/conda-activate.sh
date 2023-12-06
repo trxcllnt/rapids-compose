@@ -73,17 +73,36 @@ export CUGRAPH_BUILD_PATH="$CUGRAPH_ROOT"
 
 export LIBCUDF_KERNEL_CACHE_PATH="$(find-cpp-build-home $CUDF_HOME)/.jitify-cache"
 
-export PYTHONPATH="\
-$RMM_HOME/python:\
-$KVIKIO_HOME/python:\
-$CUDF_HOME/python/cudf:\
-$CUDF_HOME/python/dask_cudf:\
-$RAFT_HOME/python/pylibraft:\
-$RAFT_HOME/python/raft-dask:\
-$CUML_HOME/python:\
-$CUGRAPH_HOME/python/cugraph:\
-$CUGRAPH_HOME/python/pylibcugraph:\
-$CUSPATIAL_HOME/python/cuspatial"
+# Make an array
+PYTHON_PACKAGE_DIRS=(
+    "$RMM_HOME/python"
+    "$KVIKIO_HOME/python"
+    "$CUDF_HOME/python/cudf"
+    "$CUDF_HOME/python/dask_cudf"
+    "$RAFT_HOME/python/pylibraft"
+    "$RAFT_HOME/python/raft-dask"
+    "$CUML_HOME/python"
+    "$CUGRAPH_HOME/python/cugraph"
+    "$CUGRAPH_HOME/python/pylibcugraph"
+    "$CUSPATIAL_HOME/python/cuspatial"
+)
+
+# Function to a path to PYTHONPATH if it contains a setup.py file. Directories
+# not containing one are assumed to be pyproject.toml builds that support true
+# editable installations and do not need to be added to PYTHONPATH.
+function add-python-path() {
+    local path="$1"
+    if [[ -f "${path}/setup.py" ]]; then
+        # Make sure not to add a leading/trailing colon
+        # https://github.com/python/cpython/issues/107353
+        PYTHONPATH="${PYTHONPATH}${PYTHONPATH:+:}${path}"
+    fi
+}
+PYTHONPATH=""
+for mod in "${PYTHON_PACKAGE_DIRS[@]}"; do
+    add-python-path "${mod}"
+done
+export PYTHONPATH
 
 export OLD_PATH="${OLD_PATH:-$PATH}"
 export OLD_LD_LIBRARY_PATH="${OLD_LD_LIBRARY_PATH:-$LD_LIBRARY_PATH}"
